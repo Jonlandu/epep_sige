@@ -1,4 +1,4 @@
-import 'package:epsp_sige/pages/home/widgets/DynamiqueMultiSetpForm.dart';
+import 'package:epsp_sige/pages/formsSt1/dynamic_multi_step_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -310,7 +310,7 @@ class _FormListPageState extends State<FormListPage> {
           appBar: AppBar(
             title: Text(form['title']),
           ),
-          body: DynamiqueMultiSetpForm(), // Utilisation de votre formulaire comme corps
+          body: DynamiqueMultiStepForm(), // Utilisation de votre formulaire comme corps
         ),
       ),
     );
