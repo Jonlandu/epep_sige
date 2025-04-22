@@ -1,4 +1,5 @@
 import 'package:epsp_sige/pages/home/widgets/AccordionButton.dart';
+import 'package:epsp_sige/settings/SettingsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:epsp_sige/controllers/UserController.dart';
 import 'package:epsp_sige/pages/home/NavigationDrawerMenu.dart';
@@ -48,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: _showUserProfile,
             child: CircleAvatar(
               radius: 20,
-              backgroundImage: user?.image != null
-                  ? NetworkImage(user!.image!)
+              backgroundImage: user?.photo != null
+                  ? NetworkImage(user!.photo!)
                   : const AssetImage('assets/avatard.png') as ImageProvider,
             ),
           ),
@@ -136,13 +137,13 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundImage: user?.image != null
-                    ? NetworkImage(user!.image!)
+                backgroundImage: user?.photo != null
+                    ? NetworkImage(user!.photo!)
                     : const AssetImage('assets/avatard.png') as ImageProvider,
               ),
               const SizedBox(height: 16),
               Text(
-                user?.fullName ?? 'Administrateur',
+                user?.nom ?? 'Administrateur',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -159,7 +160,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Paramètres'),
-                onTap: () {},
+                onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.logout),

@@ -24,6 +24,9 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       var userCtrl = context.read<UserController>();
+      // Charge d'abord les données stockées
+      userCtrl.loadStoredUserData();
+      // Ensuite appelle l'API pour les données fraîches
       userCtrl.getDataAPI();
     });
   }

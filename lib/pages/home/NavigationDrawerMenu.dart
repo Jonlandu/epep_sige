@@ -58,10 +58,12 @@ class _NavigationDrawerMenuState extends State<NavigationDrawerMenu> {
       children: [
         CircleAvatar(
           radius: 52,
-          backgroundImage: AssetImage("${userCtrl.user?.image == null ? "assets/avatard.png" : userCtrl.user?.image!}"),
+          backgroundImage: userCtrl.user?.photo != null
+              ? NetworkImage(userCtrl.user!.photo!)
+              : const AssetImage('assets/avatard.png') as ImageProvider,
         ),
         SizedBox(height: 12,),
-        Text('${userCtrl.user?.fullName==null ? "Fullname : null" : userCtrl.user?.fullName}',
+        Text('${userCtrl.user?.nom==null ? "Fullname : null" : userCtrl.user?.nom}',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 23,

@@ -91,6 +91,44 @@ Future<HttpResponse> postData(String api_url, Map data, {String? token}) async {
   }
 }
 
+Future<HttpResponse> postDataLogin(String api_url, Map data, {String? token}) async {
+  try {
+    var url = Uri.parse("${Constantes.BASE_URL}$api_url");
+    String dataStr = json.encode(data);
+
+    // Ne pas inclure le header Authorization si le token est null
+    var headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token != null) {
+      headers["Authorization"] = "Bearer $token";
+    }
+
+    var response = await http.post(
+        url,
+        body: dataStr,
+        headers: headers
+    ).timeout(Duration(seconds: 10));
+
+    var successList = [200, 201];
+    var msg = json.decode(response.body);
+    var st = successList.contains(response.statusCode);
+
+    if (response.statusCode == 500) throw Exception(msg);
+    print("Josue nlandu Lucien ma reponse: ${response.body}");
+    return HttpResponse(status: st, data: msg);
+  } catch (e, trace) {
+    print("Error: $e");
+    print("Stack trace: $trace");
+    return HttpResponse(
+        status: false,
+        errorMsg: "Unexpected error, connexion's problem",
+        isException: true
+    );
+  }
+}
+
 Future<HttpResponse> updateData(String endpoint, Map data, {String? token}) async {
   try {
     final url = "${Constantes.BASE_URL}$endpoint";
