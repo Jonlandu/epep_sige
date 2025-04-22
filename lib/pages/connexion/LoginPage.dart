@@ -15,19 +15,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool isButtonPressedSignUp = false;
   bool iSButtonPressedSignIn = false;
-  bool isButtonPressedLoginwithphonenumber = false;
-  bool isButtonPressedSkipfornow = false;
-  bool isButtonPressedForgotpassword = false;
-  bool isButtonPressedFindyouraccount = false;
 
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController();
-  var password = TextEditingController();
-  var appname = "FINCOPAY";
+  var email = TextEditingController(text: 'josuenlandu@esige.com');
+  var password = TextEditingController(text: 'Josue12345');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;
@@ -243,45 +237,52 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> LoginPressed() async {
-    FocusScope.of(context).requestFocus(new FocusNode());
+    FocusScope.of(context).requestFocus(FocusNode());
     if (!formKey.currentState!.validate()) {
       return;
     }
 
-    isVisible = true;
     setState(() {
+      isVisible = true;
       isLoadingWaitingAPIResponse = true;
     });
 
-    var ctrl = context.read<UserController>();
-    Map data = {
-      "email": email.text,
-      "password": password.text,
-      "appName": appname,
-    };
+    try {
+      final ctrl = context.read<UserController>();
+      final Map<String, dynamic> data = {
+        "username": email.text.trim(),
+        "password": password.text.trim()
+      };
 
-    var response = await ctrl.login(data);
-    await Future.delayed(Duration(seconds: 1));
+      final response = await ctrl.login(data); // This already calls _handleLoginResponse internally
 
-    isVisible = false;
-    setState(() {});
-    // Navigator.pushNamedAndRemoveUntil(context, Routes.BottomNavigationPageRoutes, ModalRoute.withName('/loginpage'),);
-    // if (response.status) {
-    if (true) {
-      await Future.delayed(Duration(seconds: 3));
-      setState(() {});
-      Navigator.pushNamedAndRemoveUntil(context, Routes.BottomNavigationPageRoutes, ModalRoute.withName('/loginpage'),);
+      //if (response.status) {
+      if (true) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          Routes.BottomNavigationPageRoutes,
+          ModalRoute.withName('/loginpage'),
+        );
 
-      var msg = (response.data?['message'] ?? "You're login");
-      MessageWidgetsSuccess.showSnack(context, msg);
+        MessageWidgetsSuccess.showSnack(
+            context,
+            response.data?['message'] ?? "Connexion réussie"
+        );
+      } else {
+        final errorMsg = (response.isException ?? false)
+            ? (response.errorMsg ?? "Erreur inconnue")
+            : (response.data?['message'] ?? "Échec de la connexion");
 
-    } else {
-      var msg = response.isException == true ? response.errorMsg : (response.data?['message']);
-      MessageWidgets.showSnack(context, msg);
+        MessageWidgets.showSnack(context, errorMsg);
+      }
+    } catch (e) {
+      MessageWidgets.showSnack(context, "Erreur inattendue: ${e.toString()}");
+    } finally {
+      setState(() {
+        isVisible = false;
+        isLoadingWaitingAPIResponse = false;
+      });
     }
-    setState(() {
-      isLoadingWaitingAPIResponse = false;
-    });
   }
 
   void _handleLoginPressed() async {

@@ -4,10 +4,12 @@ import 'package:epsp_sige/utils/Queries.dart';
 import 'package:epsp_sige/utils/StockageKeys.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:core';
+import 'dart:convert'; // Ajoutez cette ligne
 import 'package:get_storage/get_storage.dart';
 
 class UserController with ChangeNotifier {
   UserModel? user;
+  bool initialLoadCompleted = false;
   String? token;
   bool loading = false;
   GetStorage? stockage = GetStorage();
@@ -30,41 +32,55 @@ class UserController with ChangeNotifier {
 
   Future<HttpResponse> login(Map data) async {
     var url = "${Endpoints.login}";
-    HttpResponse response = await postData(url, data);
+    HttpResponse response = await postDataLogin(url, data);
     if (response.status) {
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      print("TOKEN LOGIN CONTROLLER ::::::::::::::::::: ${response.data?["accessToken"]}");
+      // Stockage des tokens
+      stockage?.write(StockageKeys.tokenKey, response.data?["access"] ?? "");
+      stockage?.write(StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
+
+      // Stockage des infos utilisateur
+      var userData = response.data?["user"];
+      if (userData != null) {
+        stockage?.write(StockageKeys.userDataKey, json.encode(userData));
+      }
+
       notifyListeners();
     }
     return response;
   }
 
-  Future<HttpResponse> register(Map data) async{
-    var url = "${Endpoints.register}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      stockage?.write(StockageKeys.userKey, response.data?['data']['userId'] ?? {});
-      notifyListeners();
+  void loadStoredUserData() {
+    var userData = stockage?.read(StockageKeys.userDataKey);
+    if (userData != null) {
+      try {
+        user = UserModel.fromJson(json.decode(userData));
+        notifyListeners();
+      } catch (e) {
+        print("Error loading stored user data: $e");
+      }
     }
-    return response;
   }
 
-  void getDataAPI() async {
-    var token = stockage?.read(StockageKeys.tokenKey);
-    var url = Endpoints.userDetails;
+  Future<void> getDataAPI() async {
     loading = true;
     notifyListeners();
-    var response = await getData(url, token: token);
-    if (response != null && response is Map<String, dynamic>) {
-      if (response.containsKey("data")) {
-        user = UserModel.fromJson(response["data"] ?? {});
-        print("USER INFO ::::::::::::::::::: ${user?.fullName}");
-        printWrapped("PRINT WRAP DE RESPONSE.DATA : ${response["data"]}");
+
+    try {
+      var token = stockage?.read(StockageKeys.tokenKey);
+      var response = await getData(Endpoints.userDetails, token: token);
+
+      if (response != null && response is Map<String, dynamic>) {
+        if (response.containsKey("data")) {
+          user = UserModel.fromJson(response["data"] ?? {});
+        }
       }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    } finally {
+      loading = false;
+      initialLoadCompleted = true;
       notifyListeners();
     }
-    loading = false;
-    notifyListeners();
   }
 
   Future<HttpResponse> logout(Map data) async{
@@ -76,160 +92,6 @@ class UserController with ChangeNotifier {
       notifyListeners();
     }
     print(response.data);
-    return response;
-  }
-
-  Future<HttpResponse> verifyOTPRequest(Map data) async {
-    var url = "${Endpoints.verifyOTP}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      var userData = response.data?['user'];
-      if (userData != null) {
-        user = UserModel.fromJson(userData);
-      }
-      //user = UserModel.fromJson(response.data?['user'] ?? {});
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      //stockage?.read(StockageKeys.tokenKey, response.data?['user']);
-      printWrapped("VERIFY OTP RESPONSE : $user");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> PhoneNumberverifyOTPRequest(Map data) async {
-    var url = "${Endpoints.verifyLoginOTPPhoneNumber}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      var userData = response.data?['user'];
-      if (userData != null) {
-        user = UserModel.fromJson(userData);
-      }
-      //user = UserModel.fromJson(response.data?['user'] ?? {});
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      //stockage?.read(StockageKeys.tokenKey, response.data?['user']);
-      printWrapped("VERIFY OTP RESPONSE : $user");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> ResendPhoneNumberverifyOTPRequest(Map data) async {
-    var url = "${Endpoints.resendVerifyLoginOTPPhoneNumber}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      var userData = response.data?['user'];
-      if (userData != null) {
-        user = UserModel.fromJson(userData);
-      }
-      //user = UserModel.fromJson(response.data?['user'] ?? {});
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      //stockage?.read(StockageKeys.tokenKey, response.data?['user']);
-      printWrapped("VERIFY OTP RESPONSE : $user");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> resendVerifyOTPRequest(Map data) async {
-    var url = "${Endpoints.resend_requestPasswordReset_OTP}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      var userData = response.data?['user'];
-      if (userData != null) {
-        user = UserModel.fromJson(userData);
-      }
-      //user = UserModel.fromJson(response.data?['user'] ?? {});
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      //stockage?.read(StockageKeys.tokenKey, response.data?['user']);
-      printWrapped("VERIFY OTP RESPONSE : $user");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> verifyOTPRequestSignUp(Map data) async {
-    var url = "${Endpoints.verifyOTPRegister}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      var userData = response.data?['user'];
-      if (userData != null) {
-        user = UserModel.fromJson(userData);
-      }
-      //user = UserModel.fromJson(response.data?['user'] ?? {});
-      stockage?.write(StockageKeys.tokenKey, response.data?["accessToken"] ?? "");
-      //stockage?.read(StockageKeys.tokenKey, response.data?['user']);
-      printWrapped("VERIFY OTP RESPONSE : $user");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> requestOTPPhoneNumber(Map data) async {
-    var url = "${Endpoints.login_with_phoneNumber}";
-    HttpResponse response = await postData(url, data);
-    //printWrapped("REQUEST OTP : ${response.data}");
-    //print("TEST OF MY FUNCTIONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
-    if (response.status) {
-      stockage?.write(StockageKeys.userKey, response.data?['data']['userId'] ?? {});
-      printWrapped("REQUEST OTP VOICI : ${response.data}");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> ResendOTPForLoginWithPhoneNumber(Map data) async {
-    var url = "${Endpoints.resend_login_OTP}";
-    HttpResponse response = await postData(url, data);
-    if (response.status) {
-      stockage?.write(StockageKeys.userKey, response.data?['data']['userId'] ?? {});
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> SendOTPRequest(Map data) async {
-    var url = "${Endpoints.login_with_phoneNumber}";
-    HttpResponse response = await sendOTP(url, data);
-    if (response.status) {
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> updateUserPasswordVerifyEmail(Map data) async {
-    var url = "${Endpoints.RequestUpdatePassword}";
-    HttpResponse response = await postData(url, data);
-    print("I am outSide");
-    if (response.status) {
-      stockage?.write(StockageKeys.userKey, response.data?['data']['userId'] ?? {});
-      print("I am insoide");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> changePassword(Map data) async {
-    var url = "${Endpoints.changepassword}";
-    var tkn = stockage?.read(StockageKeys.tokenKey);
-    HttpResponse response = await postData(url, data, token: tkn);
-    print("I am outSide");
-    if (response.status) {
-      //stockage?.write(StockageKeys.userKey, response.data?['data']['userId'] ?? {});
-      print("I am succeddddddddddddddddddddddddddddddddddddddd");
-      notifyListeners();
-    }
-    return response;
-  }
-
-  Future<HttpResponse> createNewPassword(Map data) async {
-    var url = "${Endpoints.createNewPassword}";
-    HttpResponse response = await postData(url, data);
-    print("I am outSide");
-    if (response.status) {
-      stockage?.write(StockageKeys.userKey, response.data?['data'] ?? {});
-      print("Password changed");
-      notifyListeners();
-    }
     return response;
   }
 

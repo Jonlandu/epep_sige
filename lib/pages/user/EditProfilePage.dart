@@ -67,13 +67,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
         var userCtrl = context.read<UserController>();
         userCtrl.getDataAPI();
 
-        fullnameUserToUpdate = userCtrl.user?.fullName;
+        fullnameUserToUpdate = userCtrl.user?.nom;
         fullname = TextEditingController(text: "${fullnameUserToUpdate}");
         emailUserToUpdate = userCtrl.user?.email;
         email = TextEditingController(text: "${emailUserToUpdate}");
-        phoneUserToUpdate = userCtrl.user?.phone;
+        phoneUserToUpdate = userCtrl.user?.telephone;
         phone = TextEditingController(text: "${phoneUserToUpdate}");
-        addressUserToUpdate = userCtrl.user?.address;
         address = TextEditingController(text: "${addressUserToUpdate == null ? "Please, enter your Address" : addressUserToUpdate}");
       });
     });

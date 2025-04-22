@@ -1,3 +1,7 @@
+import 'package:epsp_sige/pages/formsSt1/dynamic_multi_step_form.dart';
+import 'package:epsp_sige/pages/formsSt1/saved_forms_screen.dart';
+import 'package:epsp_sige/pages/formsSt2/dynamic_multi_step_formSt2.dart';
+import 'package:epsp_sige/pages/formsSt3/dynamic_multi_step_formSt3.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -302,6 +306,24 @@ class _FormListPageState extends State<FormListPage> {
   }
 
   void _navigateToFormDetail(Map<String, dynamic> form) {
+    debugPrint('Form code: ${form['code']}'); // Ajoutez cette ligne
+    Widget formWidget;
+
+    switch (form['code']) {
+      case 'ST1':
+        //formWidget = DynamiqueMultiStepForm(); // Votre formulaire ST1
+        formWidget = SavedFormsScreen(); // Votre formulaire ST1
+        break;
+      case 'ST2':
+        formWidget = DynamiqueMultiStepFormST2(); // Votre formulaire ST2
+        break;
+      case 'ST3':
+        formWidget = DynamiqueMultiStepFormST3(); // Votre formulaire ST3
+        break;
+      default:
+        formWidget = DynamiqueMultiStepForm(); // Par défaut
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -309,9 +331,7 @@ class _FormListPageState extends State<FormListPage> {
           appBar: AppBar(
             title: Text(form['title']),
           ),
-          body: Center(
-            child: Text('Détails du formulaire ${form['code']}'),
-          ),
+          body: formWidget,
         ),
       ),
     );

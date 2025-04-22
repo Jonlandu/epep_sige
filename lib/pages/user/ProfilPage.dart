@@ -71,22 +71,30 @@ class _ProfilPageState extends State<ProfilPage> {
   Widget _body(){
     var userCtrl = context.watch<UserController>();
 
+    // Afficher un indicateur de chargement si les données sont en cours de chargement
+    if (userCtrl.loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    // Si user est null, afficher un message
+    if (userCtrl.user == null) {
+      return Center(child: Text("Aucune donnée utilisateur disponible"));
+    }
     return ListView(
       shrinkWrap: true,
       children: [
         Container(
-          height: MediaQuery.of(context).size.height * 0.25,
+          height: MediaQuery.of(context).size.height * 0.24,
           child: Stack(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height * 0.30,
+                height: MediaQuery.of(context).size.height * 0.20,
                 child: Center(
                   child: CircleAvatar(
-                    radius: 52,
-                    child: CircleAvatar(
-                      radius: 52,
-                      backgroundImage: AssetImage("${userCtrl.user?.image == null ? "assets/avatard.png" : userCtrl.user?.image!}"),
-                    ),
+                    radius: 72,
+                    backgroundImage: userCtrl.user?.photo != null
+                        ? NetworkImage(userCtrl.user!.photo!)
+                        : const AssetImage('assets/avatard.png') as ImageProvider,
                   ),
                 ),
               ),
@@ -119,7 +127,7 @@ class _ProfilPageState extends State<ProfilPage> {
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                                 child: Text(
-                                  '${userCtrl.user?.fullName == null ? "Fullname : null" : userCtrl.user?.fullName}',
+                                  '${userCtrl.user?.nom == null ? "Fullname : null" : userCtrl.user?.nom}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.black,
@@ -149,7 +157,7 @@ class _ProfilPageState extends State<ProfilPage> {
               ),
               SizedBox(width: MediaQuery.of(context).size.width * 0.04),
               Text(
-                "${userCtrl.user?.phone == null ? "Phone : null" : userCtrl.user?.phone}",
+                "${userCtrl.user?.telephone == null ? "Phone : null" : userCtrl.user?.telephone}",
                 style: TextStyle(
                   fontSize: 15,
                 ),
