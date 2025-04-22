@@ -112,4 +112,30 @@ class DatabaseHelper {
       [id],
     );
   }
+
+  Future<void> markFormAsSynced(int id) async {
+    final db = await database;
+    await db.update(
+      'forms',
+      {
+        'is_synced': 1,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> updateFormData(int id, Map<String, dynamic> formData) async {
+    final db = await database;
+    await db.update(
+      'forms',
+      {
+        'form_data': jsonEncode(formData),
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class HistoryStep extends StatelessWidget {
+class HistoryStep extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
 
@@ -11,9 +11,14 @@ class HistoryStep extends StatelessWidget {
   });
 
   @override
+  _HistoryStepState createState() => _HistoryStepState();
+}
+
+class _HistoryStepState extends State<HistoryStep> {
+  @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
+      key: widget.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,9 +60,9 @@ class HistoryStep extends StatelessWidget {
   Widget _buildYearField() {
     return _buildTextFormField(
       label: 'Année de création',
-      initialValue: formData['anneeCreation'],
+      initialValue: widget.formData['anneeCreation'],
       keyboardType: TextInputType.number,
-      onSaved: (value) => formData['anneeCreation'] = value,
+      onSaved: (value) => widget.formData['anneeCreation'] = value,
       icon: Icons.calendar_today_outlined,
     );
   }
@@ -74,17 +79,19 @@ class HistoryStep extends StatelessWidget {
   }
 
   Widget _buildInfrastructureGrid(BuildContext context) {
-    return GridView.count(
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 3.5,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      children: ['Bibliothèque', 'Laboratoire', 'Terrain de sport', 'Cantine', 'Salle informatique']
-          .map((infra) {
-        return _buildInfrastructureCard(infra);
-      }).toList(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 3.5,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: ['Bibliothèque', 'Laboratoire', 'Terrain de sport', 'Cantine', 'Salle informatique'].length,
+      itemBuilder: (context, index) {
+        return _buildInfrastructureCard(['Bibliothèque', 'Laboratoire', 'Terrain de sport', 'Cantine', 'Salle informatique'][index]);
+      },
     );
   }
 
@@ -94,12 +101,12 @@ class HistoryStep extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: formData['infrastructures'].contains(infra)
+          color: widget.formData['infrastructures'].contains(infra)
               ? Colors.indigo
               : Colors.grey.shade300,
         ),
       ),
-      color: formData['infrastructures'].contains(infra)
+      color: widget.formData['infrastructures'].contains(infra)
           ? Colors.indigo.withOpacity(0.05)
           : Colors.grey.shade50,
       child: InkWell(
@@ -112,7 +119,7 @@ class HistoryStep extends StatelessWidget {
           child: Row(
             children: [
               Checkbox(
-                value: formData['infrastructures'].contains(infra),
+                value: widget.formData['infrastructures'].contains(infra),
                 onChanged: (bool? value) {
                   _toggleInfrastructure(infra);
                 },
@@ -121,12 +128,14 @@ class HistoryStep extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              Text(
-                infra,
-                style: TextStyle(
-                  color: formData['infrastructures'].contains(infra)
-                      ? Colors.indigo.shade800
-                      : Colors.grey.shade700,
+              Expanded(
+                child: Text(
+                  infra,
+                  style: TextStyle(
+                    color: widget.formData['infrastructures'].contains(infra)
+                        ? Colors.indigo.shade800
+                        : Colors.grey.shade700,
+                  ),
                 ),
               ),
             ],
@@ -137,11 +146,13 @@ class HistoryStep extends StatelessWidget {
   }
 
   void _toggleInfrastructure(String infra) {
-    if (formData['infrastructures'].contains(infra)) {
-      formData['infrastructures'].remove(infra);
-    } else {
-      formData['infrastructures'].add(infra);
-    }
+    setState(() {
+      if (widget.formData['infrastructures'].contains(infra)) {
+        widget.formData['infrastructures'].remove(infra);
+      } else {
+        widget.formData['infrastructures'].add(infra);
+      }
+    });
   }
 
   Widget _buildTextFormField({

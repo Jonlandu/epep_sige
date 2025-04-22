@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LocationStep extends StatelessWidget {
+class LocationStep extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
 
@@ -11,12 +11,17 @@ class LocationStep extends StatelessWidget {
   });
 
   @override
+  _LocationStepState createState() => _LocationStepState();
+}
+
+class _LocationStepState extends State<LocationStep> {
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
         child: Form(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,24 +65,24 @@ class LocationStep extends StatelessWidget {
                 children: [
                   _buildTextFormField(
                     label: 'Nombre d\'éducateurs formés (12 derniers mois)',
-                    initialValue: formData['nombreEducateursFormation'],
-                    onSaved: (value) => formData['nombreEducateursFormation'] = value,
+                    initialValue: widget.formData['nombreEducateursFormation'],
+                    onSaved: (value) => widget.formData['nombreEducateursFormation'] = value,
                     validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
                     icon: Icons.school_outlined,
                   ),
                   const SizedBox(height: 12),
                   _buildTextFormField(
                     label: 'Nombre d\'éducateurs bien cotés (E, TB, B)',
-                    initialValue: formData['nombreEducateursCotes'],
-                    onSaved: (value) => formData['nombreEducateursCotes'] = value,
+                    initialValue: widget.formData['nombreEducateursCotes'],
+                    onSaved: (value) => widget.formData['nombreEducateursCotes'] = value,
                     validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
                     icon: Icons.star_rate_rounded,
                   ),
                   const SizedBox(height: 12),
                   _buildTextFormField(
                     label: 'Nombre d\'éducateurs inspectés (C3)',
-                    initialValue: formData['nombreEducateursInspection'],
-                    onSaved: (value) => formData['nombreEducateursInspection'] = value,
+                    initialValue: widget.formData['nombreEducateursInspection'],
+                    onSaved: (value) => widget.formData['nombreEducateursInspection'] = value,
                     validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
                     icon: Icons.assignment_turned_in_outlined,
                   ),
@@ -149,8 +154,10 @@ class LocationStep extends StatelessWidget {
   Widget _buildInformationCheckBox(String title, String key) {
     return InkWell(
       onTap: () {
-        // Inversion de la valeur actuelle (si 'Oui' devient 'Non' et vice versa)
-        formData[key] = formData[key] == 'Oui' ? 'Non' : 'Oui';
+        setState(() {
+          // Toggle the value immediately
+          widget.formData[key] = widget.formData[key] == 'Oui' ? 'Non' : 'Oui';
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Padding(
@@ -180,12 +187,12 @@ class LocationStep extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: formData[key] == value
+        color: widget.formData[key] == value
             ? (value == 'Oui' ? Colors.green.shade50 : Colors.red.shade50)
             : null,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: formData[key] == value
+          color: widget.formData[key] == value
               ? (value == 'Oui' ? Colors.green : Colors.red)
               : Colors.grey.shade400,
           width: 1,
@@ -199,8 +206,12 @@ class LocationStep extends StatelessWidget {
             height: 20,
             child: Radio<String>(
               value: value,
-              groupValue: formData[key],
-              onChanged: (String? newValue) => formData[key] = newValue,
+              groupValue: widget.formData[key],
+              onChanged: (String? newValue) {
+                setState(() {
+                  widget.formData[key] = newValue!;
+                });
+              },
               activeColor: value == 'Oui' ? Colors.green : Colors.red,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               visualDensity: VisualDensity.compact,
@@ -211,7 +222,7 @@ class LocationStep extends StatelessWidget {
             value,
             style: TextStyle(
               fontSize: 12,
-              color: formData[key] == value
+              color: widget.formData[key] == value
                   ? (value == 'Oui' ? Colors.green : Colors.red)
                   : Colors.grey.shade700,
             ),

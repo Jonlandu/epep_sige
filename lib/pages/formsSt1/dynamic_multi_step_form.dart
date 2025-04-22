@@ -1,5 +1,6 @@
 import 'package:epsp_sige/controllers/FormService.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
+import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'steps/location_step.dart';
@@ -369,7 +370,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
                 ),
                 child: Text(
                   _currentStep == _stepsData.length - 1
-                      ? 'Soumettre'
+                      ? 'Enregistrer en local'
                       : 'Suivant',
                   style: const TextStyle(
                     color: Colors.white,
@@ -566,6 +567,19 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: Icon(Icons.close, color: Colors.grey),
+                  onPressed: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      Routes.BottomNavigationPageRoutes,
+                      ModalRoute.withName('/loginpage'),
+                    );
+                  },
+                ),
+              ),
               Icon(
                 Icons.check_circle,
                 color: Colors.green.shade600,
@@ -582,7 +596,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
               const SizedBox(height: 12),
               Text(
                 isOnline
-                    ? 'Le formulaire a été soumis avec succès!'
+                    ? 'Le formulaire est enregistré avec succès!'
                     : 'Le formulaire a été sauvegardé localement et sera synchronisé dès que possible.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
@@ -593,8 +607,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  _resetForm();
+                  Navigator.pushNamed(context, Routes.SavedFormsScreenRoutes);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,

@@ -1,6 +1,7 @@
 import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/pages/BottomNavigationPage.dart';
 import 'package:epsp_sige/pages/connexion/LoginPage.dart';
+import 'package:epsp_sige/pages/formsSt1/saved_forms_screen.dart';
 import 'package:epsp_sige/pages/home/MyHomePage.dart';
 import 'package:epsp_sige/pages/home/NavigationDrawerMenu.dart';
 import 'package:epsp_sige/pages/home/widgets/AccordionButton.dart';
@@ -63,6 +64,9 @@ class RoutesManager {
 
       case Routes.SchoolListPageRoutes:
         return MaterialPageRoute(builder: (_) => SchoolListPage());
+
+      case Routes.SavedFormsScreenRoutes:
+        return MaterialPageRoute(builder: (_) => SavedFormsScreen());
 
       case Routes.SchoolDetailPageRoutes:
         var args = r.arguments as Map<String, dynamic>?; // Cast to Map<String, dynamic>
