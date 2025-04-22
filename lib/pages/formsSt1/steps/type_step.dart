@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TypeStep extends StatelessWidget {
+class TypeStep extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
 
@@ -11,93 +11,131 @@ class TypeStep extends StatelessWidget {
   });
 
   @override
+  _TypeStepState createState() => _TypeStepState();
+}
+
+class _TypeStepState extends State<TypeStep> {
+  // Contrôleurs pour tous les champs de formulaire
+  final Map<String, TextEditingController> _controllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialiser tous les contrôleurs avec les valeurs du formData ou '0'
+    _initializeControllers();
+  }
+
+  @override
+  void dispose() {
+    // Nettoyer tous les contrôleurs
+    _controllers.forEach((key, controller) => controller.dispose());
+    super.dispose();
+  }
+
+  void _initializeControllers() {
+    // Liste de toutes les clés possibles pour les champs de tableau
+    final allKeys = [
+      // Tableau enfants
+      'age3G', 'age3F', 'age4G', 'age4F', 'age5PlusG', 'age5PlusF',
+      'totalG', 'totalF', 'autochtoneG', 'autochtoneF', 'orphelinsG',
+      'orphelinsF', 'deplacesInternesG', 'deplacesInternesF',
+      'deplacesExternesG', 'deplacesExternesF',
+
+      // Tableau personnel enseignant
+      'emH', 'emF', 'em2H', 'em2F', 'em3H', 'em3F', 'emTotal',
+      'd4H', 'd4F', 'd42H', 'd42F', 'd43H', 'd43F', 'd4Total',
+      'p6H', 'p6F', 'p62H', 'p62F', 'p63H', 'p63F', 'p6Total',
+      'd6H', 'd6F', 'd62H', 'd62F', 'd63H', 'd63F', 'd6Total',
+      'autres6H', 'autres6F', 'autres62H', 'autres62F', 'autres63H',
+      'autres63F', 'autres6Total',
+      'total6H', 'total6F', 'total62H', 'total62F', 'total63H',
+      'total63F', 'total6Total',
+
+      // Tableau administratif
+      'emDirH', 'emDirF', 'emAdjH', 'emAdjF', 'emSurvH', 'emSurvF',
+      'emouvrierH', 'emouvriereF',
+      'd4DirH', 'd4DirF', 'd4AdjH', 'd4AdjF', 'd4SurvH', 'd4SurvF',
+      'd4ouvrierH', 'd4ouvriereF',
+      'p6DirH', 'p6DirF', 'p6AdjH', 'p6AdjF', 'p6SurvH', 'p6SurvF',
+      'p6ouvrierH', 'p6ouvriereF',
+      'd6DirH', 'd6DirF', 'd6AdjH', 'd6AdjF', 'd6SurvH', 'd6SurvF',
+      'd6ouvrierH', 'd6ouvriereF',
+      'autresDirH', 'autresDirF', 'autresAdjH', 'autresAdjF',
+      'autresSurvH', 'autresSurvF', 'autresouvrierH', 'autresouvriereF',
+      'total1', 'total2', 'total3', 'total4', 'total5', 'total6',
+      'total7', 'total8',
+
+      // Champ texte
+      'nombreEducateursFormation'
+    ];
+
+    // Initialiser chaque contrôleur
+    for (var key in allKeys) {
+      _controllers[key] = TextEditingController(
+        text: widget.formData[key]?.toString() ?? '0',
+      );
+    }
+  }
+
+  // Méthode pour calculer les totaux
+  int _calculateRowTotal(List<String> keys, String gender) {
+    int total = 0;
+    for (var key in keys) {
+      if (key.endsWith(gender)) {
+        total += int.tryParse(_controllers[key]?.text ?? '0') ?? 0;
+      }
+    }
+    return total;
+  }
+
+  // Méthode pour calculer le total d'une colonne
+  int _calculateColumnTotal(List<String> rowKeys) {
+    int total = 0;
+    for (var key in rowKeys) {
+      total += int.tryParse(_controllers[key]?.text ?? '0') ?? 0;
+    }
+    return total;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Tableau 2 : effectifs des enfants inscrits par sexe et année d\'études selon l\'âge révolu',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+      key: widget.formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ... (tous les Text d'en-tête restent les mêmes)
+
+            // Tableau enfants
+            _buildChildrenEffectivesTable(),
+            const SizedBox(height: 10),
+
+            // Tableau 2ème année
+            _buildAdditionalTable(),
+            const SizedBox(height: 10),
+
+            // Tableau 3ème année
+            _buildAdditional2Table(),
+            const SizedBox(height: 10),
+
+            // Tableau personnel enseignant
+            _buildPersonnelTable(),
+            const SizedBox(height: 10),
+
+            // Champ texte
+            _buildTextFormField(
+              label: 'Nombre d\'enseignants éligibles à la retraite',
+              controller: _controllers['nombreEducateursFormation']!,
+              validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
+              icon: Icons.school_outlined,
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            '3.2.1. Première année',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildChildrenEffectivesTable(),
-          const SizedBox(height: 10),
-          Text(
-            '3.2.2. Deuxième année',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildAdditionalTable(),
-          const SizedBox(height: 10),
-          Text(
-            '3.2.3. Troisième année',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildAdditional2Table(),
-          const SizedBox(height: 10),
-          Text(
-            'Tableau 3 : Répartition du personnel enseignant par qualification, sexe et classe d\'affection',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildPersonnelTable(),
-          const SizedBox(height: 10),
-          Text(
-            'Parmi le personnel enseignant de votre établissement, combien sont éligibles à la retraite (65 ans et plus de 35 ans)',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.blue.shade700,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildTextFormField(
-            label: 'Nombre d\'enseignants éligibles à la retraite',
-            initialValue: formData['nombreEducateursFormation'],
-            onSaved: (value) => formData['nombreEducateursFormation'] = value,
-            validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
-            icon: Icons.school_outlined,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Tableau 5 : Répartition du personnel administratif et ouvrier par qualification, sexe et fonction',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildAdministrativeTable(), // Ajout du tableau administratif
-        ],
+            const SizedBox(height: 12),
+
+            // Tableau administratif
+            _buildAdministrativeTable(),
+          ],
+        ),
       ),
     );
   }
@@ -106,7 +144,6 @@ class TypeStep extends StatelessWidget {
     return Table(
       border: TableBorder.all(),
       children: [
-        // Header Row
         TableRow(
           children: [
             _buildTableCell('Niveau d\'études / Sexe / Age', isHeader: true),
@@ -114,228 +151,152 @@ class TypeStep extends StatelessWidget {
             _buildTableCell('F', isHeader: true),
           ],
         ),
-        // Data Rows
-        TableRow(children: [
-          _buildTableCell('3 ans'),
-          _buildTextFormFieldCell('age3G', '0'),
-          _buildTextFormFieldCell('age3F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('4 ans'),
-          _buildTextFormFieldCell('age4G', '0'),
-          _buildTextFormFieldCell('age4F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('5 ans et plus'),
-          _buildTextFormFieldCell('age5PlusG', '0'),
-          _buildTextFormFieldCell('age5PlusF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Total'),
-          _buildTextFormFieldCell('totalG', '0'),
-          _buildTextFormFieldCell('totalF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont autochtones'),
-          _buildTextFormFieldCell('autochtoneG', '0'),
-          _buildTextFormFieldCell('autochtoneF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont orphelins'),
-          _buildTextFormFieldCell('orphelinsG', '0'),
-          _buildTextFormFieldCell('orphelinsF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont déplacés internes'),
-          _buildTextFormFieldCell('deplacesInternesG', '0'),
-          _buildTextFormFieldCell('deplacesInternesF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont déplacés externes'),
-          _buildTextFormFieldCell('deplacesExternesG', '0'),
-          _buildTextFormFieldCell('deplacesExternesF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont réintégrants'),
-          _buildTextFormFieldCell('deplacesExternesG', '0'),
-          _buildTextFormFieldCell('deplacesExternesF', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell('Dont avec handicap'),
-          _buildTextFormFieldCell('deplacesExternesG', '0'),
-          _buildTextFormFieldCell('deplacesExternesF', '0'),
-        ]),
+        _buildTableRowWithControllers('3 ans', 'age3G', 'age3F'),
+        _buildTableRowWithControllers('4 ans', 'age4G', 'age4F'),
+        _buildTableRowWithControllers('5 ans et plus', 'age5PlusG', 'age5PlusF'),
+        _buildTableRowWithControllers('Total', 'totalG', 'totalF', isTotal: true),
+        _buildTableRowWithControllers('Dont autochtones', 'autochtoneG', 'autochtoneF'),
+        _buildTableRowWithControllers('Dont orphelins', 'orphelinsG', 'orphelinsF'),
+        _buildTableRowWithControllers('Dont déplacés internes', 'deplacesInternesG', 'deplacesInternesF'),
+        _buildTableRowWithControllers('Dont déplacés externes', 'deplacesExternesG', 'deplacesExternesF'),
+        _buildTableRowWithControllers('Dont réintégrants', 'deplacesExternesG', 'deplacesExternesF'),
+        _buildTableRowWithControllers('Dont avec handicap', 'deplacesExternesG', 'deplacesExternesF'),
       ],
     );
   }
 
-  Widget _buildAdditionalTable() {
-    return Table(
-      border: TableBorder.all(),
-      children: [
-        // Header Row
-        TableRow(
-          children: [
-            _buildTableCell("Niveau d'études / Sexe / Age", isHeader: true),
-            _buildTableCell("G", isHeader: true),
-            _buildTableCell("F", isHeader: true),
-          ],
+  TableRow _buildTableRowWithControllers(String label, String keyG, String keyF, {bool isTotal = false}) {
+    return TableRow(children: [
+      _buildTableCell(label),
+      _buildTextFormFieldCell(keyG, isTotal: isTotal),
+      _buildTextFormFieldCell(keyF, isTotal: isTotal),
+    ]);
+  }
+
+  Widget _buildTextFormFieldCell(String key, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: TextFormField(
+        controller: _controllers[key],
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          filled: isTotal,
+          fillColor: Colors.grey[200],
         ),
-        // Data Rows
-        TableRow(children: [
-          _buildTableCell("- 3 ans"),
-          _buildTextFormFieldCell('moins3G', '0'),
-          _buildTextFormFieldCell('moins3F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("3 ans"),
-          _buildTextFormFieldCell('age3G', '0'),
-          _buildTextFormFieldCell('age3F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("4 ans"),
-          _buildTextFormFieldCell('age4G', '0'),
-          _buildTextFormFieldCell('age4F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("5 ans"),
-          _buildTextFormFieldCell('age5G', '0'),
-          _buildTextFormFieldCell('age5F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("+ 5 ans"),
-          _buildTextFormFieldCell('plus5G', '0'),
-          _buildTextFormFieldCell('plus5F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Total"),
-          _buildTextFormFieldCell('total2G', '0'),
-          _buildTextFormFieldCell('total2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont autochtone"),
-          _buildTextFormFieldCell('autochtone2G', '0'),
-          _buildTextFormFieldCell('autochtone2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont orphelins"),
-          _buildTextFormFieldCell('orphelins2G', '0'),
-          _buildTextFormFieldCell('orphelins2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont réfugiés"),
-          _buildTextFormFieldCell('refugies2G', '0'),
-          _buildTextFormFieldCell('refugies2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont déplacés internes"),
-          _buildTextFormFieldCell('deplacer_internes2G', '0'),
-          _buildTextFormFieldCell('deplacer_internes2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont déplacés externes"),
-          _buildTextFormFieldCell('deplacer_externes2G', '0'),
-          _buildTextFormFieldCell('deplacer_externes2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont réintégrants"),
-          _buildTextFormFieldCell('dont_reintegrants2G', '0'),
-          _buildTextFormFieldCell('dont_reintegrants2F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont avec handicap"),
-          _buildTextFormFieldCell('dont_handicape2G', '0'),
-          _buildTextFormFieldCell('dont_handicape2F', '0'),
-        ]),
-      ],
+        onChanged: (value) {
+          // Mettre à jour les totaux quand une valeur change
+          setState(() {
+            widget.formData[key] = value;
+            _updateTotals();
+          });
+        },
+        onSaved: (value) => widget.formData[key] = value,
+      ),
     );
   }
 
-  Widget _buildAdditional2Table() {
-    return Table(
-      border: TableBorder.all(),
-      children: [
-        // Header Row
-        TableRow(
-          children: [
-            _buildTableCell("Niveau d'études / Sexe / Age", isHeader: true),
-            _buildTableCell("G", isHeader: true),
-            _buildTableCell("F", isHeader: true),
-          ],
-        ),
-        // Data Rows
-        TableRow(children: [
-          _buildTableCell("- 3 ans"),
-          _buildTextFormFieldCell('moins_23G', '0'),
-          _buildTextFormFieldCell('moins_23F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("3 ans"),
-          _buildTextFormFieldCell('age_23G', '0'),
-          _buildTextFormFieldCell('age_23F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("4 ans"),
-          _buildTextFormFieldCell('age_24G', '0'),
-          _buildTextFormFieldCell('age_24F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("5 ans"),
-          _buildTextFormFieldCell('age_25G', '0'),
-          _buildTextFormFieldCell('age_25F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("+ 5 ans"),
-          _buildTextFormFieldCell('plus_25G', '0'),
-          _buildTextFormFieldCell('plus_25F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Total"),
-          _buildTextFormFieldCell('total_22G', '0'),
-          _buildTextFormFieldCell('total_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont autochtone"),
-          _buildTextFormFieldCell('autochtone_22G', '0'),
-          _buildTextFormFieldCell('autochtone_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont étrangers"),
-          _buildTextFormFieldCell('etrangers_2', '0'),
-          _buildTextFormFieldCell('etrangers_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont orphelins"),
-          _buildTextFormFieldCell('orphelins_22G', '0'),
-          _buildTextFormFieldCell('orphelins_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont réfugiés"),
-          _buildTextFormFieldCell('refugies_22G', '0'),
-          _buildTextFormFieldCell('refugies_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont déplacés internes"),
-          _buildTextFormFieldCell('deplacer_internes_22G', '0'),
-          _buildTextFormFieldCell('deplacer_internes_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont déplacés externes"),
-          _buildTextFormFieldCell('deplacer_externes_22G', '0'),
-          _buildTextFormFieldCell('deplacer_externes_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont réintégrants"),
-          _buildTextFormFieldCell('dont_reintegrants_22G', '0'),
-          _buildTextFormFieldCell('dont_reintegrants_22F', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Dont avec handicap"),
-          _buildTextFormFieldCell('dont_handicape_22G', '0'),
-          _buildTextFormFieldCell('dont_handicape_22F', '0'),
-        ]),
-      ],
-    );
+  void _updateTotals() {
+    // Mettre à jour les totaux pour le tableau enfants
+    _controllers['totalG']?.text = _calculateRowTotal(
+        ['age3G', 'age4G', 'age5PlusG'], 'G'
+    ).toString();
+
+    _controllers['totalF']?.text = _calculateRowTotal(
+        ['age3F', 'age4F', 'age5PlusF'], 'F'
+    ).toString();
+
+    // Mettre à jour les totaux pour le tableau personnel enseignant
+    _updateTeachingStaffTotals();
+
+    // Mettre à jour les totaux pour le tableau administratif
+    _updateAdministrativeTotals();
+  }
+
+  void _updateTeachingStaffTotals() {
+    // Pour chaque qualification (EM, D4, P6, D6, Autres)
+    final qualifications = ['em', 'd4', 'p6', 'd6', 'autres6'];
+
+    for (var qualif in qualifications) {
+      // Total pour la qualification
+      _controllers['${qualif}Total']?.text = _calculateColumnTotal(
+          ['${qualif}H', '${qualif}F', '${qualif}2H', '${qualif}2F', '${qualif}3H', '${qualif}3F']
+      ).toString();
+    }
+
+    // Total général
+    _controllers['total6Total']?.text = _calculateColumnTotal(
+        ['emTotal', 'd4Total', 'p6Total', 'd6Total', 'autres6Total']
+    ).toString();
+  }
+
+  void _updateAdministrativeTotals() {
+    // Pour chaque qualification (EM, D4, P6, D6, Autres)
+    final qualifications = ['em', 'd4', 'p6', 'd6', 'autres'];
+
+    // Calcul des totaux par qualification (ligne)
+    for (var qualif in qualifications) {
+      // Total Hommes pour la qualification
+      _controllers['${qualif}TotalH']?.text = _calculateColumnTotal(
+          ['${qualif}DirH', '${qualif}AdjH', '${qualif}SurvH', '${qualif}ouvrierH']
+      ).toString();
+
+      // Total Femmes pour la qualification
+      _controllers['${qualif}TotalF']?.text = _calculateColumnTotal(
+          ['${qualif}DirF', '${qualif}AdjF', '${qualif}SurvF', '${qualif}ouvriereF']
+      ).toString();
+    }
+
+    // Calcul des totaux par colonne
+    // Colonne 1: Directeurs H
+    _controllers['total1']?.text = _calculateColumnTotal(
+        ['emDirH', 'd4DirH', 'p6DirH', 'd6DirH', 'autresDirH']
+    ).toString();
+
+    // Colonne 2: Directeurs F
+    _controllers['total2']?.text = _calculateColumnTotal(
+        ['emDirF', 'd4DirF', 'p6DirF', 'd6DirF', 'autresDirF']
+    ).toString();
+
+    // Colonne 3: Directeurs adjoints H
+    _controllers['total3']?.text = _calculateColumnTotal(
+        ['emAdjH', 'd4AdjH', 'p6AdjH', 'd6AdjH', 'autresAdjH']
+    ).toString();
+
+    // Colonne 4: Directeurs adjoints F
+    _controllers['total4']?.text = _calculateColumnTotal(
+        ['emAdjF', 'd4AdjF', 'p6AdjF', 'd6AdjF', 'autresAdjF']
+    ).toString();
+
+    // Colonne 5: Surveillants H
+    _controllers['total5']?.text = _calculateColumnTotal(
+        ['emSurvH', 'd4SurvH', 'p6SurvH', 'd6SurvH', 'autresSurvH']
+    ).toString();
+
+    // Colonne 6: Surveillants F
+    _controllers['total6']?.text = _calculateColumnTotal(
+        ['emSurvF', 'd4SurvF', 'p6SurvF', 'd6SurvF', 'autresSurvF']
+    ).toString();
+
+    // Colonne 7: Ouvriers H
+    _controllers['total7']?.text = _calculateColumnTotal(
+        ['emouvrierH', 'd4ouvrierH', 'p6ouvrierH', 'd6ouvrierH', 'autresouvrierH']
+    ).toString();
+
+    // Colonne 8: Ouvrières F
+    _controllers['total8']?.text = _calculateColumnTotal(
+        ['emouvriereF', 'd4ouvriereF', 'p6ouvriereF', 'd6ouvriereF', 'autresouvriereF']
+    ).toString();
+
+    // Total général Hommes (colonne Total H)
+    _controllers['totalGeneralH']?.text = _calculateColumnTotal(
+        ['emTotalH', 'd4TotalH', 'p6TotalH', 'd6TotalH', 'autresTotalH']
+    ).toString();
+
+    // Total général Femmes (colonne Total F)
+    _controllers['totalGeneralF']?.text = _calculateColumnTotal(
+        ['emTotalF', 'd4TotalF', 'p6TotalF', 'd6TotalF', 'autresTotalF']
+    ).toString();
   }
 
   Widget _buildPersonnelTable() {
@@ -356,75 +317,137 @@ class TypeStep extends StatelessWidget {
           ],
         ),
         // Data Rows
-        TableRow(children: [
-          _buildTableCell("EM"),
-          _buildTextFormFieldCell('emH', '0'),
-          _buildTextFormFieldCell('emF', '0'),
-          _buildTextFormFieldCell('em2H', '0'),
-          _buildTextFormFieldCell('em2F', '0'),
-          _buildTextFormFieldCell('em3H', '0'),
-          _buildTextFormFieldCell('em3F', '0'),
-          _buildTextFormFieldCell('emTotal', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("D4"),
-          _buildTextFormFieldCell('d4H', '0'),
-          _buildTextFormFieldCell('d4F', '0'),
-          _buildTextFormFieldCell('d42H', '0'),
-          _buildTextFormFieldCell('d42F', '0'),
-          _buildTextFormFieldCell('d43H', '0'),
-          _buildTextFormFieldCell('d43F', '0'),
-          _buildTextFormFieldCell('d4Total', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("P6"),
-          _buildTextFormFieldCell('p6H', '0'),
-          _buildTextFormFieldCell('p6F', '0'),
-          _buildTextFormFieldCell('p62H', '0'),
-          _buildTextFormFieldCell('p62F', '0'),
-          _buildTextFormFieldCell('p63H', '0'),
-          _buildTextFormFieldCell('p63F', '0'),
-          _buildTextFormFieldCell('p6Total', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("D6"),
-          _buildTextFormFieldCell('d6H', '0'),
-          _buildTextFormFieldCell('d6F', '0'),
-          _buildTextFormFieldCell('d62H', '0'),
-          _buildTextFormFieldCell('d62F', '0'),
-          _buildTextFormFieldCell('d63H', '0'),
-          _buildTextFormFieldCell('d63F', '0'),
-          _buildTextFormFieldCell('d6Total', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Autres"),
-          _buildTextFormFieldCell('autres6H', '0'),
-          _buildTextFormFieldCell('autres6F', '0'),
-          _buildTextFormFieldCell('autres62H', '0'),
-          _buildTextFormFieldCell('autres62F', '0'),
-          _buildTextFormFieldCell('autres63H', '0'),
-          _buildTextFormFieldCell('autres63F', '0'),
-          _buildTextFormFieldCell('autres6Total', '0'),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Total"),
-          _buildTextFormFieldCell('total6H', '0'),
-          _buildTextFormFieldCell('total6F', '0'),
-          _buildTextFormFieldCell('total62H', '0'),
-          _buildTextFormFieldCell('total62F', '0'),
-          _buildTextFormFieldCell('total63H', '0'),
-          _buildTextFormFieldCell('total63F', '0'),
-          _buildTextFormFieldCell('total6Total', '0'),
-        ]),
+        _buildPersonnelTableRow("EM", "em"),
+        _buildPersonnelTableRow("D4", "d4"),
+        _buildPersonnelTableRow("P6", "p6"),
+        _buildPersonnelTableRow("D6", "d6"),
+        _buildPersonnelTableRow("Autres", "autres6"),
+        TableRow(
+          children: [
+            _buildTableCell("Total"),
+            _buildTextFormFieldCell('total6H'),
+            _buildTextFormFieldCell('total6F'),
+            _buildTextFormFieldCell('total62H'),
+            _buildTextFormFieldCell('total62F'),
+            _buildTextFormFieldCell('total63H'),
+            _buildTextFormFieldCell('total63F'),
+            _buildTextFormFieldCell('total6Total'),
+          ],
+        ),
       ],
     );
+  }
+
+  TableRow _buildPersonnelTableRow(String label, String prefix) {
+    return TableRow(
+      children: [
+        _buildTableCell(label),
+        _buildTextFormFieldCell('${prefix}H'),
+        _buildTextFormFieldCell('${prefix}F'),
+        _buildTextFormFieldCell('${prefix}2H'),
+        _buildTextFormFieldCell('${prefix}2F'),
+        _buildTextFormFieldCell('${prefix}3H'),
+        _buildTextFormFieldCell('${prefix}3F'),
+        _buildTextFormFieldCell('${prefix}Total'),
+      ],
+    );
+  }
+
+  Widget _buildAdditionalTable() {
+    return Table(
+      border: TableBorder.all(),
+      children: [
+        // Header Row
+        TableRow(
+          children: [
+            _buildTableCell("Niveau d'études / Sexe / Age", isHeader: true),
+            _buildTableCell("G", isHeader: true),
+            _buildTableCell("F", isHeader: true),
+          ],
+        ),
+        // Data Rows
+        _buildAdditionalTableRow("- 3 ans", 'moins3G', 'moins3F'),
+        _buildAdditionalTableRow("3 ans", 'age3G', 'age3F'),
+        _buildAdditionalTableRow("4 ans", 'age4G', 'age4F'),
+        _buildAdditionalTableRow("5 ans", 'age5G', 'age5F'),
+        _buildAdditionalTableRow("+ 5 ans", 'plus5G', 'plus5F'),
+        _buildAdditionalTableRow("Total", 'total2G', 'total2F', isTotal: true),
+        _buildAdditionalTableRow("Dont autochtone", 'autochtone2G', 'autochtone2F'),
+        _buildAdditionalTableRow("Dont orphelins", 'orphelins2G', 'orphelins2F'),
+        _buildAdditionalTableRow("Dont réfugiés", 'refugies2G', 'refugies2F'),
+        _buildAdditionalTableRow("Dont déplacés internes", 'deplacer_internes2G', 'deplacer_internes2F'),
+        _buildAdditionalTableRow("Dont déplacés externes", 'deplacer_externes2G', 'deplacer_externes2F'),
+        _buildAdditionalTableRow("Dont réintégrants", 'dont_reintegrants2G', 'dont_reintegrants2F'),
+        _buildAdditionalTableRow("Dont avec handicap", 'dont_handicape2G', 'dont_handicape2F'),
+      ],
+    );
+  }
+
+  TableRow _buildAdditionalTableRow(String label, String keyG, String keyF, {bool isTotal = false}) {
+    return TableRow(children: [
+      _buildTableCell(label),
+      _buildTextFormFieldCell(keyG, isTotal: isTotal),
+      _buildTextFormFieldCell(keyF, isTotal: isTotal),
+    ]);
+  }
+
+  Widget _buildAdditional2Table() {
+    return Table(
+      border: TableBorder.all(),
+      children: [
+        // Header Row
+        TableRow(
+          children: [
+            _buildTableCell("Niveau d'études / Sexe / Age", isHeader: true),
+            _buildTableCell("G", isHeader: true),
+            _buildTableCell("F", isHeader: true),
+          ],
+        ),
+        // Data Rows
+        _buildAdditional2TableRow("- 3 ans", 'moins_23G', 'moins_23F'),
+        _buildAdditional2TableRow("3 ans", 'age_23G', 'age_23F'),
+        _buildAdditional2TableRow("4 ans", 'age_24G', 'age_24F'),
+        _buildAdditional2TableRow("5 ans", 'age_25G', 'age_25F'),
+        _buildAdditional2TableRow("+ 5 ans", 'plus_25G', 'plus_25F'),
+        _buildAdditional2TableRow("Total", 'total_22G', 'total_22F', isTotal: true),
+        _buildAdditional2TableRow("Dont autochtone", 'autochtone_22G', 'autochtone_22F'),
+        _buildAdditional2TableRow("Dont étrangers", 'etrangers_2', 'etrangers_22F'),
+        _buildAdditional2TableRow("Dont orphelins", 'orphelins_22G', 'orphelins_22F'),
+        _buildAdditional2TableRow("Dont réfugiés", 'refugies_22G', 'refugies_22F'),
+        _buildAdditional2TableRow("Dont déplacés internes", 'deplacer_internes_22G', 'deplacer_internes_22F'),
+        _buildAdditional2TableRow("Dont déplacés externes", 'deplacer_externes_22G', 'deplacer_externes_22F'),
+        _buildAdditional2TableRow("Dont réintégrants", 'dont_reintegrants_22G', 'dont_reintegrants_22F'),
+        _buildAdditional2TableRow("Dont avec handicap", 'dont_handicape_22G', 'dont_handicape_22F'),
+      ],
+    );
+  }
+
+  TableRow _buildAdditional2TableRow(String label, String keyG, String keyF, {bool isTotal = false}) {
+    return TableRow(children: [
+      _buildTableCell(label),
+      _buildTextFormFieldCell(keyG, isTotal: isTotal),
+      _buildTextFormFieldCell(keyF, isTotal: isTotal),
+    ]);
   }
 
   Widget _buildAdministrativeTable() {
     return Table(
       border: TableBorder.all(),
+      columnWidths: const {
+        0: FixedColumnWidth(100), // Colonne Qualification
+        1: FixedColumnWidth(80),  // Autres colonnes
+        2: FixedColumnWidth(80),
+        3: FixedColumnWidth(80),
+        4: FixedColumnWidth(80),
+        5: FixedColumnWidth(80),
+        6: FixedColumnWidth(80),
+        7: FixedColumnWidth(80),
+        8: FixedColumnWidth(80),
+        9: FixedColumnWidth(80),
+        10: FixedColumnWidth(80),
+      },
       children: [
-        // Header Row
+        // En-tête
         TableRow(
           children: [
             _buildTableCell("Qualification", isHeader: true),
@@ -440,146 +463,87 @@ class TypeStep extends StatelessWidget {
             _buildTableCell("Total F", isHeader: true),
           ],
         ),
-        // Data Rows
-        TableRow(children: [
-          _buildTableCell("EM"),
-          _buildTextFormFieldCell('emDirH', '0'),
-          _buildTextFormFieldCell('emDirF', '0'),
-          _buildTextFormFieldCell('emAdjH', '0'),
-          _buildTextFormFieldCell('emAdjF', '0'),
-          _buildTextFormFieldCell('emSurvH', '0'),
-          _buildTextFormFieldCell('emSurvF', '0'),
-          _buildTextFormFieldCell('emouvrierH', '0'),
-          _buildTextFormFieldCell('emouvriereF', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
-        TableRow(children: [
-          _buildTableCell("D4"),
-          _buildTextFormFieldCell('d4DirH', '0'),
-          _buildTextFormFieldCell('d4DirF', '0'),
-          _buildTextFormFieldCell('d4AdjH', '0'),
-          _buildTextFormFieldCell('d4AdjF', '0'),
-          _buildTextFormFieldCell('d4SurvH', '0'),
-          _buildTextFormFieldCell('d4SurvF', '0'),
-          _buildTextFormFieldCell('d4ouvrierH', '0'),
-          _buildTextFormFieldCell('d4ouvriereF', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
-        TableRow(children: [
-          _buildTableCell("P6"),
-          _buildTextFormFieldCell('p6DirH', '0'),
-          _buildTextFormFieldCell('p6DirF', '0'),
-          _buildTextFormFieldCell('p6AdjH', '0'),
-          _buildTextFormFieldCell('p6AdjF', '0'),
-          _buildTextFormFieldCell('p6SurvH', '0'),
-          _buildTextFormFieldCell('p6SurvF', '0'),
-          _buildTextFormFieldCell('p6ouvrierH', '0'),
-          _buildTextFormFieldCell('p6ouvriereF', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
-        TableRow(children: [
-          _buildTableCell("D6"),
-          _buildTextFormFieldCell('d6DirH', '0'),
-          _buildTextFormFieldCell('d6DirF', '0'),
-          _buildTextFormFieldCell('d6AdjH', '0'),
-          _buildTextFormFieldCell('d6AdjF', '0'),
-          _buildTextFormFieldCell('d6SurvH', '0'),
-          _buildTextFormFieldCell('d6SurvF', '0'),
-          _buildTextFormFieldCell('d6ouvrierH', '0'),
-          _buildTextFormFieldCell('d6ouvriereF', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Autres"),
-          _buildTextFormFieldCell('autresDirH', '0'),
-          _buildTextFormFieldCell('autresDirF', '0'),
-          _buildTextFormFieldCell('autresAdjH', '0'),
-          _buildTextFormFieldCell('autresAdjF', '0'),
-          _buildTextFormFieldCell('autresSurvH', '0'),
-          _buildTextFormFieldCell('autresSurvF', '0'),
-          _buildTextFormFieldCell('autresouvrierH', '0'),
-          _buildTextFormFieldCell('autresouvriereF', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
-        TableRow(children: [
-          _buildTableCell("Total"),
-          _buildTextFormFieldCell('total1', '0'),
-          _buildTextFormFieldCell('total2', '0'),
-          _buildTextFormFieldCell('total3', '0'),
-          _buildTextFormFieldCell('total4', '0'),
-          _buildTextFormFieldCell('total5', '0'),
-          _buildTextFormFieldCell('total6', '0'),
-          _buildTextFormFieldCell('total7', '0'),
-          _buildTextFormFieldCell('total8', '0'),
-          _buildTableCell("", isFormula: true),
-          _buildTableCell("", isFormula: true),
-        ]),
+        // Ligne EM
+        _buildAdminTableRow("EM", "em"),
+        // Ligne D4
+        _buildAdminTableRow("D4", "d4"),
+        // Ligne P6
+        _buildAdminTableRow("P6", "p6"),
+        // Ligne D6
+        _buildAdminTableRow("D6", "d6"),
+        // Ligne Autres
+        _buildAdminTableRow("Autres", "autres"),
+        // Ligne Total
+        TableRow(
+          children: [
+            _buildTableCell("Total", isHeader: true),
+            _buildTableCell(_controllers['total1']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total2']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total3']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total4']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total5']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total6']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total7']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['total8']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['totalGeneralH']?.text ?? '0', isTotal: true),
+            _buildTableCell(_controllers['totalGeneralF']?.text ?? '0', isTotal: true),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildTableCell(String text, {bool isHeader = false, bool isFormula = false}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-          fontStyle: isFormula ? FontStyle.italic : FontStyle.normal,
-        ),
-      ),
+  TableRow _buildAdminTableRow(String label, String prefix) {
+    return TableRow(
+      children: [
+        _buildTableCell(label),
+        _buildTextFormFieldCell('${prefix}DirH'),
+        _buildTextFormFieldCell('${prefix}DirF'),
+        _buildTextFormFieldCell('${prefix}AdjH'),
+        _buildTextFormFieldCell('${prefix}AdjF'),
+        _buildTextFormFieldCell('${prefix}SurvH'),
+        _buildTextFormFieldCell('${prefix}SurvF'),
+        _buildTextFormFieldCell('${prefix}ouvrierH'),
+        _buildTextFormFieldCell('${prefix}ouvriereF'),
+        _buildTableCell(_controllers['${prefix}TotalH']?.text ?? '0', isTotal: true),
+        _buildTableCell(_controllers['${prefix}TotalF']?.text ?? '0', isTotal: true),
+      ],
     );
   }
 
-  Widget _buildTextFormFieldCell(String key, String initialValue) {
-    return TextFormField(
-      initialValue: initialValue,
-      onSaved: (value) => formData[key] = value,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
+  Widget _buildTableCell(String text, {bool isHeader = false, bool isTotal = false}) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      color: isHeader
+          ? Colors.grey[300]
+          : isTotal
+          ? Colors.grey[200]
+          : null,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: isHeader || isTotal ? FontWeight.bold : FontWeight.normal,
+        ),
       ),
     );
   }
 
   Widget _buildTextFormField({
     required String label,
-    required String? initialValue,
-    required FormFieldSetter<String> onSaved,
+    required TextEditingController controller,
     FormFieldValidator<String>? validator,
     IconData? icon,
   }) {
     return TextFormField(
-      initialValue: initialValue,
+      controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          fontSize: 13,
-          color: Colors.grey.shade700,
-        ),
-        prefixIcon: icon != null ? Icon(icon, size: 20, color: Colors.blue.shade600) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade400),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade400),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade600, width: 1.2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        isDense: true,
+        prefixIcon: icon != null ? Icon(icon) : null,
+        border: OutlineInputBorder(),
       ),
-      style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
       validator: validator,
-      onSaved: onSaved,
+      onSaved: (value) => widget.formData['nombreEducateursFormation'] = value,
     );
   }
 }

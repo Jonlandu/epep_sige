@@ -17,4 +17,5 @@ class Routes {
   static const String BeautifulAccordionAppPageRoutes = "/beautifulaccordionapppage";
   static const String SchoolListPageRoutes = "/schoollistpage";
   static const String SchoolDetailPageRoutes = "/schooldetailpage";
+  static const String SavedFormsScreenRoutes = "/SavedFormsScreen";
 }

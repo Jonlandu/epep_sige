@@ -2,6 +2,7 @@ import 'package:epsp_sige/pages/formsSt1/dynamic_multi_step_form.dart';
 import 'package:epsp_sige/pages/formsSt1/saved_forms_screen.dart';
 import 'package:epsp_sige/pages/formsSt2/dynamic_multi_step_formSt2.dart';
 import 'package:epsp_sige/pages/formsSt3/dynamic_multi_step_formSt3.dart';
+import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -311,8 +312,8 @@ class _FormListPageState extends State<FormListPage> {
 
     switch (form['code']) {
       case 'ST1':
-        //formWidget = DynamiqueMultiStepForm(); // Votre formulaire ST1
-        formWidget = SavedFormsScreen(); // Votre formulaire ST1
+        formWidget = DynamiqueMultiStepForm(); // Votre formulaire ST1
+        //formWidget = SavedFormsScreen(); // Votre formulaire ST1
         break;
       case 'ST2':
         formWidget = DynamiqueMultiStepFormST2(); // Votre formulaire ST2
@@ -383,16 +384,15 @@ class _FormListPageState extends State<FormListPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.help),
-              title: const Text('Aide'),
+              leading: const Icon(Icons.newspaper_outlined),
+              title: const Text('Formulaire stockés en Local'),
               onTap: () {
-                Navigator.pop(context);
-                // Naviguer vers la page d'aide
+                Navigator.pushNamed(context, Routes.SavedFormsScreenRoutes);
               },
             ),
             ListTile(
               leading: const Icon(Icons.info),
-              title: const Text('À propos'),
+              title: const Text('Aide'),
               onTap: () {
                 Navigator.pop(context);
                 // Naviguer vers la page À propos
