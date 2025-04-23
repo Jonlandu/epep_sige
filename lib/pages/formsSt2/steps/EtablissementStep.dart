@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class EtablissementStep extends StatelessWidget {
+class EtablissementStep extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
 
@@ -11,12 +11,31 @@ class EtablissementStep extends StatelessWidget {
   });
 
   @override
+  State<EtablissementStep> createState() => _EtablissementStepState();
+}
+
+class _EtablissementStepState extends State<EtablissementStep> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeFormData();
+  }
+
+  void _initializeFormData() {
+    widget.formData['programmesOfficiels'] ??= 'Non';
+    widget.formData['copa'] ??= 'Non';
+    widget.formData['copaOperationnel'] ??= 'Non';
+    widget.formData['coges'] ??= 'Non';
+    widget.formData['cogesOperationnel'] ??= 'Non';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8.0),
         child: Form(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -27,16 +46,16 @@ class EtablissementStep extends StatelessWidget {
                 children: [
                   _buildTextFormField(
                     label: 'Année',
-                    initialValue: formData['annee'],
-                    onSaved: (value) => formData['annee'] = value,
+                    initialValue: widget.formData['annee'],
+                    onSaved: (value) => widget.formData['annee'] = value?.trim(),
                     validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
                     icon: Icons.calendar_today,
                   ),
                   const SizedBox(height: 12),
                   _buildTextFormField(
                     label: 'Etablissement',
-                    initialValue: formData['etablissement'],
-                    onSaved: (value) => formData['etablissement'] = value,
+                    initialValue: widget.formData['etablissement'],
+                    onSaved: (value) => widget.formData['etablissement'] = value?.trim(),
                     validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
                     icon: Icons.school,
                   ),
@@ -46,32 +65,43 @@ class EtablissementStep extends StatelessWidget {
               _buildSection(
                 title: "Disponibilités",
                 children: [
-                  _buildInformationCheckBox('2.1. Des programmes officiels des cours ?', 'programmesOfficiels'),
-                  _buildInformationCheckBox('2.2. D\'un COPA ?', 'copa'),
-                  _buildInformationCheckBox('2.3. Si oui, est-il opérationnel dans votre établissement ?', 'copaOperationnel'),
-                  _buildTextFormField(
-                    label: '2.4. Le nombre de réunions tenues avec les PV l\'année passée',
-                    initialValue: formData['reunionsPV'],
-                    onSaved: (value) => formData['reunionsPV'] = value,
-                    validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
-                    keyboardType: TextInputType.number,
-                  ),
-                  _buildTextFormField(
-                    label: '2.5. Nombre de femmes dans le COPA',
-                    initialValue: formData['femmesCOPA'],
-                    onSaved: (value) => formData['femmesCOPA'] = value,
-                    validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
-                    keyboardType: TextInputType.number,
-                  ),
-                  _buildInformationCheckBox('2.6. D\'un COGES', 'coges'),
-                  _buildInformationCheckBox('2.7. Si oui, le COGES est-il opérationnel dans votre école ?', 'cogesOperationnel'),
-                  _buildTextFormField(
-                    label: '2.8. Nombre de réunions tenues avec le rapport de gestion l\'année précédente',
-                    initialValue: formData['reunionsRapport'],
-                    onSaved: (value) => formData['reunionsRapport'] = value,
-                    validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
-                    keyboardType: TextInputType.number,
-                  ),
+                  _buildInformationRadio('2.1. Des programmes officiels des cours ?', 'programmesOfficiels'),
+                  _buildInformationRadio('2.2. D\'un COPA ?', 'copa'),
+                  if (widget.formData['copa'] == 'Oui') ...[
+                    _buildInformationRadio('2.3. Si oui, est-il opérationnel dans votre établissement ?', 'copaOperationnel'),
+                    const SizedBox(height: 12),
+                    _buildTextFormField(
+                      label: '2.4. Le nombre de réunions tenues avec les PV l\'année passée',
+                      initialValue: widget.formData['reunionsPV'],
+                      onSaved: (value) => widget.formData['reunionsPV'] = value?.trim(),
+                      validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
+                      keyboardType: TextInputType.number,
+                      icon: Icons.numbers,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildTextFormField(
+                      label: '2.5. Nombre de femmes dans le COPA',
+                      initialValue: widget.formData['femmesCOPA'],
+                      onSaved: (value) => widget.formData['femmesCOPA'] = value?.trim(),
+                      validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
+                      keyboardType: TextInputType.number,
+                      icon: Icons.people,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  _buildInformationRadio('2.6. D\'un COGES', 'coges'),
+                  if (widget.formData['coges'] == 'Oui') ...[
+                    _buildInformationRadio('2.7. Si oui, le COGES est-il opérationnel dans votre école ?', 'cogesOperationnel'),
+                    const SizedBox(height: 12),
+                    _buildTextFormField(
+                      label: '2.8. Nombre de réunions tenues avec le rapport de gestion l\'année précédente',
+                      initialValue: widget.formData['reunionsRapport'],
+                      onSaved: (value) => widget.formData['reunionsRapport'] = value?.trim(),
+                      validator: (value) => value?.isEmpty ?? true ? 'Champ obligatoire' : null,
+                      keyboardType: TextInputType.number,
+                      icon: Icons.meeting_room,
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -133,29 +163,35 @@ class EtablissementStep extends StatelessWidget {
     );
   }
 
-  Widget _buildInformationCheckBox(String title, String key) {
+  Widget _buildInformationRadio(String title, String key) {
     return InkWell(
       onTap: () {
-        formData[key] = formData[key] == 'Oui' ? 'Non' : 'Oui';
+        setState(() {
+          // Toggle the value immediately
+          widget.formData[key] = widget.formData[key] == 'Oui' ? 'Non' : 'Oui';
+        });
       },
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6.0),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade800,
-                ),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade800,
               ),
             ),
-            const SizedBox(width: 8),
-            _buildCompactRadioOption(key, 'Oui'),
-            const SizedBox(width: 6),
-            _buildCompactRadioOption(key, 'Non'),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                _buildCompactRadioOption(key, 'Oui'),
+                const SizedBox(width: 6),
+                _buildCompactRadioOption(key, 'Non'),
+              ],
+            ),
           ],
         ),
       ),
@@ -166,12 +202,12 @@ class EtablissementStep extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: formData[key] == value
+        color: widget.formData[key] == value
             ? (value == 'Oui' ? Colors.green.shade50 : Colors.red.shade50)
             : null,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: formData[key] == value
+          color: widget.formData[key] == value
               ? (value == 'Oui' ? Colors.green : Colors.red)
               : Colors.grey.shade400,
           width: 1,
@@ -185,8 +221,12 @@ class EtablissementStep extends StatelessWidget {
             height: 20,
             child: Radio<String>(
               value: value,
-              groupValue: formData[key],
-              onChanged: (String? newValue) => formData[key] = newValue,
+              groupValue: widget.formData[key],
+              onChanged: (String? newValue) {
+                setState(() {
+                  widget.formData[key] = newValue!;
+                });
+              },
               activeColor: value == 'Oui' ? Colors.green : Colors.red,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               visualDensity: VisualDensity.compact,
@@ -197,7 +237,7 @@ class EtablissementStep extends StatelessWidget {
             value,
             style: TextStyle(
               fontSize: 12,
-              color: formData[key] == value
+              color: widget.formData[key] == value
                   ? (value == 'Oui' ? Colors.green : Colors.red)
                   : Colors.grey.shade700,
             ),
@@ -213,7 +253,7 @@ class EtablissementStep extends StatelessWidget {
     required FormFieldSetter<String> onSaved,
     FormFieldValidator<String>? validator,
     IconData? icon,
-    TextInputType? keyboardType, // Add this line
+    TextInputType? keyboardType,
   }) {
     return TextFormField(
       initialValue: initialValue,
@@ -242,7 +282,7 @@ class EtablissementStep extends StatelessWidget {
       style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
       validator: validator,
       onSaved: onSaved,
-      keyboardType: keyboardType, // Add this line
+      keyboardType: keyboardType,
     );
   }
 }

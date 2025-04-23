@@ -2,7 +2,6 @@ import 'package:epsp_sige/controllers/FormService.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'steps/location_step.dart';
 import 'steps/identification_step.dart';
 import 'steps/type_step.dart';
@@ -107,16 +106,16 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Formulaire Établissement Scolaire'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveDraft,
-            tooltip: 'Sauvegarder comme brouillon',
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Formulaire Établissement Scolaire'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.save),
+      //       onPressed: _saveDraft,
+      //       tooltip: 'Sauvegarder comme brouillon',
+      //     ),
+      //   ],
+      // ),
       body: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
