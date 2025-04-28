@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "epsp.com.epsp_sige"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:epsp_sige/controllers/UserController.dart';
+import 'package:epsp_sige/utils/Queries.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:epsp_sige/widgets/ChargementWidget.dart';
 import 'package:epsp_sige/widgets/CustomVisibilityWidget.dart';
@@ -20,8 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController(text: 'josuenlandu@esige.com');
-  var password = TextEditingController(text: 'Josue12345');
+  var email = TextEditingController(text: 'admin@gmail.com');
+  var password = TextEditingController(text: 'password');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;
@@ -237,11 +240,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> LoginPressed() async {
+    // Request focus on a new FocusNode to dismiss the keyboard
     FocusScope.of(context).requestFocus(FocusNode());
+
+    // Validate the form
     if (!formKey.currentState!.validate()) {
       return;
     }
 
+    // Show loading indicator
     setState(() {
       isVisible = true;
       isLoadingWaitingAPIResponse = true;
@@ -251,23 +258,17 @@ class _LoginPageState extends State<LoginPage> {
       final ctrl = context.read<UserController>();
       final Map<String, dynamic> data = {
         "username": email.text.trim(),
-        "password": password.text.trim()
+        "password": password.text.trim(),
       };
 
-      final response = await ctrl.login(data); // This already calls _handleLoginResponse internally
+      // Attempt to log in
+      final HttpResponse response = await ctrl.login(data);
 
-      //if (response.status) {
-      if (true) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          Routes.BottomNavigationPageRoutes,
-          ModalRoute.withName('/loginpage'),
-        );
-
-        MessageWidgetsSuccess.showSnack(
-            context,
-            response.data?['message'] ?? "Connexion réussie"
-        );
+      // Check if the response is successful
+      if (response.status) {
+        // Access the user data from the response
+        final userData = response.data?["user"];
+        _handleNavigation(userData); // Pass userData to the navigation handler
       } else {
         final errorMsg = (response.isException ?? false)
             ? (response.errorMsg ?? "Erreur inconnue")
@@ -278,12 +279,70 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       MessageWidgets.showSnack(context, "Erreur inattendue: ${e.toString()}");
     } finally {
+      // Hide loading indicator
       setState(() {
         isVisible = false;
         isLoadingWaitingAPIResponse = false;
       });
     }
   }
+
+void _handleNavigation(Map<String, dynamic> response) {
+  final role = response['userInfo']['user']['role'];
+  final List<Map<String, dynamic>> establishments = response['userInfo']['establishments'];
+  if (role == 'encodeur') {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.SchoolListPageRoutes,
+      ModalRoute.withName('/SchoolListPageRoutes'),
+      arguments: {
+        'establishments': establishments,
+      },
+    );
+  } else if (role == 'super_admin' ||
+      role == 'admin_user' ||
+      role == 'superv_national') {
+    // Navigate to BottomNavigationPage with full access
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.BottomNavigationPageRoutes,
+      ModalRoute.withName('/loginpage'),
+    );
+  } else if (role == 'superv_provincial') {
+    // Navigate to BottomNavigationPage with provincial access
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.BottomNavigationPageRoutes,
+      ModalRoute.withName('/loginpage'),
+      arguments: {
+        'accessLevel': 'provincial',
+        'province': response['userInfo']['user']['province'],
+      },
+    );
+  } else if (role == 'superv_provinceeducationelle') {
+    // Navigate to BottomNavigationPage with proved access
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.BottomNavigationPageRoutes,
+      ModalRoute.withName('/loginpage'),
+      arguments: {
+        'accessLevel': 'proved',
+        'proved': response['userInfo']['user']['proved'],
+      },
+    );
+  } else if (role == 'superv_sous_division') {
+    // Navigate to BottomNavigationPage with sous-division access
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.BottomNavigationPageRoutes,
+      ModalRoute.withName('/loginpage'),
+      arguments: {
+        'accessLevel': 'sous_division',
+        'sous_division': response['userInfo']['user']['sousproved'],
+      },
+    );
+  }
+}
 
   void _handleLoginPressed() async {
     if(isLoadingWaitingAPIResponse) return;

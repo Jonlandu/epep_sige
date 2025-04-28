@@ -1,9 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:epsp_sige/controllers/FormService.dart';
+import 'package:epsp_sige/controllers/SyncServiceController.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
+import 'package:epsp_sige/models/SchoolForm.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'steps/location_step.dart';
+import 'steps/SchoolInformationForm.dart';
 import 'steps/identification_step.dart';
 import 'steps/type_step.dart';
 import 'steps/capacity_step.dart';
@@ -15,11 +17,16 @@ import 'steps/validation_step.dart';
 class DynamiqueMultiStepForm extends StatefulWidget {
   final int? idannee;
   final int? idetablissement;
+  final Map<String, dynamic>? initialData;
+
+  final String? userToken;
 
   const DynamiqueMultiStepForm({
     super.key,
     this.idannee,
     this.idetablissement,
+    this.initialData,
+    this.userToken,
   });
 
   @override
@@ -27,45 +34,20 @@ class DynamiqueMultiStepForm extends StatefulWidget {
 }
 
 class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
+  final SyncServiceController _syncService = SyncServiceController();
+  final Connectivity _connectivity = Connectivity();
+
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
   bool _isSubmitting = false;
   final ScrollController _scrollController = ScrollController();
-  final FormService _formService = FormService();
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   // Données du formulaire
-  final Map<String, dynamic> formData = {
-    'province': 'KONGO-CENTRAL',
-    'proved': 'KONGO-CENTRAL I',
-    'sousProved': 'MATADI 2',
-    'centreRegroupement': 'PR06CR21',
-    'nomEtablissement': 'CS. DORELI',
-    'nomChefEtablissement': '',
-    'typeEtablissement': 'Public',
-    'niveauxEnseignement': <String>[],
-    'capaciteAccueil': '',
-    'nombreEleves': '',
-    'nombreEnseignants': '',
-    'adresse': '',
-    'telephone': '',
-    'email': '',
-    'anneeCreation': '',
-    'infrastructures': <String>[],
-    'validation': false,
-    'created_at': DateTime.now().toIso8601String(),
-  };
+  late Map<String, dynamic> formData;
 
-  final List<GlobalKey<FormState>> _stepFormKeys = [
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-    GlobalKey<FormState>(),
-  ];
+  // Clés pour chaque étape du formulaire
+  final List<GlobalKey<FormState>> _stepFormKeys = List.generate(8, (index) => GlobalKey<FormState>());
 
   final List<Map<String, dynamic>> _stepsData = [
     {'title': 'Localisation', 'icon': Icons.location_on, 'color': Colors.blue},
@@ -78,11 +60,13 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     {'title': 'Validation', 'icon': Icons.verified_user, 'color': Colors.red},
   ];
 
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToCurrentStep();
+      _startSyncListener();
     });
   }
 
@@ -104,19 +88,18 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     }
   }
 
+  void _startSyncListener() {
+    _connectivity.onConnectivityChanged.listen((result) async {
+      if (result != ConnectivityResult.none) {
+        await _syncService.syncPendingForms(token: widget.userToken);
+      }
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Formulaire Établissement Scolaire'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveDraft,
-            tooltip: 'Sauvegarder comme brouillon',
-          ),
-        ],
-      ),
       body: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
@@ -388,7 +371,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
 
   Widget _buildCurrentStepContent() {
     switch (_currentStep) {
-      case 0: return LocationStep(formData: formData, formKey: _stepFormKeys[0]);
+      case 0: return SchoolInformationForm(formData: formData, formKey: _stepFormKeys[0]);
       case 1: return IdentificationStep(formData: formData, formKey: _stepFormKeys[1]);
       case 2: return TypeStep(formData: formData, formKey: _stepFormKeys[2]);
       case 3: return CapacityStep(formData: formData, formKey: _stepFormKeys[3]);
@@ -397,47 +380,6 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       case 6: return HistoryStep(formData: formData, formKey: _stepFormKeys[6]);
       case 7: return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
       default: return Container();
-    }
-  }
-
-  Future<void> _saveDraft() async {
-    if (_stepFormKeys[_currentStep].currentState?.validate() ?? false) {
-      _stepFormKeys[_currentStep].currentState?.save();
-
-      try {
-        setState(() => _isSubmitting = true);
-
-        // Ajouter les métadonnées
-        formData['idannee'] = widget.idannee;
-        formData['idetablissement'] = widget.idetablissement;
-        formData['updated_at'] = DateTime.now().toIso8601String();
-
-        await _dbHelper.saveForm(formData);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Brouillon sauvegardé avec succès'),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la sauvegarde: $e'),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-      } finally {
-        setState(() => _isSubmitting = false);
-      }
     }
   }
 
@@ -465,11 +407,6 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       bool isValid = true;
 
       if (!_stepFormKeys[_currentStep].currentState!.validate()) {
-        isValid = false;
-      }
-
-      // Additional validation for step 2 (niveaux d'enseignement)
-      if (_currentStep == 2 && formData['niveauxEnseignement'].isEmpty) {
         isValid = false;
       }
 
@@ -503,54 +440,55 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     }
   }
 
-  void _resetForm() {
-    setState(() {
-      _currentStep = 0;
-      formData.clear();
-      formData.addAll({
-        'province': 'KONGO-CENTRAL',
-        'proved': 'KONGO-CENTRAL I',
-        'sousProved': 'MATADI 2',
-        'centreRegroupement': 'PR06CR21',
-        'nomEtablissement': 'CS. DORELI',
-        'niveauxEnseignement': <String>[],
-        'infrastructures': <String>[],
-        'validation': false,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-
-      for (var key in _stepFormKeys) {
-        key.currentState?.reset();
-      }
-      _scrollToCurrentStep();
-    });
-  }
-
   Future<void> _submitForm() async {
     setState(() => _isSubmitting = true);
 
     try {
-      // Ajouter les métadonnées
-      formData['idannee'] = widget.idannee;
-      formData['idetablissement'] = widget.idetablissement;
-      formData['updated_at'] = DateTime.now().toIso8601String();
+      // Validation des étapes
+      for (final key in _stepFormKeys) {
+        if (!key.currentState!.validate()) {
+          throw Exception('Veuillez compléter tous les champs requis');
+        }
+        key.currentState!.save();
+      }
 
-      // Sauvegarder localement
-      final id = await _dbHelper.saveForm(formData);
+      if (formData['validation'] != true) {
+        throw Exception('Vous devez valider le formulaire');
+      }
 
-      // Tenter de synchroniser immédiatement
-      await _formService.syncFormsWithApi();
+      final form = SchoolForm(
+        idannee: widget.idannee,
+        idetablissement: widget.idetablissement,
+        data: formData,
+      );
 
-      setState(() => _isSubmitting = false);
+      final id = await _dbHelper.saveForm(form.toMap());
+      final response = await _syncService.syncForm(form.data, token: widget.userToken);
 
-      // Afficher le succès
-      _showSuccessDialog();
+      if (response.status) {
+        await _dbHelper.markFormAsSynced(id);
+        _showSuccessDialog(isOnline: true);
+      } else {
+        await _dbHelper.scheduleSync(id);
+        _showSuccessDialog(isOnline: false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Enregistré localement. Erreur de sync: ${response.errorMsg ?? "Inconnue"}'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     } catch (e) {
-      setState(() => _isSubmitting = false);
-
-      // Même en cas d'erreur, les données sont sauvegardées localement
-      // et seront synchronisées plus tard
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
       _showSuccessDialog(isOnline: false);
+    } finally {
+      setState(() => _isSubmitting = false);
     }
   }
 
