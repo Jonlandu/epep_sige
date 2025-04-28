@@ -1,4 +1,5 @@
 import 'package:epsp_sige/models/DatabaseHelper.dart';
+import 'package:epsp_sige/utils/Queries.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert'; // Import pour jsonDecode
@@ -143,18 +144,33 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      await Future.delayed(const Duration(seconds: 2));
-      await _dbHelper.markFormAsSynced(id);
+      // Appel à l'API
+      final response = await postData('/st/', formData);
 
-      if (mounted) {
-        Navigator.pop(context);
-        _refreshForms();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Formulaire envoyé avec succès!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      if (response.status) {
+        // Marquer comme synchronisé dans la base de données locale
+        await _dbHelper.markFormAsSynced(id);
+
+        if (mounted) {
+          Navigator.pop(context);
+          _refreshForms();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Formulaire envoyé avec succès!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur API: ${response.errorMsg ?? "Erreur inconnue"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -168,7 +184,6 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       }
     }
   }
-
   Future<void> _showFormDetails(int id, Map<String, dynamic> formData, bool isSynced) async {
     final result = await Navigator.push(
       context,

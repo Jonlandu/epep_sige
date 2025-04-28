@@ -18,4 +18,5 @@ class Routes {
   static const String SchoolListPageRoutes = "/schoollistpage";
   static const String SchoolDetailPageRoutes = "/schooldetailpage";
   static const String SavedFormsScreenRoutes = "/SavedFormsScreen";
+  static const String FormListPageRoutes = "/FormListPage";
 }

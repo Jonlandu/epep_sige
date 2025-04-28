@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class SchoolListPage extends StatefulWidget {
-  const SchoolListPage({Key? key}) : super(key: key);
+  final List<dynamic> establishments;
+
+  const SchoolListPage({Key? key, required this.establishments}) : super(key: key);
 
   @override
   _SchoolListPageState createState() => _SchoolListPageState();
@@ -24,33 +26,10 @@ class _SchoolListPageState extends State<SchoolListPage> {
   @override
   void initState() {
     super.initState();
-    _loadSchools();
+    _allSchools = widget.establishments.map((e) => SchoolModel.fromJson(e)).toList();
+    _filteredSchools = _allSchools;
+    _isLoading = false;
     _searchController.addListener(_filterSchools);
-  }
-
-  Future<void> _loadSchools() async {
-    setState(() => _isLoading = true);
-    // Simulation de chargement asynchrone avec délai
-    await Future.delayed(const Duration(milliseconds: 800));
-    setState(() {
-      _allSchools = List.generate(
-        50,
-            (index) => SchoolModel(
-          id: '$index',
-          name: 'École ${index + 1}',
-          abbreviation: 'ECO${index + 1}',
-          logoUrl: 'https://via.placeholder.com/150?text=ECO${index+1}',
-          description: 'Description de l\'école ${index + 1}',
-          address: '${index + 1} Avenue des Écoles, Kinshasa',
-          phone: '+243 81 ${index.toString().padLeft(7, '0')}',
-          email: 'contact@ecole${index + 1}.cd',
-          rating: (3 + (index % 3)).toDouble(),
-          studentsCount: 500 + (index * 50),
-        ),
-      );
-      _filteredSchools = _allSchools;
-      _isLoading = false;
-    });
   }
 
   void _filterSchools() {
@@ -81,7 +60,12 @@ class _SchoolListPageState extends State<SchoolListPage> {
       appBar: _buildAppBar(),
       floatingActionButton: _buildFloatingActionButton(),
       body: RefreshIndicator(
-        onRefresh: _loadSchools,
+        onRefresh: () async {
+          // You might want to reload establishments here if needed
+          setState(() {
+            _isLoading = false;
+          });
+        },
         child: Column(
           children: [
             _buildSearchField(),
@@ -170,11 +154,11 @@ class _SchoolListPageState extends State<SchoolListPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
           _buildStatItem(Icons.school, '${_filteredSchools.length}', 'Écoles'),
-          _buildStatItem(Icons.people, '${_filteredSchools.fold(0, (sum, school) => sum + (school.studentsCount ?? 0))}', 'Élèves'),
-          _buildStatItem(Icons.star, '${_filteredSchools.isEmpty ? 0 : (_filteredSchools.map((e) => e.rating ?? 0).reduce((a, b) => a + b) / _filteredSchools.length).toStringAsFixed(1)}', 'Moyenne'),
+      _buildStatItem(Icons.people, '${_filteredSchools.fold(0, (sum, school) => sum + (school.studentsCount ?? 0))}', 'Élèves'),
+        _buildStatItem(Icons.star, '${_filteredSchools.isEmpty ? 0 : (_filteredSchools.map((e) => e.rating ?? 0).reduce((a, b) => a + b) / _filteredSchools.length).toStringAsFixed(1)}', 'Moyenne'),
         ],
       ),
     );

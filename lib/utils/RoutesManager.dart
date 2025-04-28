@@ -1,10 +1,11 @@
 import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/pages/BottomNavigationPage.dart';
 import 'package:epsp_sige/pages/connexion/LoginPage.dart';
-import 'package:epsp_sige/pages/formsSt1/saved_forms_screen.dart';
+import 'package:epsp_sige/controllers/saved_forms_screen.dart';
 import 'package:epsp_sige/pages/home/MyHomePage.dart';
 import 'package:epsp_sige/pages/home/NavigationDrawerMenu.dart';
-import 'package:epsp_sige/pages/home/widgets/AccordionButton.dart';
+import 'package:epsp_sige/pages/home/widgets/DynamicAccessAccordion.dart';
+import 'package:epsp_sige/pages/home/widgets/FormPage.dart';
 import 'package:epsp_sige/pages/home/widgets/SchoolDetailPage.dart';
 import 'package:epsp_sige/pages/home/widgets/SchoolListPage.dart';
 import 'package:epsp_sige/pages/introduction/DiscoverPage.dart';
@@ -59,14 +60,23 @@ class RoutesManager {
       case Routes.LockByThumbPrintPageRoutes:
         return MaterialPageRoute(builder: (_) => LockByThumbPrintPage());
 
-      case Routes.BeautifulAccordionAppPageRoutes:
-        return MaterialPageRoute(builder: (_) => BeautifulAccordion());
-
-      case Routes.SchoolListPageRoutes:
-        return MaterialPageRoute(builder: (_) => SchoolListPage());
-
       case Routes.SavedFormsScreenRoutes:
         return MaterialPageRoute(builder: (_) => SavedFormsScreen());
+
+      case Routes.FormListPageRoutes:
+
+        return MaterialPageRoute(builder: (_) => FormListPage());
+
+      case Routes.SchoolListPageRoutes:
+        return MaterialPageRoute(
+          settings: r, // Correction: utilisez le paramètre 'r'
+          builder: (context) {
+            final args = r.arguments as Map<String, dynamic>?;
+            return SchoolListPage(
+              establishments: args?['establishments'] ?? [],
+            );
+          },
+        );
 
       case Routes.SchoolDetailPageRoutes:
         var args = r.arguments as Map<String, dynamic>?; // Cast to Map<String, dynamic>

@@ -109,22 +109,53 @@ class _ValidationStepState extends State<ValidationStep> {
 
   List<Widget> _buildSummaryItems() {
     return [
-      _buildSummaryItem('Province', widget.formData['province']),
-      _buildSummaryItem('Proved', widget.formData['proved']),
-      _buildSummaryItem('Sous-Proved', widget.formData['sousProved']),
-      _buildSummaryItem('Centre de regroupement', widget.formData['centreRegroupement']),
-      _buildSummaryItem('Nom établissement', widget.formData['nomEtablissement']),
-      _buildSummaryItem('Chef établissement', widget.formData['nomChefEtablissement']),
-      _buildSummaryItem('Type', widget.formData['typeEtablissement']),
-      _buildSummaryItem('Niveaux', widget.formData['niveauxEnseignement'].join(',')),
-      _buildSummaryItem('Capacité', widget.formData['capaciteAccueil']),
-      _buildSummaryItem('Nombre d\'élèves', widget.formData['nombreEleves']),
-      _buildSummaryItem('Nombre d\'enseignants', widget.formData['nombreEnseignants']),
-      _buildSummaryItem('Adresse', widget.formData['adresse']),
-      _buildSummaryItem('Téléphone', widget.formData['telephone']),
-      _buildSummaryItem('Email', widget.formData['email']),
-      _buildSummaryItem('Année de création', widget.formData['anneeCreation']),
-      _buildSummaryItem('Infrastructures', widget.formData['infrastructures'].join(',')),
+      _buildSummaryItem('Des programmes officiels de cours ?', widget.formData['programmesOfficiels']), // 'programmesOfficiels'
+      _buildSummaryItem('D\'un COPA ?', widget.formData['copa']), // 'copa'
+      _buildSummaryItem('Les locaux, sont-ils utilisés par un 2ème ?', widget.formData['locauxUtilises']), // 'locauxUtilises'
+      _buildSummaryItem('Point d\'eau existant ?', widget.formData['pointEauExistant']), // 'pointEauExistant'
+      _buildSummaryItem('De sources d\'énergie ?', widget.formData['sourcesEnergie']), // 'sourcesEnergie'
+      _buildSummaryItem('Des latrines (W.C) ?', widget.formData['latrines']), // 'latrines'
+      _buildSummaryItem('Une cour de récréation ?', widget.formData['courRecreation']), // 'courRecreation'
+      _buildSummaryItem('Un terrain de jeux ?', widget.formData['terrainJeux']), // 'terrainJeux'
+      _buildSummaryItem('Une clôture ?', widget.formData['cloture']), // 'cloture'
+      _buildSummaryItem('Est-il pris en charge par le Programme de réfugiés ?', widget.formData['programmeRefugies']), // 'programmeRefugies'
+      _buildSummaryItem('Votre établissement a-t-il développé un projet d\'établissement ?', widget.formData['projetEtablissement']), // 'projetEtablissement'
+      _buildSummaryItem('Prévisions budgétaires ?', widget.formData['previsionsBudgetaires']), // 'previsionsBudgetaires'
+      _buildSummaryItem('Plan d\'action opérationnel ?', widget.formData['planActionOperational']), // 'planActionOperational'
+      _buildSummaryItem('Tableau élaboré ?', widget.formData['tableauElabore']), // 'tableauElabore'
+      _buildSummaryItem('Revue Annuelle de Performance (RAP) ?', widget.formData['revueAnnuelle']), // 'revueAnnuelle'
+      _buildSummaryItem('Nombre d\'éducateurs formés (12 derniers mois)', widget.formData['nombreEducateursFormation']), // 'nombreEducateursFormation'
+      _buildSummaryItem('Nombre d\'éducateurs bien cotés (E, TB, B)', widget.formData['nombreEducateursCotes']), // 'nombreEducateursCotes'
+      _buildSummaryItem('Nombre d\'éducateurs inspectés (C3)', widget.formData['nombreEducateursInspection']), // 'nombreEducateursInspection'
+      _buildSummaryItem('Formation continue du Chef d\'établissement ?', widget.formData['formationContinue']), // 'formationContinue'
+      _buildSummaryItem('Chef d\'établissement coté positivement ?', widget.formData['chefCotePositivement']), // 'chefCotePositivement'
+
+      // Ajout des champs de CapacityStep
+      _buildSummaryItem('Lecture / Français - 1ère année', widget.formData['lectureFr1']), // 'lectureFr1'
+      _buildSummaryItem('Lecture / Français - 2ème année', widget.formData['lectureFr2']), // 'lectureFr2'
+      _buildSummaryItem('Lecture / Français - 3ème année', widget.formData['lectureFr3']), // 'lectureFr3'
+      _buildSummaryItem('Lecture / Français - Total', widget.formData['lectureFrTotal']), // 'lectureFrTotal'
+      _buildSummaryItem('Compte - 1ère année', widget.formData['compte1']), // 'compte1'
+      _buildSummaryItem('Compte - 2ème année', widget.formData['compte2']), // 'compte2'
+      _buildSummaryItem('Compte - 3ème année', widget.formData['compte3']), // 'compte3'
+      _buildSummaryItem('Compte - Total', widget.formData['compteTotal']), // 'compteTotal'
+      _buildSummaryItem('Éducation au milieu - 1ère année', widget.formData['milieu1']), // 'milieu1'
+      _buildSummaryItem('Éducation au milieu - 2ème année', widget.formData['milieu2']), // 'milieu2'
+      _buildSummaryItem('Éducation au milieu - 3ème année', widget.formData['milieu3']), // 'milieu3'
+      _buildSummaryItem('Éducation au milieu - Total', widget.formData['milieuTotal']), // 'milieuTotal'
+      _buildSummaryItem('Manuels pour les matières transversales - 1ère année', widget.formData['transversales1']), // 'transversales1'
+      _buildSummaryItem('Manuels pour les matières transversales - 2ème année', widget.formData['transversales2']), // 'transversales2'
+      _buildSummaryItem('Manuels pour les matières transversales - 3ème année', widget.formData['transversales3']), // 'transversales3'
+      _buildSummaryItem('Manuels pour les matières transversales - Total', widget.formData['transversalesTotal']), // 'transversalesTotal'
+      _buildSummaryItem('Autres manuels (1ère année)', widget.formData['autres1']), // 'autres1'
+      _buildSummaryItem('Autres manuels (2ème année)', widget.formData['autres2']), // 'autres2'
+      _buildSummaryItem('Autres manuels (3ème année)', widget.formData['autres3']), // 'autres3'
+      _buildSummaryItem('Autres manuels - Total', widget.formData['autresTotal']), // 'autresTotal'
+
+      // Ajout des champs de ContactStep
+      _buildSummaryItem('Adresse complète', widget.formData['adresse']), // 'adresse'
+      _buildSummaryItem('Téléphone', widget.formData['telephone']), // 'telephone'
+      _buildSummaryItem('Email', widget.formData['email']), // 'email'
     ];
   }
 

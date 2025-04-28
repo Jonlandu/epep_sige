@@ -6,9 +6,9 @@ import 'steps/location_step.dart';
 import 'steps/identification_step.dart';
 import 'steps/EducationStep.dart';
 import 'steps/ThemesTransversauxStep.dart';
-import 'steps/staffing_step.dart';
-import 'steps/contact_step.dart';
-import 'steps/history_step.dart';
+import 'steps/StudentDataForm.dart';
+import 'steps/ContactDataForm.dart';
+import 'steps/FormationDataForm.dart';
 import 'steps/validation_step.dart';
 
 class DynamiqueMultiStepFormST3 extends StatefulWidget {
@@ -441,9 +441,9 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
       case 1: return InfrastructureStep(formData: formData, formKey: _stepFormKeys[1]);
       case 2: return EducationStep(formData: formData, formKey: _stepFormKeys[2]);
       case 3: return ThemesTransversauxStep(formData: formData, formKey: _stepFormKeys[3]);
-      case 4: return StaffingStep(formData: formData, formKey: _stepFormKeys[4]);
-      case 5: return ContactStep(formData: formData, formKey: _stepFormKeys[5]);
-      case 6: return HistoryStep(formData: formData, formKey: _stepFormKeys[6]);
+      case 4: return StudentDataForm(formData: formData, formKey: _stepFormKeys[4]);
+      case 5: return ContactDataForm(formData: formData, formKey: _stepFormKeys[5]);
+      case 6: return FormationDataForm(formData: formData, formKey: _stepFormKeys[6]);
       case 7: return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
       default: return Container();
     }

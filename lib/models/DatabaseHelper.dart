@@ -98,7 +98,9 @@ class DatabaseHelper {
       'forms',
       {
         'is_synced': 1,
-        'updated_at': DateTime.now().toIso8601String(),
+        'sync_attempts': 0,
+        'last_sync': DateTime.now().toString(),
+        'needs_sync': 0,
       },
       where: 'id = ?',
       whereArgs: [id],
@@ -137,5 +139,29 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> scheduleSync(int id, {int maxAttempts = 3}) async {
+    final db = await database;
+
+    // Vérifie d'abord si on n'a pas déjà trop d'essais
+    final form = await db.query(
+      'forms',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (form.isNotEmpty && (form.first['sync_attempts'] as int) < maxAttempts) {
+      await db.update(
+        'forms',
+        {
+          'needs_sync': 1,
+          'sync_attempts': (form.first['sync_attempts'] as int) + 1,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
   }
 }

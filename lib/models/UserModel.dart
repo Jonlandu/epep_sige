@@ -12,6 +12,9 @@ class UserModel {
   final String photo;
   final String email;
   final DateTime dateEnregistrement;
+  final String? province; // Ajout de la province
+  final String? proved;   // Ajout de proved
+  final String? sousDivision; // Ajout de sousDivision
 
   UserModel({
     required this.id,
@@ -21,6 +24,9 @@ class UserModel {
     required this.photo,
     required this.email,
     required this.dateEnregistrement,
+    this.province,       // Initialisation de province
+    this.proved,         // Initialisation de proved
+    this.sousDivision,   // Initialisation de sousDivision
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +38,9 @@ class UserModel {
       photo: json['photo'] ?? '',
       email: json['email'] ?? '',
       dateEnregistrement: DateTime.parse(json['date_enregistrement']),
+      province: json['province'], // Ajout de la province
+      proved: json['proved'],     // Ajout de proved
+      sousDivision: json['sousDivision'], // Ajout de sousDivision
     );
   }
 
@@ -44,6 +53,9 @@ class UserModel {
       'photo': photo,
       'email': email,
       'date_enregistrement': dateEnregistrement.toIso8601String(),
+      'province': province,         // Ajout de la province
+      'proved': proved,             // Ajout de proved
+      'sousDivision': sousDivision, // Ajout de sousDivision
     };
   }
 }
