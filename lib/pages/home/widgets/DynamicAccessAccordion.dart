@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class DynamicAccessAccordion extends StatefulWidget {
   final List<Map> provincesData;
@@ -159,6 +162,8 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
   //   return filteredData;
   // }
 
+  List<String> selectedHierarchy = [];
+
   @override
   Widget build(BuildContext context) {
     final filteredData = widget.provincesData;
@@ -182,7 +187,7 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
                   itemCount: filteredData.length,
                   itemBuilder: (context, index) {
                     String abre = "";
-                    return buildExpansionTile(filteredData[index], abre);
+                    return buildExpansionTile(filteredData[index], []);
                   },
                 ),
           // ListView.builder(
@@ -460,30 +465,55 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
   }
 
   //
+  var box = GetStorage();
 
   //
-  Widget buildExpansionTile(dynamic item, String abre) {
-    if (item['sub_navigations'] == null || item['sub_navigations'].isEmpty) {
-      abre = "$abre, ${item['name']}";
+  Widget buildExpansionTile(dynamic item, List parentNames) {
+    final currentHierarchy = List<String>.from(parentNames)..add(item['name']);
+    final hasChildren =
+        (item['sub_navigations'] ?? item['sub_navigations'] ?? []).isNotEmpty;
+
+    if (!hasChildren) {
       return ListTile(
-        onTap: () {
-          //
-          print("abre: $abre");
-          //
-          print('Je clique');
-          //
-          widget.onSubdivisionSelected
-              ?.call(item['name'], item['sub_navigations'].toString());
-          //
-        },
         title: Text(item['name']),
+        onTap: () {
+          setState(() {
+            selectedHierarchy = currentHierarchy;
+            //
+            print(
+              'Chemin sélectionné: ${selectedHierarchy.join(' > ')}',
+            );
+            if (widget.userRole.name == "superv_sous_division" ||
+                widget.userRole.name == "superv_provinceeducationelle" ||
+                widget.userRole.name == "superv_provincial" ||
+                widget.userRole.name == "superv_national") {
+              //
+              var user = box.read("user") ?? {};
+              //
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.SchoolListPageRoutes,
+                ModalRoute.withName('/SchoolListPageRoutes'),
+                arguments: {
+                  'establishments': user["etablissements"].toList(),
+                },
+              );
+            } else {}
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Sélectionné: ${currentHierarchy.join(' > ')}'),
+            ),
+          );
+        },
       );
     }
 
     return ExpansionTile(
       title: Text(item['name']),
       children: (item['sub_navigations'] ?? item['sub_navigations'])
-          .map<Widget>((subItem) => buildExpansionTile(subItem, abre))
+          .map<Widget>(
+              (subItem) => buildExpansionTile(subItem, currentHierarchy))
           .toList(),
     );
   }

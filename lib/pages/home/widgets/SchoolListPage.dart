@@ -21,15 +21,24 @@ class _SchoolListPageState extends State<SchoolListPage> {
   static const int _itemsPerPage = 10;
   bool _isLoading = true;
 
-  List<SchoolModel> _filteredSchools = [];
+  //List<SchoolModel> _filteredSchools = [];
   List<SchoolModel> _allSchools = [];
+  late List establishments;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    establishments = args['establishments'];
+  }
 
   @override
   void initState() {
     super.initState();
     _allSchools =
         widget.establishments.map((e) => SchoolModel.fromJson(e)).toList();
-    _filteredSchools = _allSchools;
+    //_filteredSchools = _allSchools;
     _isLoading = false;
     _searchController.addListener(_filterSchools);
     //
@@ -39,7 +48,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
   void _filterSchools() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredSchools = _allSchools
+      establishments = _allSchools
           .where((school) =>
               school.nom.toLowerCase().contains(query) ||
               //school.abbreviation.toLowerCase().contains(query) ||
@@ -51,11 +60,11 @@ class _SchoolListPageState extends State<SchoolListPage> {
 
   List<SchoolModel> get _currentPageItems {
     final startIndex = (_currentPage - 1) * _itemsPerPage;
-    if (startIndex >= _filteredSchools.length) return [];
+    if (startIndex >= establishments.length) return [];
     final endIndex = startIndex + _itemsPerPage;
-    return _filteredSchools.sublist(
+    return establishments.sublist(
       startIndex,
-      endIndex > _filteredSchools.length ? _filteredSchools.length : endIndex,
+      endIndex > establishments.length ? establishments.length : endIndex,
     );
   }
 
@@ -167,7 +176,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildStatItem(Icons.school, '${_filteredSchools.length}', 'Écoles'),
+          _buildStatItem(Icons.school, '${establishments.length}', 'Écoles'),
           // _buildStatItem(
           //     Icons.people,
           //     '${_filteredSchools.fold(0, (sum, school) => sum + (school.studentsCount ?? 0))}',
@@ -217,7 +226,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
       );
     }
 
-    if (_filteredSchools.isEmpty) {
+    if (establishments.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -365,7 +374,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
   }
 
   Widget _buildPaginationControls() {
-    final totalPages = (_filteredSchools.length / _itemsPerPage).ceil();
+    final totalPages = (establishments.length / _itemsPerPage).ceil();
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
