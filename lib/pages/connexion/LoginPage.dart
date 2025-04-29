@@ -23,8 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController(text: 'admin@gmail.com');
-  var password = TextEditingController(text: 'password');
+  var email = TextEditingController(text: 'jonlandu78@gmail.com');
+  var password = TextEditingController(text: '1234567890');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;
@@ -58,9 +58,10 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 Container(
                   padding: EdgeInsets.all(06.0),
-                  child : Column(
+                  child: Column(
                     children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.1),
                       Container(
                         height: 70,
                         child: Image.asset(
@@ -69,9 +70,8 @@ class _LoginPageState extends State<LoginPage> {
                           height: 300,
                         ),
                       ),
-
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.06),
-
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.06),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
@@ -87,7 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.03),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 18.0),
                         child: Row(
@@ -104,31 +105,31 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.03),
                       EntryFieldEmailWidgets(
                         ctrl: email,
                         required: true,
                         label: "Email",
                         isEmail: false,
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.015),
                       EntryFieldPasswordWidgets(
                         ctrl: password,
                         label: "Password",
                         required: true,
                         isPassword: false,
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.02),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                              onTap: () {
-
-                              },
+                              onTap: () {},
                               child: Text(
                                 'Forgot Password ? Contact l\'admin',
                                 style: TextStyle(
@@ -139,15 +140,18 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.04),
                       ReusableButtonWidgets(
-                          text: "Login",
-                          fontSize: 14,
-                          onPressed: isLoadingWaitingAPIResponse ? null : _handleLoginPressed,
-                          color: Color(0xFF336699),
+                        text: "Login",
+                        fontSize: 14,
+                        onPressed: isLoadingWaitingAPIResponse
+                            ? null
+                            : _handleLoginPressed,
+                        color: Color(0xFF336699),
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.03),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
@@ -158,15 +162,17 @@ class _LoginPageState extends State<LoginPage> {
                               width: 75,
                               color: Colors.grey,
                             ),
-                            SizedBox(width: 11,),
+                            SizedBox(
+                              width: 11,
+                            ),
                             Text(
                               'Or login with',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.w500),
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(width: 11,),
+                            SizedBox(
+                              width: 11,
+                            ),
                             Container(
                               height: 1.0,
                               width: 75,
@@ -175,7 +181,8 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.02),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
@@ -183,9 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             InkWell(
                               onTap: () {
-                                setState(() {
-
-                                });
+                                setState(() {});
                               },
                               child: Image.asset(
                                 "assets/facebook.png",
@@ -193,12 +198,12 @@ class _LoginPageState extends State<LoginPage> {
                                 height: 30,
                               ),
                             ),
-                            SizedBox(width: MediaQuery.of(context).size.height * 0.04),
+                            SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.height * 0.04),
                             InkWell(
                               onTap: () {
-                                setState(() {
-
-                                });
+                                setState(() {});
                               },
                               child: Image.asset(
                                 "assets/google.png",
@@ -209,8 +214,8 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01),
                       CustomVisibilityWidget(
                         visible: isCancelButtonVisible,
                         onPressed: () {
@@ -227,7 +232,8 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.04),
                     ],
                   ),
                 ),
@@ -257,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final ctrl = context.read<UserController>();
       final Map<String, dynamic> data = {
-        "username": email.text.trim(),
+        "email": email.text.trim(),
         "password": password.text.trim(),
       };
 
@@ -267,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
       // Check if the response is successful
       if (response.status) {
         // Access the user data from the response
-        final userData = response.data?["user"];
+        Map<dynamic, dynamic>? userData = response.data; //["user"];
         _handleNavigation(userData); // Pass userData to the navigation handler
       } else {
         final errorMsg = (response.isException ?? false)
@@ -277,6 +283,8 @@ class _LoginPageState extends State<LoginPage> {
         MessageWidgets.showSnack(context, errorMsg);
       }
     } catch (e) {
+      print(e.toString());
+      print(e);
       MessageWidgets.showSnack(context, "Erreur inattendue: ${e.toString()}");
     } finally {
       // Hide loading indicator
@@ -287,65 +295,69 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-void _handleNavigation(Map<String, dynamic> response) {
-  final role = response['userInfo']['user']['role'];
-  final List<Map<String, dynamic>> establishments = response['userInfo']['establishments'];
-  if (role == 'encodeur') {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.SchoolListPageRoutes,
-      ModalRoute.withName('/SchoolListPageRoutes'),
-      arguments: {
-        'establishments': establishments,
-      },
-    );
-  } else if (role == 'super_admin' ||
-      role == 'admin_user' ||
-      role == 'superv_national') {
-    // Navigate to BottomNavigationPage with full access
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.BottomNavigationPageRoutes,
-      ModalRoute.withName('/loginpage'),
-    );
-  } else if (role == 'superv_provincial') {
-    // Navigate to BottomNavigationPage with provincial access
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.BottomNavigationPageRoutes,
-      ModalRoute.withName('/loginpage'),
-      arguments: {
-        'accessLevel': 'provincial',
-        'province': response['userInfo']['user']['province'],
-      },
-    );
-  } else if (role == 'superv_provinceeducationelle') {
-    // Navigate to BottomNavigationPage with proved access
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.BottomNavigationPageRoutes,
-      ModalRoute.withName('/loginpage'),
-      arguments: {
-        'accessLevel': 'proved',
-        'proved': response['userInfo']['user']['proved'],
-      },
-    );
-  } else if (role == 'superv_sous_division') {
-    // Navigate to BottomNavigationPage with sous-division access
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      Routes.BottomNavigationPageRoutes,
-      ModalRoute.withName('/loginpage'),
-      arguments: {
-        'accessLevel': 'sous_division',
-        'sous_division': response['userInfo']['user']['sousproved'],
-      },
-    );
+  void _handleNavigation(Map<dynamic, dynamic>? response) {
+    print("Role: ${jsonEncode(response?['etablissements'])}");
+    final role = response?['userInfo']['user']['role'];
+    print("Role: $role");
+    final List<Map<String, dynamic>> establishments =
+        response?['etablissements'].cast<Map<String, dynamic>>() ?? [];
+    if (role == 'encodeur') {
+      print("Establishments: $establishments");
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.SchoolListPageRoutes,
+        ModalRoute.withName('/SchoolListPageRoutes'),
+        arguments: {
+          'establishments': establishments.toList(),
+        },
+      );
+    } else if (role == 'super_admin' ||
+        role == 'admin_user' ||
+        role == 'superv_national') {
+      // Navigate to BottomNavigationPage with full access
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.BottomNavigationPageRoutes,
+        ModalRoute.withName('/loginpage'),
+      );
+    } else if (role == 'superv_provincial') {
+      // Navigate to BottomNavigationPage with provincial access
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.BottomNavigationPageRoutes,
+        ModalRoute.withName('/loginpage'),
+        arguments: {
+          'accessLevel': 'provincial',
+          'province': response?['userInfo']['user']['province'] ?? "",
+        },
+      );
+    } else if (role == 'superv_provinceeducationelle') {
+      // Navigate to BottomNavigationPage with proved access
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.BottomNavigationPageRoutes,
+        ModalRoute.withName('/loginpage'),
+        arguments: {
+          'accessLevel': 'proved',
+          'proved': response?['userInfo']['user']['proved'] ?? "",
+        },
+      );
+    } else if (role == 'superv_sous_division') {
+      // Navigate to BottomNavigationPage with sous-division access
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.BottomNavigationPageRoutes,
+        ModalRoute.withName('/loginpage'),
+        arguments: {
+          'accessLevel': 'sous_division',
+          'sous_division': response?['userInfo']['user']['sousproved'] ?? "",
+        },
+      );
+    }
   }
-}
 
   void _handleLoginPressed() async {
-    if(isLoadingWaitingAPIResponse) return;
+    if (isLoadingWaitingAPIResponse) return;
     setState(() {
       isLoadingWaitingAPIResponse = true;
       isCancelButtonVisible = true;

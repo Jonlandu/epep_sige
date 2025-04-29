@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 class SchoolListPage extends StatefulWidget {
   final List<dynamic> establishments;
 
-  const SchoolListPage({Key? key, required this.establishments}) : super(key: key);
+  const SchoolListPage({Key? key, required this.establishments})
+      : super(key: key);
 
   @override
   _SchoolListPageState createState() => _SchoolListPageState();
@@ -26,19 +27,24 @@ class _SchoolListPageState extends State<SchoolListPage> {
   @override
   void initState() {
     super.initState();
-    _allSchools = widget.establishments.map((e) => SchoolModel.fromJson(e)).toList();
+    _allSchools =
+        widget.establishments.map((e) => SchoolModel.fromJson(e)).toList();
     _filteredSchools = _allSchools;
     _isLoading = false;
     _searchController.addListener(_filterSchools);
+    //
+    print("Establishments: ${widget.establishments}");
   }
 
   void _filterSchools() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredSchools = _allSchools.where((school) =>
-      school.name.toLowerCase().contains(query) ||
-          school.abbreviation.toLowerCase().contains(query) ||
-          school.address.toLowerCase().contains(query)).toList();
+      _filteredSchools = _allSchools
+          .where((school) =>
+              school.nom.toLowerCase().contains(query) ||
+              //school.abbreviation.toLowerCase().contains(query) ||
+              school.province!.toLowerCase().contains(query))
+          .toList();
       _currentPage = 1;
     });
   }
@@ -69,7 +75,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
         child: Column(
           children: [
             _buildSearchField(),
-            _buildStatsHeader(),
+            //_buildStatsHeader(),
             Expanded(child: _buildContent()),
             _buildPaginationControls(),
           ],
@@ -133,17 +139,18 @@ class _SchoolListPageState extends State<SchoolListPage> {
             prefixIcon: const Icon(Icons.search, color: Colors.blue),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-              icon: const Icon(Icons.clear, color: Colors.grey),
-              onPressed: () {
-                _searchController.clear();
-                _filterSchools();
-              },
-            )
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      _filterSchools();
+                    },
+                  )
                 : null,
             border: InputBorder.none,
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           ),
         ),
       ),
@@ -154,11 +161,17 @@ class _SchoolListPageState extends State<SchoolListPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
           _buildStatItem(Icons.school, '${_filteredSchools.length}', 'Écoles'),
-      _buildStatItem(Icons.people, '${_filteredSchools.fold(0, (sum, school) => sum + (school.studentsCount ?? 0))}', 'Élèves'),
-        _buildStatItem(Icons.star, '${_filteredSchools.isEmpty ? 0 : (_filteredSchools.map((e) => e.rating ?? 0).reduce((a, b) => a + b) / _filteredSchools.length).toStringAsFixed(1)}', 'Moyenne'),
+          // _buildStatItem(
+          //     Icons.people,
+          //     '${_filteredSchools.fold(0, (sum, school) => sum + (school.studentsCount ?? 0))}',
+          //     'Élèves'),
+          // _buildStatItem(
+          //     Icons.star,
+          //     '${_filteredSchools.isEmpty ? 0 : (_filteredSchools.map((e) => e.rating ?? 0).reduce((a, b) => a + b) / _filteredSchools.length).toStringAsFixed(1)}',
+          //     'Moyenne'),
         ],
       ),
     );
@@ -180,8 +193,12 @@ class _SchoolListPageState extends State<SchoolListPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
-              Text(label, style: TextStyle(fontSize: 12, color: Colors.blue.shade600)),
+              Text(value,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade900)),
+              Text(label,
+                  style: TextStyle(fontSize: 12, color: Colors.blue.shade600)),
             ],
           ),
         ],
@@ -251,20 +268,22 @@ class _SchoolListPageState extends State<SchoolListPage> {
                 child: Container(
                   width: 60,
                   height: 60,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: NetworkImage(school.logoUrl),
-                      fit: BoxFit.cover,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
+                  decoration: school.logoUrl != null
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: NetworkImage(school.logoUrl!),
+                            fit: BoxFit.cover,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        )
+                      : null,
                 ),
               ),
               const SizedBox(width: 16),
@@ -273,7 +292,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      school.name,
+                      school.nom,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -284,11 +303,12 @@ class _SchoolListPageState extends State<SchoolListPage> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
+                        Icon(Icons.location_on_outlined,
+                            size: 14, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            school.address,
+                            "${school.province} ${school.proved} ${school.sousproved}",
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -300,19 +320,19 @@ class _SchoolListPageState extends State<SchoolListPage> {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        _buildRatingStars(school.rating ?? 0),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${school.studentsCount} élèves',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     _buildRatingStars(school.rating ?? 0),
+                    //     const SizedBox(width: 8),
+                    //     Text(
+                    //       '${school.studentsCount} élèves',
+                    //       style: TextStyle(
+                    //         color: Colors.grey.shade600,
+                    //         fontSize: 12,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -361,7 +381,8 @@ class _SchoolListPageState extends State<SchoolListPage> {
           IconButton(
             icon: const Icon(Icons.arrow_back_ios, size: 20),
             color: _currentPage > 1 ? Colors.blue : Colors.grey,
-            onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+            onPressed:
+                _currentPage > 1 ? () => setState(() => _currentPage--) : null,
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -381,7 +402,9 @@ class _SchoolListPageState extends State<SchoolListPage> {
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios, size: 20),
             color: _currentPage < totalPages ? Colors.blue : Colors.grey,
-            onPressed: _currentPage < totalPages ? () => setState(() => _currentPage++) : null,
+            onPressed: _currentPage < totalPages
+                ? () => setState(() => _currentPage++)
+                : null,
           ),
         ],
       ),
@@ -402,7 +425,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  school.name,
+                  school.nom,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -427,7 +450,8 @@ class _SchoolListPageState extends State<SchoolListPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.assignment_outlined, color: Colors.green),
+                leading:
+                    const Icon(Icons.assignment_outlined, color: Colors.green),
                 title: const Text('Accéder au formulaire'),
                 onTap: () {
                   Navigator.pop(context);
@@ -575,23 +599,25 @@ class _SchoolListPageState extends State<SchoolListPage> {
                     labelText: 'Nom de l\'école',
                     border: OutlineInputBorder(),
                   ),
-                  controller: TextEditingController(text: school.name),
+                  controller: TextEditingController(text: school.nom),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   decoration: const InputDecoration(
-                    labelText: 'Adresse',
+                    labelText: 'Ville',
                     border: OutlineInputBorder(),
                   ),
-                  controller: TextEditingController(text: school.address),
+                  controller:
+                      TextEditingController(text: school.qCiteChefferieVillage),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   decoration: const InputDecoration(
-                    labelText: 'Téléphone',
+                    labelText: 'Commune',
                     border: OutlineInputBorder(),
                   ),
-                  controller: TextEditingController(text: school.phone),
+                  controller: TextEditingController(
+                      text: school.territoireCommuneVille),
                   keyboardType: TextInputType.phone,
                 ),
               ],
@@ -621,7 +647,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Confirmer la suppression'),
-          content: Text('Êtes-vous sûr de vouloir supprimer ${school.name} ?'),
+          content: Text('Êtes-vous sûr de vouloir supprimer ${school.nom} ?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -633,12 +659,13 @@ class _SchoolListPageState extends State<SchoolListPage> {
                 // Supprimer l'école ici
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${school.name} a été supprimée'),
+                    content: Text('${school.nom} a été supprimée'),
                     backgroundColor: Colors.red,
                   ),
                 );
               },
-              child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
+              child:
+                  const Text('Supprimer', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

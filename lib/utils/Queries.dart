@@ -11,14 +11,12 @@ class HttpResponse {
   bool? isError;
   bool? isException;
 
-  HttpResponse({
-    required this.status,
-    this.data,
-    this.errorMsg,
-    this.isError,
-    this.isException
-  });
-
+  HttpResponse(
+      {required this.status,
+      this.data,
+      this.errorMsg,
+      this.isError,
+      this.isException});
 }
 
 void printWrapped(String text) {
@@ -40,7 +38,8 @@ Future<dynamic> getData(String url_api, {String? token}) async {
     var response = await dio.get(url);
     //dio.interceptors.add(alice.getDioInterceptor());
 
-    print("BEHOLD THE ANSWER OF GETDATA API FUNCTION : $response");// To remove after
+    print(
+        "BEHOLD THE ANSWER OF GETDATA API FUNCTION : $response"); // To remove after
 
     if (response.statusCode == 200) {
       if (response.data is String) {
@@ -51,12 +50,13 @@ Future<dynamic> getData(String url_api, {String? token}) async {
     }
     //return json.decode(response.body);
     return null;
-
   } catch (e, trace) {
     print(e.toString());
     print(trace.toString());
-    print("Salut Mardochééééééééééééééééééééééééééééééééééééééé Voici le TOKEN : $token");
-    print("Salut Mardochééééééééééééééééééééééééééééééééééééééé Voici l'url : ${Constantes.BASE_URL}$url_api");
+    print(
+        "Salut Mardochééééééééééééééééééééééééééééééééééééééé Voici le TOKEN : $token");
+    print(
+        "Salut Mardochééééééééééééééééééééééééééééééééééééééé Voici l'url : ${Constantes.BASE_URL}$url_api");
     return null;
   }
 }
@@ -91,9 +91,10 @@ Future<HttpResponse> postData(String api_url, Map data, {String? token}) async {
   }
 }
 
-Future<HttpResponse> postDataLogin(String api_url, Map data, {String? token}) async {
+Future<HttpResponse> postDataLogin(String api_url, Map data,
+    {String? token}) async {
   try {
-    var url = Uri.parse("${Constantes.BASE_URL}$api_url");
+    var url = Uri.parse("${Constantes.BASE_URL}/$api_url");
     String dataStr = json.encode(data);
 
     // Ne pas inclure le header Authorization si le token est null
@@ -105,11 +106,9 @@ Future<HttpResponse> postDataLogin(String api_url, Map data, {String? token}) as
       headers["Authorization"] = "Bearer $token";
     }
 
-    var response = await http.post(
-        url,
-        body: dataStr,
-        headers: headers
-    ).timeout(Duration(seconds: 10));
+    var response = await http
+        .post(url, body: dataStr, headers: headers)
+        .timeout(Duration(seconds: 10));
 
     var successList = [200, 201];
     var msg = json.decode(response.body);
@@ -124,12 +123,12 @@ Future<HttpResponse> postDataLogin(String api_url, Map data, {String? token}) as
     return HttpResponse(
         status: false,
         errorMsg: "Unexpected error, connexion's problem",
-        isException: true
-    );
+        isException: true);
   }
 }
 
-Future<HttpResponse> updateData(String endpoint, Map data, {String? token}) async {
+Future<HttpResponse> updateData(String endpoint, Map data,
+    {String? token}) async {
   try {
     final url = "${Constantes.BASE_URL}$endpoint";
     final jsonData = json.encode(data);
@@ -154,7 +153,8 @@ Future<HttpResponse> updateData(String endpoint, Map data, {String? token}) asyn
     }
     print("I AME THE updateData FONCTION");
     print("I AME THE updateData FONCTION BEHOLD THE TOKEN : $token");
-    printWrapped("I AME THE updateData FONCTION BEHOLD THE RESPONSE : ${response.body}");
+    printWrapped(
+        "I AME THE updateData FONCTION BEHOLD THE RESPONSE : ${response.body}");
     return HttpResponse(status: status, data: message);
   } catch (e, trace) {
     printWrapped(e.toString());
@@ -214,11 +214,9 @@ Future<HttpResponse> sendOTP(String api_url, Map data, {String? token}) async {
   try {
     var url = Uri.parse("${Constantes.BASE_URL}$api_url");
     String dataStr = json.encode(data);
-    var response = await http.post(
-      url,
-      body: dataStr, headers: {
-      "Content-Type" : "application/json",
-      "Authorization" : "Bearer $token"
+    var response = await http.post(url, body: dataStr, headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
     }).timeout(Duration(seconds: 1));
 
     var successList = [200, 201];
@@ -226,7 +224,6 @@ Future<HttpResponse> sendOTP(String api_url, Map data, {String? token}) async {
     var status = successList.contains(response.statusCode);
     if (response.statusCode == 500) throw Exception(message);
     return HttpResponse(status: status, data: message);
-
   } catch (e, trace) {
     printWrapped(e.toString());
     printWrapped(trace.toString());
@@ -234,13 +231,12 @@ Future<HttpResponse> sendOTP(String api_url, Map data, {String? token}) async {
     return HttpResponse(
         status: false,
         errorMsg: "Something wrong happened !",
-        isException: true
-    );
+        isException: true);
   }
 }
 
-Future<HttpResponse> updatePassword(String endpoint, Map data, {String? token}) async {
-
+Future<HttpResponse> updatePassword(String endpoint, Map data,
+    {String? token}) async {
   try {
     final url = "${Constantes.BASE_URL}$endpoint";
 
@@ -275,7 +271,6 @@ Future<HttpResponse> updatePassword(String endpoint, Map data, {String? token}) 
       isException: true,
     );
   }
-
 }
 
 Future<HttpResponse> deleteData(String endpoint, {String? token}) async {

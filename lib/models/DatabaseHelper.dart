@@ -1,3 +1,4 @@
+import 'package:get_storage/get_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
@@ -6,6 +7,9 @@ class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
   DatabaseHelper._internal();
+
+  //
+  var box = GetStorage();
 
   static Database? _database;
 
@@ -44,12 +48,14 @@ class DatabaseHelper {
       )
     ''');
     await db.execute('CREATE INDEX idx_forms_sync ON forms(is_synced)');
-    await db.execute('CREATE INDEX idx_forms_etablissement ON forms(idetablissement)');
+    await db.execute(
+        'CREATE INDEX idx_forms_etablissement ON forms(idetablissement)');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE forms ADD COLUMN sync_attempts INTEGER DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE forms ADD COLUMN sync_attempts INTEGER DEFAULT 0');
     }
   }
 
@@ -78,6 +84,11 @@ class DatabaseHelper {
   }
 
   Future<int> saveForm(Map<String, dynamic> formData) async {
+    //
+    List list = box.read("formData") ?? [];
+    //
+    list.add(formData);
+    //
     final db = await database;
 
     final data = {
