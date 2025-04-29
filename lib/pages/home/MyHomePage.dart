@@ -3,18 +3,23 @@ import 'package:epsp_sige/settings/SettingsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:epsp_sige/controllers/UserController.dart';
 import 'package:epsp_sige/pages/home/NavigationDrawerMenu.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:epsp_sige/models/UserModel.dart';
 import 'package:accordion/accordion.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  List navigations = [];
+  MyHomePage(this.navigations, {super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //
+  var box = GetStorage();
+  //
   @override
   void initState() {
     super.initState();
@@ -25,12 +30,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserController>().user;
+    var user = box.read("user") ?? {}; // context.watch<UserController>().user;
+    print("Ton user: $user");
 
     return Scaffold(
       appBar: _buildAppBar(context),
       drawer: const NavigationDrawerMenu(),
-      body: _buildBody(user),
+      body: _buildBody(UserModel.fromJson(user)),
       floatingActionButton: _buildFloatingActionButton(),
     );
   }
@@ -64,27 +70,27 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBody(UserModel? user) {
-    final provincesData = {
-      'Kinshasa': {
-        'Lukunga': ['Gombe', 'Ngaliema', 'Mont-Ngafula', 'Lemba'],
-        'Tshangu': ['Ndjili', 'Kimbanseke', 'Masina', 'Nsele'],
-        'Mont-Amba': ['Matete', 'Lemba', 'Kinsenso'],
-        'Funa': ['Bandalungwa', 'Bumbu', 'Makala', 'Selembao'],
-        'Plateau': ['La Gombe', 'Kintambo', 'Lingwala']
-      },
-      'Kongo-Central': {
-        'Matadi': ['Matadi', 'Nzanza', 'Mvuzi'],
-        'Boma': ['Boma', 'Kalamu', 'Lukula'],
-        'Muanda': ['Muanda', 'Kisundi'],
-        'Lukala': ['Lukala', 'Kasangulu']
-      },
-      'Katanga': {
-        'Lubumbashi': ['Lubumbashi', 'Kampemba', 'Katuba', 'Annexe'],
-        'Likasi': ['Likasi', 'Kambove'],
-        'Kolwezi': ['Kolwezi', 'Dilala'],
-        'Kipushi': ['Kipushi', 'Kasenga']
-      },
-    };
+    // final provincesData = {
+    //   'Kinshasa': {
+    //     'Lukunga': ['Gombe', 'Ngaliema', 'Mont-Ngafula', 'Lemba'],
+    //     'Tshangu': ['Ndjili', 'Kimbanseke', 'Masina', 'Nsele'],
+    //     'Mont-Amba': ['Matete', 'Lemba', 'Kinsenso'],
+    //     'Funa': ['Bandalungwa', 'Bumbu', 'Makala', 'Selembao'],
+    //     'Plateau': ['La Gombe', 'Kintambo', 'Lingwala']
+    //   },
+    //   'Kongo-Central': {
+    //     'Matadi': ['Matadi', 'Nzanza', 'Mvuzi'],
+    //     'Boma': ['Boma', 'Kalamu', 'Lukula'],
+    //     'Muanda': ['Muanda', 'Kisundi'],
+    //     'Lukala': ['Lukala', 'Kasangulu']
+    //   },
+    //   'Katanga': {
+    //     'Lubumbashi': ['Lubumbashi', 'Kampemba', 'Katuba', 'Annexe'],
+    //     'Likasi': ['Likasi', 'Kambove'],
+    //     'Kolwezi': ['Kolwezi', 'Dilala'],
+    //     'Kipushi': ['Kipushi', 'Kasenga']
+    //   },
+    // };
 
     // Détermine le rôle de l'utilisateur
     final userRole = _determineUserRole(user?.role);
@@ -103,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildHeader(),
             Expanded(
               child: BeautifulAccordion(
-                provincesData: provincesData,
-                userRole: _determineUserRole(user?.role),
+                provincesData: widget.navigations.cast<Map<String, dynamic>>(),
+                userRole: userRole,
                 province: user?.province,
                 proved: user?.proved,
                 sousDivision: user?.sousDivision,
@@ -112,10 +118,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   debugPrint('Province sélectionnée: $province');
                 },
                 onSubdivisionSelected: (province, subdivision) {
-                  debugPrint('Subdivision sélectionnée: $subdivision dans $province');
+                  debugPrint(
+                      'Subdivision sélectionnée: $subdivision dans $province');
+                  //,,,
+                  if (userRole == "superv_sous_division" ||
+                      userRole == "superv_provinceeducationelle" ||
+                      userRole == "superv_provincial" ||
+                      userRole == "superv_national") {
+                  } else {}
                 },
                 onCommuneSelected: (province, subdivision, commune) {
-                  debugPrint('Commune sélectionnée: $commune dans $subdivision, $province');
+                  debugPrint(
+                      'Commune sélectionnée: $commune dans $subdivision, $province');
                 },
               ),
             ),
@@ -127,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Méthode pour déterminer le rôle de l'utilisateur
   UserRole _determineUserRole(String? role) {
+    //superv_sous_division,superv_provinceeducationelle,superv_provincial,superv_national
     switch (role) {
       case 'super_admin':
         return UserRole.superAdmin;
@@ -227,8 +242,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Paramètres'),
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => SettingsPage()));
                 },
               ),
               ListTile(
@@ -306,7 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class BeautifulAccordion extends StatelessWidget {
-  final Map<String, Map<String, List<String>>> provincesData;
+  final List<Map> provincesData;
   final UserRole userRole;
   final String? province;
   final String? proved;
@@ -339,4 +355,5 @@ class BeautifulAccordion extends StatelessWidget {
       onSubdivisionSelected: onSubdivisionSelected,
       onCommuneSelected: onCommuneSelected,
     );
-  }}
+  }
+}

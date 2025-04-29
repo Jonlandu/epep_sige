@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:epsp_sige/controllers/UserController.dart';
 import 'package:epsp_sige/utils/Queries.dart';
 import 'package:epsp_sige/utils/Routes.dart';
+import 'package:epsp_sige/utils/navigations.dart';
 import 'package:epsp_sige/widgets/ChargementWidget.dart';
 import 'package:epsp_sige/widgets/CustomVisibilityWidget.dart';
 import 'package:epsp_sige/widgets/EntryFieldEmailWidgets.dart';
@@ -10,6 +11,7 @@ import 'package:epsp_sige/widgets/EntryFieldPasswordWidgets.dart';
 import 'package:epsp_sige/widgets/MessageWidgets.dart';
 import 'package:epsp_sige/widgets/ReusableButtonWidgets.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,6 +21,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool iSButtonPressedSignIn = false;
+  //
+  var box = GetStorage();
 
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
@@ -296,8 +300,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleNavigation(Map<dynamic, dynamic>? response) {
+    //
+    box.write("user", response);
+    //
     print("Role: ${jsonEncode(response?['etablissements'])}");
     final role = response?['userInfo']['user']['role'];
+    //
+    Navigations.navigations = response?['navigations'] ?? [];
+    //
     print("Role: $role");
     final List<Map<String, dynamic>> establishments =
         response?['etablissements'].cast<Map<String, dynamic>>() ?? [];

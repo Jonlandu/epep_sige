@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:get_storage/get_storage.dart';
 
 class BottomNavigationPage extends StatefulWidget {
-  const BottomNavigationPage({Key? key}) : super(key: key);
+  List navigations;
+  BottomNavigationPage(this.navigations, {Key? key}) : super(key: key);
 
   @override
   State<BottomNavigationPage> createState() => _BottomNavigationPageState();
 }
 
 class _BottomNavigationPageState extends State<BottomNavigationPage> {
-
   int _currentIndex = 0;
   Color other = Colors.grey;
   Color selectedItem = Colors.orange;
@@ -29,12 +29,14 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
       // Ensuite appelle l'API pour les données fraîches
       userCtrl.getDataAPI();
     });
+    //
+    pages = [
+      MyHomePage(widget.navigations),
+      ProfilPage(),
+    ];
   }
 
-  final pages = [
-    MyHomePage(),
-    ProfilPage(),
-  ];
+  List<Widget> pages = [];
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     );
   }
 
-  Widget _bottomNavigation(){
+  Widget _bottomNavigation() {
     context.watch<UserController>();
     return Container(
       decoration: BoxDecoration(
