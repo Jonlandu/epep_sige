@@ -5,14 +5,15 @@ import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/models/SchoolForm.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
-import 'steps/SchoolInformationForm.dart';
-import 'steps/identification_step.dart';
-import 'steps/type_step.dart';
-import 'steps/capacity_step.dart';
-import 'steps/staffing_step.dart';
-import 'steps/contact_step.dart';
-import 'steps/history_step.dart';
-import 'steps/validation_step.dart';
+import 'package:get/get.dart';
+import 'steps/step1.dart';
+import 'steps/step2.dart';
+import 'steps/step3.dart';
+import 'steps/step4.dart';
+import 'steps/step5.dart';
+// import 'steps/contact_step.dart';
+// import 'steps/history_step.dart';
+import 'steps/step6.dart';
 
 class DynamiqueMultiStepForm extends StatefulWidget {
   final int? idannee;
@@ -41,17 +42,24 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
   int _currentStep = 0;
   bool _isSubmitting = false;
   final ScrollController _scrollController = ScrollController();
+  PageController pageController = PageController();
+  final RxInt _currentIndex = 0.obs; // pour savoir où on est
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   // Données du formulaire
-  late Map<String, dynamic> formData;
+  Map<String, dynamic> formData = {};
 
   // Clés pour chaque étape du formulaire
-  final List<GlobalKey<FormState>> _stepFormKeys = List.generate(8, (index) => GlobalKey<FormState>());
+  final List<GlobalKey<FormState>> _stepFormKeys =
+      List.generate(8, (index) => GlobalKey<FormState>());
 
   final List<Map<String, dynamic>> _stepsData = [
     {'title': 'Localisation', 'icon': Icons.location_on, 'color': Colors.blue},
-    {'title': 'Identification', 'icon': Icons.assignment_ind, 'color': Colors.purple},
+    {
+      'title': 'Identification',
+      'icon': Icons.assignment_ind,
+      'color': Colors.purple
+    },
     {'title': 'Type', 'icon': Icons.category, 'color': Colors.orange},
     {'title': 'Capacité', 'icon': Icons.people_outline, 'color': Colors.green},
     {'title': 'Effectifs', 'icon': Icons.school, 'color': Colors.teal},
@@ -59,7 +67,6 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     {'title': 'Historique', 'icon': Icons.history, 'color': Colors.indigo},
     {'title': 'Validation', 'icon': Icons.verified_user, 'color': Colors.red},
   ];
-
 
   @override
   void initState() {
@@ -79,12 +86,19 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
   void _scrollToCurrentStep() {
     if (_scrollController.hasClients) {
       final double itemWidth = 140.0;
-      final double scrollOffset = _currentStep * itemWidth - (MediaQuery.of(context).size.width / 2 - itemWidth / 2);
-      _scrollController.animateTo(
-        scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOutQuint,
-      );
+      final double scrollOffset = _currentStep * itemWidth -
+          (MediaQuery.of(context).size.width / 2 - itemWidth / 2);
+      setState(() {
+        pageController.nextPage(
+          //scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
+        );
+        //
+        setState(() {
+          _currentIndex.value++;
+        });
+      });
     }
   }
 
@@ -95,7 +109,6 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       }
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,16 +131,91 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
             ),
             filled: true,
             fillColor: Colors.grey.shade50,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             labelStyle: TextStyle(color: Colors.grey.shade700),
           ),
         ),
         child: Column(
           children: [
             // Barre de progression
-            _buildStepProgressBar(),
-            // Contenu du formulaire
-            _buildFormContent(),
+            Obx(
+              () => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  6, //_stepsData.length
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                    width: _currentIndex.value == index ? 12 : 8,
+                    height: _currentIndex.value == index ? 12 : 8,
+                    decoration: BoxDecoration(
+                      color: _currentIndex.value == index
+                          ? Colors.blue
+                          : Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            //_buildStepProgressBar(),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.all(0),
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex.value = index;
+                    });
+                  },
+                  //physics: NeverScrollableScrollPhysics(),
+                  children: [
+                    Step1(
+                      formData: formData,
+                      formKey: _stepFormKeys[0],
+                      controller: pageController,
+                    ),
+                    Step2(
+                        formData: formData,
+                        formKey: _stepFormKeys[1],
+                        controller: pageController),
+                    Step3(
+                        formData: formData,
+                        formKey: _stepFormKeys[2],
+                        controller: pageController),
+                    Step4(
+                        formData: formData,
+                        formKey: _stepFormKeys[3],
+                        controller: pageController),
+                    Step5(
+                        formData: formData,
+                        formKey: _stepFormKeys[4],
+                        controller: pageController),
+                    // ContactStep(
+                    //     formData: formData,
+                    //     formKey: _stepFormKeys[5],
+                    //     controller: pageController),
+                    // HistoryStep(
+                    //     formData: formData,
+                    //     formKey: _stepFormKeys[6],
+                    //     controller: pageController),
+                    Step6(
+                      formData: formData,
+                      formKey: _stepFormKeys[7],
+                      controller: pageController,
+                      send: submitForm,
+                    ),
+                    // Container(),
+                  ],
+                ),
+              ),
+              // Contenu du formulaire
+              //_buildFormContent(),
+            ),
           ],
         ),
       ),
@@ -148,88 +236,110 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Scrollbar(
-        child: ListView.builder(
-          controller: _scrollController,
-          scrollDirection: Axis.horizontal,
-          itemCount: _stepsData.length,
-          itemBuilder: (context, index) {
-            final step = _stepsData[index];
-            final isActive = index == _currentStep;
-            final isCompleted = index < _currentStep;
-            final color = step['color'] as Color;
-
-            return GestureDetector(
-              onTap: () {
-                if (index < _currentStep || (index > _currentStep && _stepFormKeys[_currentStep].currentState?.validate() == true)) {
-                  setState(() => _currentStep = index);
-                }
-              },
-              child: Container(
-                width: 140,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: isActive ? 50 : 40,
-                            height: isActive ? 50 : 40,
-                            decoration: BoxDecoration(
-                              color: isActive
-                                  ? color.withOpacity(0.2)
-                                  : (isCompleted
-                                  ? color.withOpacity(0.1)
-                                  : Colors.grey.shade100),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isActive
-                                    ? color
-                                    : (isCompleted ? color : Colors.grey.shade400),
-                                width: isActive ? 2 : 1,
-                              ),
-                            ),
-                            child: Icon(
-                              step['icon'],
-                              size: isActive ? 24 : 20,
-                              color: isActive
-                                  ? color
-                                  : (isCompleted ? color : Colors.grey.shade600),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            step['title'],
-                            style: TextStyle(
-                              fontSize: isActive ? 14 : 13,
-                              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                              color: isActive
-                                  ? color
-                                  : (isCompleted ? color : Colors.grey.shade600),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      height: 3,
-                      width: isActive ? 100 : 80,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? color
-                            : (isCompleted ? color : Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      // child: Scrollbar(
+      //   child: ListView.builder(
+      //     controller: _scrollController,
+      //     scrollDirection: Axis.horizontal,
+      //     itemCount: _stepsData.length,
+      //     itemBuilder: (context, index) {
+      //       final step = _stepsData[index];
+      //       final isActive = index == _currentStep;
+      //       final isCompleted = index < _currentStep;
+      //       final color = step['color'] as Color;
+      //       return GestureDetector(
+      //         onTap: () {
+      //           if (index < _currentStep ||
+      //               (index > _currentStep &&
+      //                   _stepFormKeys[_currentStep].currentState?.validate() ==
+      //                       true)) {
+      //             setState(() => _currentStep = index);
+      //           }
+      //         },
+      //         child: Container(
+      //           width: 140,
+      //           padding: const EdgeInsets.symmetric(horizontal: 8),
+      //           child: Column(
+      //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //             children: [
+      //               Expanded(
+      //                 child: Column(
+      //                   mainAxisAlignment: MainAxisAlignment.center,
+      //                   children: [
+      //                     AnimatedContainer(
+      //                       duration: const Duration(milliseconds: 300),
+      //                       width: isActive ? 50 : 40,
+      //                       height: isActive ? 50 : 40,
+      //                       decoration: BoxDecoration(
+      //                         color: isActive
+      //                             ? color.withOpacity(0.2)
+      //                             : (isCompleted
+      //                                 ? color.withOpacity(0.1)
+      //                                 : Colors.grey.shade100),
+      //                         shape: BoxShape.circle,
+      //                         border: Border.all(
+      //                           color: isActive
+      //                               ? color
+      //                               : (isCompleted
+      //                                   ? color
+      //                                   : Colors.grey.shade400),
+      //                           width: isActive ? 2 : 1,
+      //                         ),
+      //                       ),
+      //                       child: Icon(
+      //                         step['icon'],
+      //                         size: isActive ? 24 : 20,
+      //                         color: isActive
+      //                             ? color
+      //                             : (isCompleted
+      //                                 ? color
+      //                                 : Colors.grey.shade600),
+      //                       ),
+      //                     ),
+      //                     const SizedBox(height: 8),
+      //                     Text(
+      //                       step['title'],
+      //                       style: TextStyle(
+      //                         fontSize: isActive ? 14 : 13,
+      //                         fontWeight: isActive
+      //                             ? FontWeight.bold
+      //                             : FontWeight.normal,
+      //                         color: isActive
+      //                             ? color
+      //                             : (isCompleted
+      //                                 ? color
+      //                                 : Colors.grey.shade600),
+      //                       ),
+      //                       textAlign: TextAlign.center,
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //               AnimatedContainer(
+      //                 duration: const Duration(milliseconds: 300),
+      //                 height: 3,
+      //                 width: isActive ? 100 : 80,
+      //                 decoration: BoxDecoration(
+      //                   color: isActive
+      //                       ? color
+      //                       : (isCompleted ? color : Colors.grey.shade300),
+      //                   borderRadius: BorderRadius.circular(3),
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   ),
+      // ),
+      child: TabBar(
+        dividerColor: Colors.transparent,
+        tabs: List.generate(
+          _stepsData.length,
+          (e) {
+            return Tab(
+              text: '${_stepsData[e]['title']}',
+              icon: Icon(_stepsData[e]['icon']),
             );
           },
         ),
@@ -238,53 +348,52 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
   }
 
   Widget _buildFormContent() {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50.withOpacity(0.3),
-              Colors.white,
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.blue.shade50.withOpacity(0.3),
+            Colors.white,
+          ],
         ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SizeTransition(
-                          sizeFactor: animation,
-                          axis: Axis.vertical,
-                          axisAlignment: -1,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _buildCurrentStepContent(),
-                  ),
-                  const SizedBox(height: 30),
-                  _buildNavigationButtons(),
-                  if (_isSubmitting)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                        strokeWidth: 3,
+      ),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SizeTransition(
+                        sizeFactor: animation,
+                        axis: Axis.vertical,
+                        axisAlignment: -1,
+                        child: child,
                       ),
+                    );
+                  },
+                  //child: _buildCurrentStepContent(),
+                ),
+                const SizedBox(height: 30),
+                _buildNavigationButtons(),
+                if (_isSubmitting)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20.0),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      strokeWidth: 3,
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -369,31 +478,74 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     );
   }
 
-  Widget _buildCurrentStepContent() {
-    switch (_currentStep) {
-      case 0: return SchoolInformationForm(formData: formData, formKey: _stepFormKeys[0]);
-      case 1: return IdentificationStep(formData: formData, formKey: _stepFormKeys[1]);
-      case 2: return TypeStep(formData: formData, formKey: _stepFormKeys[2]);
-      case 3: return CapacityStep(formData: formData, formKey: _stepFormKeys[3]);
-      case 4: return StaffingStep(formData: formData, formKey: _stepFormKeys[4]);
-      case 5: return ContactStep(formData: formData, formKey: _stepFormKeys[5]);
-      case 6: return HistoryStep(formData: formData, formKey: _stepFormKeys[6]);
-      case 7: return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
-      default: return Container();
-    }
-  }
+  // Widget _buildCurrentStepContent() {
+  //   switch (_currentStep) {
+  //     case 0:
+  //       return SchoolInformationForm(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[0],
+  //         controller: pageController,
+  //       );
+  //     case 1:
+  //       return IdentificationStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[1],
+  //         controller: pageController,
+  //       );
+  //     case 2:
+  //       return TypeStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[2],
+  //         controller: pageController,
+  //       );
+  //     case 3:
+  //       return CapacityStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[3],
+  //         controller: pageController,
+  //       );
+  //     case 4:
+  //       return StaffingStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[4],
+  //         controller: pageController,
+  //       );
+  //     case 5:
+  //       return ContactStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[5],
+  //         controller: pageController,
+  //       );
+  //     case 6:
+  //       return HistoryStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[6],
+  //         controller: pageController,
+  //       );
+  //     case 7:
+  //       return ValidationStep(
+  //         formData: formData,
+  //         formKey: _stepFormKeys[7],
+  //         controller: pageController,
+  //       );
+  //     default:
+  //       return Container();
+  //   }
+  // }
 
   void _continue() {
+    //Fin du formulaire
     if (_currentStep == _stepsData.length - 1) {
       // Final submission
       if (_stepFormKeys[_currentStep].currentState!.validate() &&
           formData['validation'] == true) {
         _stepFormKeys[_currentStep].currentState!.save();
-        _submitForm();
+        submitForm();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Veuillez compléter tous les champs obligatoires'),
+            content:
+                const Text('Veuillez compléter tous les champs obligatoires'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -419,7 +571,8 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Veuillez compléter tous les champs obligatoires'),
+            content:
+                const Text('Veuillez compléter tous les champs obligatoires'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -435,12 +588,19 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     if (_currentStep > 0) {
       setState(() {
         _currentStep -= 1;
-        _scrollToCurrentStep();
+
+        _currentIndex.value--;
+
+        pageController.previousPage(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
+        );
+        //_scrollToCurrentStep();
       });
     }
   }
 
-  Future<void> _submitForm() async {
+  Future<void> submitForm() async {
     setState(() => _isSubmitting = true);
 
     try {
@@ -463,7 +623,8 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       );
 
       final id = await _dbHelper.saveForm(form.toMap());
-      final response = await _syncService.syncForm(form.data, token: widget.userToken);
+      final response =
+          await _syncService.syncForm(form.data, token: widget.userToken);
 
       if (response.status) {
         await _dbHelper.markFormAsSynced(id);
@@ -474,7 +635,8 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Enregistré localement. Erreur de sync: ${response.errorMsg ?? "Inconnue"}'),
+            content: Text(
+                'Enregistré localement. Erreur de sync: ${response.errorMsg ?? "Inconnue"}'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -510,11 +672,11 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
                 child: IconButton(
                   icon: Icon(Icons.close, color: Colors.grey),
                   onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      Routes.BottomNavigationPageRoutes,
-                      ModalRoute.withName('/loginpage'),
-                    );
+                    // Navigator.pushNamedAndRemoveUntil(
+                    //   context,
+                    //   Routes.BottomNavigationPageRoutes,
+                    //   ModalRoute.withName('/loginpage'),
+                    // );
                   },
                 ),
               ),
@@ -526,6 +688,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
               const SizedBox(height: 20),
               Text(
                 isOnline ? 'Succès!' : 'Sauvegardé localement',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -549,7 +712,8 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

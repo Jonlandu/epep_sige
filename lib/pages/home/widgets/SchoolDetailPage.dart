@@ -19,32 +19,41 @@ class SchoolDetailPage extends StatelessWidget {
             Center(
               child: Hero(
                 tag: 'school-${school.id}',
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: NetworkImage(school.logoUrl),
-                  backgroundColor: Colors.grey.shade200,
-                ),
+                child: school.logoUrl != null
+                    ? CircleAvatar(
+                        radius: 60,
+                        backgroundImage: NetworkImage(school.logoUrl!),
+                        backgroundColor: Colors.grey.shade200,
+                      )
+                    : Container(),
               ),
             ),
             const SizedBox(height: 24),
             _buildDetailSection(
               title: 'Informations Générales',
               items: [
-                _buildDetailItem(Icons.school, 'Nom', school.name),
-                _buildDetailItem(Icons.short_text, 'Abréviation', school.abbreviation),
-                _buildDetailItem(Icons.info, 'Description', school.description),
+                _buildDetailItem(Icons.school, 'Nom', school.nom),
+                _buildDetailItem(Icons.location_on, 'Adresse',
+                    "${school.province} ${school.proved} ${school.sousproved} "),
+                _buildDetailItem(Icons.short_text, 'Abréviation', ""),
+                _buildDetailItem(
+                    Icons.info, 'Ville', school.territoireCommuneVille!),
+                _buildDetailItem(
+                    Icons.phone, 'Commune', school.territoireCommuneVille!),
+                _buildDetailItem(
+                    Icons.email, 'Matricule', school.matriculeCecope),
+                //_buildDetailItem(Icons.short_text, 'Abréviation', ""),
+                //_buildDetailItem(Icons.info, 'Description', school.description),
               ],
             ),
-            _buildDetailSection(
-              title: 'Coordonnées',
-              items: [
-                _buildDetailItem(Icons.location_on, 'Adresse', school.address),
-                _buildDetailItem(Icons.phone, 'Téléphone', school.phone),
-                _buildDetailItem(Icons.email, 'Email', school.email),
-              ],
-            ),
+            // _buildDetailSection(
+            //   title: '',
+            //   items: [
+
+            //   ],
+            // ),
             const SizedBox(height: 32),
-            _buildContactButton(),
+            //_buildContactButton(),
           ],
         ),
       ),
@@ -53,7 +62,7 @@ class SchoolDetailPage extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(school.abbreviation),
+      title: Text(school.nom),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () => Navigator.pop(context),
@@ -71,7 +80,8 @@ class SchoolDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailSection({required String title, required List<Widget> items}) {
+  Widget _buildDetailSection(
+      {required String title, required List<Widget> items}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -104,16 +114,13 @@ class SchoolDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500),
+                      fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ],
             ),

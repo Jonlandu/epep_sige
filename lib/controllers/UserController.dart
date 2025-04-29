@@ -15,7 +15,8 @@ class UserController with ChangeNotifier {
   GetStorage? stockage = GetStorage();
   bool _isFirstTimeBienvenue = true;
   bool get isFirstTimeBienvenue {
-    return stockage?.read<bool>(StockageKeys.is_first_time) ?? _isFirstTimeBienvenue;
+    return stockage?.read<bool>(StockageKeys.is_first_time) ??
+        _isFirstTimeBienvenue;
   }
 
   set isFirstTimeBienvenue(bool value) {
@@ -31,12 +32,13 @@ class UserController with ChangeNotifier {
   }
 
   Future<HttpResponse> login(Map data) async {
-    var url = "${Endpoints.login}";
+    var url = Endpoints.login;
     HttpResponse response = await postDataLogin(url, data);
     if (response.status) {
       // Stockage des tokens
       stockage?.write(StockageKeys.tokenKey, response.data?["access"] ?? "");
-      stockage?.write(StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
+      stockage?.write(
+          StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
 
       // Stockage des infos utilisateur
       var userData = response.data?["user"];
@@ -83,11 +85,11 @@ class UserController with ChangeNotifier {
     }
   }
 
-  Future<HttpResponse> logout(Map data) async{
+  Future<HttpResponse> logout(Map data) async {
     var url = "${Endpoints.logout}";
     var tkn = stockage?.read(StockageKeys.tokenKey);
     HttpResponse response = await postData(url, data, token: tkn);
-    if(response.status){
+    if (response.status) {
       print("Successsssssssssssssssssssssssssss");
       notifyListeners();
     }
@@ -114,5 +116,3 @@ class UserController with ChangeNotifier {
     return response;
   }
 }
-
-
