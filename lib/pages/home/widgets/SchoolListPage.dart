@@ -62,10 +62,30 @@ class _SchoolListPageState extends State<SchoolListPage> {
     final startIndex = (_currentPage - 1) * _itemsPerPage;
     if (startIndex >= establishments.length) return [];
     final endIndex = startIndex + _itemsPerPage;
-    return establishments.sublist(
+    List<SchoolModel> ll = convertDynamicListToSchoolModelList(establishments);
+    return ll.sublist(
       startIndex,
-      endIndex > establishments.length ? establishments.length : endIndex,
+      endIndex > ll.length ? ll.length : endIndex,
     );
+  }
+
+  List<SchoolModel> convertDynamicListToSchoolModelList(
+      List<dynamic> dynamicList) {
+    return dynamicList.map((item) {
+      // Si l'item est déjà une Map, utilisez-le directement
+      if (item is Map<String, dynamic>) {
+        return SchoolModel.fromJson(item);
+      }
+      // Sinon, essayez de le convertir en Map
+      else if (item is Map) {
+        return SchoolModel.fromJson(Map<String, dynamic>.from(item));
+      }
+      // Si c'est une autre forme de données, lancez une exception
+      else {
+        throw FormatException(
+            'Impossible de convertir l\'élément en SchoolModel');
+      }
+    }).toList();
   }
 
   @override
