@@ -23,8 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController(text: 'jonlandu78@gmail.com');
-  var password = TextEditingController(text: '1234567890');
+  var email = TextEditingController(text: 'encodeur@gmail.com');
+  var password = TextEditingController(text: 'password');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;

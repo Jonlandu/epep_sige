@@ -237,8 +237,7 @@ class _Step6State extends State<Step6> {
         _buildSummaryItem("Régime de gestion", "regime_gestion"),
       ]),
 
-      // ... (toutes les autres sections de résumé restent inchangées)
-      // Vous pouvez garder tout le reste du code tel quel
+
     ];
   }
 
