@@ -11,12 +11,15 @@ class Routes {
 
   static const String EditProfilePageRoutes = "/editprofilepage";
   static const String NavigationDrawerMenuRoutes = "/navigationdrawermenu";
-  static const String VerifyOtpLoginWithPhonePageRoutes = "/verifyotploginwithphonepage";
+  static const String VerifyOtpLoginWithPhonePageRoutes =
+      "/verifyotploginwithphonepage";
   static const String OnBoardingPageRoutes = "/onboardingpage";
   static const String LockByThumbPrintPageRoutes = "/lockbythumbprintpage";
-  static const String BeautifulAccordionAppPageRoutes = "/beautifulaccordionapppage";
+  static const String BeautifulAccordionAppPageRoutes =
+      "/beautifulaccordionapppage";
   static const String SchoolListPageRoutes = "/schoollistpage";
   static const String SchoolDetailPageRoutes = "/schooldetailpage";
   static const String SavedFormsScreenRoutes = "/SavedFormsScreen";
   static const String FormListPageRoutes = "/FormListPage";
+  //navigations
 }

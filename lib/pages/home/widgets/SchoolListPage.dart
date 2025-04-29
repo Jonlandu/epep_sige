@@ -61,6 +61,10 @@ class _SchoolListPageState extends State<SchoolListPage> {
 
   @override
   Widget build(BuildContext context) {
+    //
+    // final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    // final List<dynamic> establishments = args['establishments'];
+    //
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: _buildAppBar(),

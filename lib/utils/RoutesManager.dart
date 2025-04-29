@@ -16,10 +16,10 @@ import 'package:epsp_sige/pages/user/EditProfilePage.dart';
 import 'package:epsp_sige/pages/user/ProfilPage.dart';
 import 'package:epsp_sige/settings/SettingsPage.dart';
 import 'package:epsp_sige/settings/lockthumbprint/LockByThumbPrintPage.dart';
+import 'package:epsp_sige/utils/navigations.dart';
 import 'package:flutter/material.dart';
 
 import 'Routes.dart';
-
 
 class RoutesManager {
   static Route? route(RouteSettings r) {
@@ -31,13 +31,15 @@ class RoutesManager {
         return MaterialPageRoute(builder: (_) => DiscoverPage());
 
       case Routes.LoginPageRoutes:
-        return MaterialPageRoute(builder:  (_) => LoginPage());
+        return MaterialPageRoute(builder: (_) => LoginPage());
 
       case Routes.BottomNavigationPageRoutes:
-        return MaterialPageRoute(builder: (_) => BottomNavigationPage());
+        return MaterialPageRoute(
+            builder: (_) => BottomNavigationPage(Navigations.navigations));
 
       case Routes.HomePageRoutes:
-        return MaterialPageRoute(builder: (_) => MyHomePage());
+        return MaterialPageRoute(
+            builder: (_) => MyHomePage(Navigations.navigations));
 
       case Routes.ProfilPageRoutes:
         return MaterialPageRoute(builder: (_) => ProfilPage());
@@ -64,7 +66,6 @@ class RoutesManager {
         return MaterialPageRoute(builder: (_) => SavedFormsScreen());
 
       case Routes.FormListPageRoutes:
-
         return MaterialPageRoute(builder: (_) => FormListPage());
 
       case Routes.SchoolListPageRoutes:
@@ -79,9 +80,12 @@ class RoutesManager {
         );
 
       case Routes.SchoolDetailPageRoutes:
-        var args = r.arguments as Map<String, dynamic>?; // Cast to Map<String, dynamic>
-        var schoolchoosed = <String, dynamic>{}; // Initialize as empty Map<String, dynamic>
-        var schoolData = SchoolModel.fromJson(args ?? schoolchoosed); // Use the casted args
+        var args = r.arguments
+            as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+        var schoolchoosed =
+            <String, dynamic>{}; // Initialize as empty Map<String, dynamic>
+        var schoolData =
+            SchoolModel.fromJson(args ?? schoolchoosed); // Use the casted args
         return MaterialPageRoute(
           builder: (_) => SchoolDetailPage(school: schoolData),
         );

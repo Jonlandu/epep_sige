@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 class DynamicAccessAccordion extends StatefulWidget {
-  final Map<String, Map<String, List<String>>> provincesData;
+  final List<Map> provincesData;
   final UserRole userRole;
   final String? province;
   final String? proved;
@@ -27,14 +29,14 @@ class DynamicAccessAccordion extends StatefulWidget {
 }
 
 enum UserRole {
-  superAdmin,       // Accès complet à tous les niveaux
-  adminUser,        // Accès complet (admin)
-  supervNational,   // Accès national
+  superAdmin, // Accès complet à tous les niveaux
+  adminUser, // Accès complet (admin)
+  supervNational, // Accès national
   supervProvincial, // Accès provincial
-  supervProved,     // Accès province éducationnelle
+  supervProved, // Accès province éducationnelle
   supervSousDivision, // Accès sous-division
-  encodeur,         // Encodeur
-  guest,         // Encodeur
+  encodeur, // Encodeur
+  guest, // Encodeur
 }
 
 class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
@@ -46,7 +48,7 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
   @override
   void initState() {
     super.initState();
-    _initializeExpansionStates();
+    //_initializeExpansionStates();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -61,115 +63,105 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
     setState(() => _searchQuery = _searchController.text);
   }
 
-  void _initializeExpansionStates() {
-    for (var province in widget.provincesData.keys) {
-      _provinceExpansionState[province] = false;
-      _subdivisionExpansionState[province] = {};
-      for (var subdivision in widget.provincesData[province]!.keys) {
-        _subdivisionExpansionState[province]![subdivision] = false;
-      }
-    }
-  }
+  // void _initializeExpansionStates() {
+  //   for (var province in widget.provincesData.keys) {
+  //     _provinceExpansionState[province] = false;
+  //     _subdivisionExpansionState[province] = {};
+  //     for (var subdivision in widget.provincesData[province]!.keys) {
+  //       _subdivisionExpansionState[province]![subdivision] = false;
+  //     }
+  //   }
+  // }
 
-  Map<String, Map<String, List<String>>> _filterData() {
-    Map<String, Map<String, List<String>>> filteredData = {};
-
-    // Filtre basé sur le rôle de l'utilisateur
-    switch (widget.userRole) {
-      case UserRole.superAdmin:
-      case UserRole.adminUser:
-      case UserRole.guest:
-      case UserRole.supervNational:
-        filteredData = widget.provincesData;
-        break;
-      case UserRole.supervProvincial:
-        if (widget.province != null) {
-          filteredData = {
-            widget.province!: widget.provincesData[widget.province] ?? {},
-          };
-        }
-        break;
-      case UserRole.supervProved:
-        if (widget.proved != null) {
-          for (var province in widget.provincesData.keys) {
-            final subdivisions = widget.provincesData[province]!;
-            final filteredSubdivisions = <String, List<String>>{};
-
-            for (var subdivision in subdivisions.keys) {
-              if (subdivision == widget.proved) {
-                filteredSubdivisions[subdivision] = subdivisions[subdivision]!;
-              }
-            }
-
-            if (filteredSubdivisions.isNotEmpty) {
-              filteredData[province] = filteredSubdivisions;
-            }
-          }
-        }
-        break;
-      case UserRole.supervSousDivision:
-        if (widget.sousDivision != null) {
-          for (var province in widget.provincesData.keys) {
-            final subdivisions = widget.provincesData[province]!;
-            final filteredSubdivisions = <String, List<String>>{};
-
-            for (var subdivision in subdivisions.keys) {
-              if (subdivision == widget.sousDivision) {
-                filteredSubdivisions[subdivision] = subdivisions[subdivision]!;
-              }
-            }
-
-            if (filteredSubdivisions.isNotEmpty) {
-              filteredData[province] = filteredSubdivisions;
-            }
-          }
-        }
-        break;
-      case UserRole.encodeur:
-        filteredData = {};
-        break;
-    }
-
-    // Filtre supplémentaire basé sur la recherche
-    if (_searchQuery.isNotEmpty) {
-      final tempFilteredData = <String, Map<String, List<String>>>{};
-
-      for (var province in filteredData.keys) {
-        if (province.toLowerCase().contains(_searchQuery.toLowerCase())) {
-          tempFilteredData[province] = filteredData[province]!;
-          continue;
-        }
-
-        final filteredSubdivisions = <String, List<String>>{};
-        for (var subdivision in filteredData[province]!.keys) {
-          if (subdivision.toLowerCase().contains(_searchQuery.toLowerCase())) {
-            filteredSubdivisions[subdivision] = filteredData[province]![subdivision]!;
-            continue;
-          }
-
-          final communes = filteredData[province]![subdivision]!.where(
-                  (commune) => commune.toLowerCase().contains(_searchQuery.toLowerCase())
-          ).toList();
-
-          if (communes.isNotEmpty) {
-            filteredSubdivisions[subdivision] = communes;
-          }
-        }
-
-        if (filteredSubdivisions.isNotEmpty) {
-          tempFilteredData[province] = filteredSubdivisions;
-        }
-      }
-
-      return tempFilteredData;
-    }
-
-    return filteredData;
-  }
+  // List _filterData() {
+  //   List filteredData = [];
+  //   // Filtre basé sur le rôle de l'utilisateur
+  //   switch (widget.userRole) {
+  //     case UserRole.superAdmin:
+  //     case UserRole.adminUser:
+  //     case UserRole.guest:
+  //     case UserRole.supervNational:
+  //       filteredData = widget.provincesData;
+  //       break;
+  //     case UserRole.supervProvincial:
+  //       if (widget.province != null) {
+  //         // filteredData = {
+  //         //   widget.province!: widget.provincesData[widget.province] ?? {},
+  //         // };
+  //         filteredData = widget.provincesData[widget.province]
+  //       }
+  //       break;
+  //     case UserRole.supervProved:
+  //       if (widget.proved != null) {
+  //         for (var province in widget.provincesData.keys) {
+  //           final subdivisions = widget.provincesData[province]!;
+  //           final filteredSubdivisions = <String, List<String>>{};
+  //           for (var subdivision in subdivisions.keys) {
+  //             if (subdivision == widget.proved) {
+  //               filteredSubdivisions[subdivision] = subdivisions[subdivision]!;
+  //             }
+  //           }
+  //           if (filteredSubdivisions.isNotEmpty) {
+  //             filteredData[province] = filteredSubdivisions;
+  //           }
+  //         }
+  //       }
+  //       break;
+  //     case UserRole.supervSousDivision:
+  //       if (widget.sousDivision != null) {
+  //         for (var province in widget.provincesData) {
+  //           final subdivisions = province[''];
+  //           final filteredSubdivisions = <String, List<String>>{};
+  //           for (var subdivision in subdivisions.keys) {
+  //             if (subdivision == widget.sousDivision) {
+  //               filteredSubdivisions[subdivision] = subdivisions[subdivision]!;
+  //             }
+  //           }
+  //           if (filteredSubdivisions.isNotEmpty) {
+  //             filteredData[province] = filteredSubdivisions;
+  //           }
+  //         }
+  //       }
+  //       break;
+  //     case UserRole.encodeur:
+  //       filteredData = {};
+  //       break;
+  //   }
+  //   // Filtre supplémentaire basé sur la recherche
+  //   if (_searchQuery.isNotEmpty) {
+  //     final tempFilteredData = [];
+  //     for (var province in filteredData.keys) {
+  //       if (province.toLowerCase().contains(_searchQuery.toLowerCase())) {
+  //         tempFilteredData[province] = filteredData[province]!;
+  //         continue;
+  //       }
+  //       final filteredSubdivisions = <String, List<String>>{};
+  //       for (var subdivision in filteredData[province]!.keys) {
+  //         if (subdivision.toLowerCase().contains(_searchQuery.toLowerCase())) {
+  //           filteredSubdivisions[subdivision] =
+  //               filteredData[province]![subdivision]!;
+  //           continue;
+  //         }
+  //         final communes = filteredData[province]![subdivision]!
+  //             .where((commune) =>
+  //                 commune.toLowerCase().contains(_searchQuery.toLowerCase()))
+  //             .toList();
+  //         if (communes.isNotEmpty) {
+  //           filteredSubdivisions[subdivision] = communes;
+  //         }
+  //       }
+  //       if (filteredSubdivisions.isNotEmpty) {
+  //         tempFilteredData[province] = filteredSubdivisions;
+  //       }
+  //     }
+  //     return tempFilteredData;
+  //   }
+  //   return filteredData;
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = _filterData();
+    final filteredData = widget.provincesData;
 
     if (widget.userRole == UserRole.encodeur) {
       return const Center(
@@ -187,12 +179,20 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
           child: filteredData.isEmpty
               ? _buildEmptyState()
               : ListView.builder(
-            itemCount: filteredData.length,
-            itemBuilder: (context, index) {
-              final province = filteredData.keys.elementAt(index);
-              return _buildAccordionForRole(province, filteredData[province]!);
-            },
-          ),
+                  itemCount: filteredData.length,
+                  itemBuilder: (context, index) {
+                    String abre = "";
+                    return buildExpansionTile(filteredData[index], abre);
+                  },
+                ),
+          // ListView.builder(
+          //     itemCount: filteredData.length,
+          //     itemBuilder: (context, index) {
+          //       final province = filteredData.keys.elementAt(index);
+          //       return _buildAccordionForRole(
+          //           province, filteredData[province]!);
+          //     },
+          //   ),
         ),
       ],
     );
@@ -201,25 +201,25 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
   Widget _buildSearchBar() {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: TextField(
-    controller: _searchController,
-    decoration: InputDecoration(
-    hintText: 'Rechercher...',
-    prefixIcon: const Icon(Icons.search),
-    suffixIcon: _searchQuery.isNotEmpty
-    ? IconButton(
-    icon: const Icon(Icons.clear),
-    onPressed: () {
-    _searchController.clear();
-    setState(() => _searchQuery = '');
-    },
-    )
-        : null,
-    border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    ),
-    ),
-    ));
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            hintText: 'Rechercher...',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _searchQuery.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => _searchQuery = '');
+                    },
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ));
   }
 
   Widget _buildUserRoleBadge() {
@@ -245,11 +245,13 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
         break;
       case UserRole.supervProved:
         roleColor = Colors.orange;
-        roleText = 'Superviseur Province Éducationnelle: ${widget.proved ?? 'Non défini'}';
+        roleText =
+            'Superviseur Province Éducationnelle: ${widget.proved ?? 'Non défini'}';
         break;
       case UserRole.supervSousDivision:
         roleColor = Colors.purple;
-        roleText = 'Superviseur Sous-Division: ${widget.sousDivision ?? 'Non défini'}';
+        roleText =
+            'Superviseur Sous-Division: ${widget.sousDivision ?? 'Non défini'}';
         break;
 
       case UserRole.guest:
@@ -261,7 +263,6 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
         roleColor = Colors.grey;
         roleText = 'Encodeur';
         break;
-
     }
 
     return Container(
@@ -306,7 +307,8 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
     );
   }
 
-  Widget _buildAccordionForRole(String province, Map<String, List<String>> subdivisions) {
+  Widget _buildAccordionForRole(
+      String province, Map<String, List<String>> subdivisions) {
     switch (widget.userRole) {
       case UserRole.superAdmin:
       case UserRole.adminUser:
@@ -324,12 +326,11 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
 
       case UserRole.encodeur:
         return const SizedBox.shrink();
-
-
     }
   }
 
-  Widget _buildFullAccessAccordion(String province, Map<String, List<String>> subdivisions) {
+  Widget _buildFullAccessAccordion(
+      String province, Map<String, List<String>> subdivisions) {
     final isExpanded = _provinceExpansionState[province] ?? false;
 
     return Card(
@@ -338,15 +339,18 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
         title: Text(province),
         subtitle: Text('${subdivisions.length} sous-divisions'),
         initiallyExpanded: isExpanded,
-        onExpansionChanged: (expanded) => setState(() => _provinceExpansionState[province] = expanded),
+        onExpansionChanged: (expanded) =>
+            setState(() => _provinceExpansionState[province] = expanded),
         children: subdivisions.keys.map((subdivision) {
-          return _buildSubdivisionTile(province, subdivision, subdivisions[subdivision]!);
+          return _buildSubdivisionTile(
+              province, subdivision, subdivisions[subdivision]!);
         }).toList(),
       ),
     );
   }
 
-  Widget _buildProvincialAccessAccordion(String province, Map<String, List<String>> subdivisions) {
+  Widget _buildProvincialAccessAccordion(
+      String province, Map<String, List<String>> subdivisions) {
     final isExpanded = _provinceExpansionState[province] ?? false;
 
     return Card(
@@ -355,26 +359,30 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
         title: Text(province),
         subtitle: Text('${subdivisions.length} sous-divisions'),
         initiallyExpanded: isExpanded,
-        onExpansionChanged: (expanded) => setState(() => _provinceExpansionState[province] = expanded),
+        onExpansionChanged: (expanded) =>
+            setState(() => _provinceExpansionState[province] = expanded),
         children: subdivisions.keys.map((subdivision) {
           final communes = subdivisions[subdivision]!;
           return ListTile(
             title: Text(subdivision),
             subtitle: Text('${communes.length} communes'),
-            onTap: () => widget.onSubdivisionSelected?.call(province, subdivision),
+            onTap: () =>
+                widget.onSubdivisionSelected?.call(province, subdivision),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildProvedAccessAccordion(String province, Map<String, List<String>> subdivisions) {
+  Widget _buildProvedAccessAccordion(
+      String province, Map<String, List<String>> subdivisions) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: subdivisions.keys.map((subdivision) {
           final communes = subdivisions[subdivision]!;
-          final isExpanded = _subdivisionExpansionState[province]?[subdivision] ?? false;
+          final isExpanded =
+              _subdivisionExpansionState[province]?[subdivision] ?? false;
 
           return ExpansionTile(
             title: Text(subdivision),
@@ -386,7 +394,8 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
             children: communes.map((commune) {
               return ListTile(
                 title: Text(commune),
-                onTap: () => widget.onCommuneSelected?.call(province, subdivision, commune),
+                onTap: () => widget.onCommuneSelected
+                    ?.call(province, subdivision, commune),
               );
             }).toList(),
           );
@@ -395,17 +404,19 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
     );
   }
 
-  Widget _buildSousDivisionAccessAccordion(String province, Map<String, List<String>> subdivisions) {
+  Widget _buildSousDivisionAccessAccordion(
+      String province, Map<String, List<String>> subdivisions) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
-        children: subdivisions.values.expand((communes) => communes).map((commune) {
+        children:
+            subdivisions.values.expand((communes) => communes).map((commune) {
           return ListTile(
             title: Text(commune),
             onTap: () {
               // Trouver la subdivision correspondante
               final subdivision = subdivisions.keys.firstWhere(
-                    (key) => subdivisions[key]!.contains(commune),
+                (key) => subdivisions[key]!.contains(commune),
                 orElse: () => '',
               );
               if (subdivision.isNotEmpty) {
@@ -418,8 +429,10 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
     );
   }
 
-  Widget _buildSubdivisionTile(String province, String subdivision, List<String> communes) {
-    final isExpanded = _subdivisionExpansionState[province]?[subdivision] ?? false;
+  Widget _buildSubdivisionTile(
+      String province, String subdivision, List<String> communes) {
+    final isExpanded =
+        _subdivisionExpansionState[province]?[subdivision] ?? false;
 
     return Padding(
       padding: const EdgeInsets.only(left: 16),
@@ -436,7 +449,8 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
               padding: const EdgeInsets.only(left: 16),
               child: ListTile(
                 title: Text(commune),
-                onTap: () => widget.onCommuneSelected?.call(province, subdivision, commune),
+                onTap: () => widget.onCommuneSelected
+                    ?.call(province, subdivision, commune),
               ),
             );
           }).toList(),
@@ -444,4 +458,35 @@ class _DynamicAccessAccordionState extends State<DynamicAccessAccordion> {
       ),
     );
   }
+
+  //
+
+  //
+  Widget buildExpansionTile(dynamic item, String abre) {
+    if (item['sub_navigations'] == null || item['sub_navigations'].isEmpty) {
+      abre = "$abre, ${item['name']}";
+      return ListTile(
+        onTap: () {
+          //
+          print("abre: $abre");
+          //
+          print('Je clique');
+          //
+          widget.onSubdivisionSelected
+              ?.call(item['name'], item['sub_navigations'].toString());
+          //
+        },
+        title: Text(item['name']),
+      );
+    }
+
+    return ExpansionTile(
+      title: Text(item['name']),
+      children: (item['sub_navigations'] ?? item['sub_navigations'])
+          .map<Widget>((subItem) => buildExpansionTile(subItem, abre))
+          .toList(),
+    );
+  }
 }
+
+//widget.onSubdivisionSelected?.call(province, subdivision),
