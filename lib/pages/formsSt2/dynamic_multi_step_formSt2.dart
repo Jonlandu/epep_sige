@@ -1,15 +1,17 @@
 import 'package:epsp_sige/controllers/FormService.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/pages/formsSt2/steps/DiversStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/EtablissementStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/GestionStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/InfrastructureStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/PersonalStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/ThemeTransversaux.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/VictimeStep.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step1ST2.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step3ST2.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step2ST2.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step4ST2.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step6ST2.dart';
+import 'package:epsp_sige/pages/formsSt2/steps/Step5ST2.dart';
 import 'package:epsp_sige/pages/formsSt2/steps/validation_step.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'steps/validation_step.dart';
 
 class DynamiqueMultiStepFormST2 extends StatefulWidget {
@@ -23,7 +25,8 @@ class DynamiqueMultiStepFormST2 extends StatefulWidget {
   });
 
   @override
-  State<DynamiqueMultiStepFormST2> createState() => _DynamiqueMultiStepFormST2State();
+  State<DynamiqueMultiStepFormST2> createState() =>
+      _DynamiqueMultiStepFormST2State();
 }
 
 class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
@@ -33,6 +36,9 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
   final ScrollController _scrollController = ScrollController();
   final FormService _formService = FormService();
   final DatabaseHelper _dbHelper = DatabaseHelper();
+  //
+  PageController pageController = PageController();
+  final RxInt _currentIndex = 0.obs; // pour savoir où on est
 
   // Données du formulaire
   final Map<String, dynamic> formData = {
@@ -69,7 +75,11 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
 
   final List<Map<String, dynamic>> _stepsData = [
     {'title': 'Localisation', 'icon': Icons.location_on, 'color': Colors.blue},
-    {'title': 'Identification', 'icon': Icons.assignment_ind, 'color': Colors.purple},
+    {
+      'title': 'Identification',
+      'icon': Icons.assignment_ind,
+      'color': Colors.purple
+    },
     {'title': 'Type', 'icon': Icons.category, 'color': Colors.orange},
     {'title': 'Capacité', 'icon': Icons.people_outline, 'color': Colors.green},
     {'title': 'Effectifs', 'icon': Icons.school, 'color': Colors.teal},
@@ -95,7 +105,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
   void _scrollToCurrentStep() {
     if (_scrollController.hasClients) {
       final double itemWidth = 140.0;
-      final double scrollOffset = _currentStep * itemWidth - (MediaQuery.of(context).size.width / 2 - itemWidth / 2);
+      final double scrollOffset = _currentStep * itemWidth -
+          (MediaQuery.of(context).size.width / 2 - itemWidth / 2);
       _scrollController.animateTo(
         scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
         duration: const Duration(milliseconds: 500),
@@ -135,16 +146,89 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
             ),
             filled: true,
             fillColor: Colors.grey.shade50,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             labelStyle: TextStyle(color: Colors.grey.shade700),
           ),
         ),
         child: Column(
           children: [
             // Barre de progression
-            _buildStepProgressBar(),
-            // Contenu du formulaire
-            _buildFormContent(),
+            Obx(
+              () => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  6, //_stepsData.length
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                    width: _currentIndex.value == index ? 12 : 8,
+                    height: _currentIndex.value == index ? 12 : 8,
+                    decoration: BoxDecoration(
+                      color: _currentIndex.value == index
+                          ? Colors.blue
+                          : Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            //_buildStepProgressBar(),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.all(0),
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex.value = index;
+                    });
+                  },
+                  //physics: NeverScrollableScrollPhysics(),
+                  children: [
+                    Step1ST2(
+                      formData: formData,
+                      formKey: _stepFormKeys[0],
+                      controller: pageController,
+                    ),
+                    Step2ST2(
+                      formData: formData,
+                      formKey: _stepFormKeys[1],
+                      controller: pageController,
+                    ),
+                    Step3st2(
+                      formData: formData,
+                      formKey: _stepFormKeys[2],
+                      controller: pageController,
+                    ),
+                    Step4st2(
+                      formData: formData,
+                      formKey: _stepFormKeys[3],
+                      controller: pageController,
+                    ),
+                    //DiversStep(formData: formData, formKey: _stepFormKeys[4]),
+                    Step5st2(
+                      formData: formData,
+                      formKey: _stepFormKeys[5],
+                      controller: pageController,
+                    ),
+                    Step6st2(
+                      formData: formData,
+                      formKey: _stepFormKeys[6],
+                      controller: pageController,
+                    ),
+                    ValidationStep(
+                        formData: formData, formKey: _stepFormKeys[7]),
+                    // Container(),
+                  ],
+                ),
+              ),
+              // Contenu du formulaire
+              //_buildFormContent(),
+            ),
           ],
         ),
       ),
@@ -178,7 +262,10 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
 
             return GestureDetector(
               onTap: () {
-                if (index < _currentStep || (index > _currentStep && _stepFormKeys[_currentStep].currentState?.validate() == true)) {
+                if (index < _currentStep ||
+                    (index > _currentStep &&
+                        _stepFormKeys[_currentStep].currentState?.validate() ==
+                            true)) {
                   setState(() => _currentStep = index);
                 }
               },
@@ -200,13 +287,15 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                               color: isActive
                                   ? color.withOpacity(0.2)
                                   : (isCompleted
-                                  ? color.withOpacity(0.1)
-                                  : Colors.grey.shade100),
+                                      ? color.withOpacity(0.1)
+                                      : Colors.grey.shade100),
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: isActive
                                     ? color
-                                    : (isCompleted ? color : Colors.grey.shade400),
+                                    : (isCompleted
+                                        ? color
+                                        : Colors.grey.shade400),
                                 width: isActive ? 2 : 1,
                               ),
                             ),
@@ -215,7 +304,9 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                               size: isActive ? 24 : 20,
                               color: isActive
                                   ? color
-                                  : (isCompleted ? color : Colors.grey.shade600),
+                                  : (isCompleted
+                                      ? color
+                                      : Colors.grey.shade600),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -223,10 +314,14 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                             step['title'],
                             style: TextStyle(
                               fontSize: isActive ? 14 : 13,
-                              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isActive
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                               color: isActive
                                   ? color
-                                  : (isCompleted ? color : Colors.grey.shade600),
+                                  : (isCompleted
+                                      ? color
+                                      : Colors.grey.shade600),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -277,7 +372,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                 children: [
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
                       return FadeTransition(
                         opacity: animation,
                         child: SizeTransition(
@@ -288,7 +384,7 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                         ),
                       );
                     },
-                    child: _buildCurrentStepContent(),
+                    //child: _buildCurrentStepContent(),
                   ),
                   const SizedBox(height: 30),
                   _buildNavigationButtons(),
@@ -386,19 +482,30 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
     );
   }
 
-  Widget _buildCurrentStepContent() {
-    switch (_currentStep) {
-      case 0: return EtablissementStep(formData: formData, formKey: _stepFormKeys[0]);
-      case 1: return InfrastructureStep(formData: formData, formKey: _stepFormKeys[1]);
-      case 2: return GestionStep(formData: formData, formKey: _stepFormKeys[2]);
-      case 3: return PersonnelStep(formData: formData, formKey: _stepFormKeys[3]);
-      case 4: return DiversStep(formData: formData, formKey: _stepFormKeys[4]);
-      case 5: return VictimesStep(formData: formData, formKey: _stepFormKeys[5]);
-      case 6: return ThemesTransversauxStep(formData: formData, formKey: _stepFormKeys[6]);
-      case 7: return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
-      default: return Container();
-    }
-  }
+  // Widget _buildCurrentStepContent() {
+  //   switch (_currentStep) {
+  //     case 0:
+  //       return EtablissementStep(formData: formData, formKey: _stepFormKeys[0]);
+  //     case 1:
+  //       return InfrastructureStep(
+  //           formData: formData, formKey: _stepFormKeys[1]);
+  //     case 2:
+  //       return GestionStep(formData: formData, formKey: _stepFormKeys[2]);
+  //     case 3:
+  //       return PersonnelStep(formData: formData, formKey: _stepFormKeys[3]);
+  //     case 4:
+  //       return DiversStep(formData: formData, formKey: _stepFormKeys[4]);
+  //     case 5:
+  //       return VictimesStep(formData: formData, formKey: _stepFormKeys[5]);
+  //     case 6:
+  //       return ThemesTransversauxStep(
+  //           formData: formData, formKey: _stepFormKeys[6]);
+  //     case 7:
+  //       return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
+  //     default:
+  //       return Container();
+  //   }
+  // }
 
   Future<void> _saveDraft() async {
     if (_stepFormKeys[_currentStep].currentState?.validate() ?? false) {
@@ -451,7 +558,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Veuillez compléter tous les champs obligatoires'),
+            content:
+                const Text('Veuillez compléter tous les champs obligatoires'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -482,7 +590,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Veuillez compléter tous les champs obligatoires'),
+            content:
+                const Text('Veuillez compléter tous les champs obligatoires'),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -611,7 +720,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
