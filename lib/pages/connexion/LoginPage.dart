@@ -27,8 +27,8 @@ class _LoginPageState extends State<LoginPage> {
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController(text: 'lungujoel138@gmail.com');
-  var password = TextEditingController(text: 'passwordjojo');
+  var email = TextEditingController(text: 'encodeur@gmail.com');
+  var password = TextEditingController(text: 'password');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;
@@ -36,6 +36,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    //box.erase();
+    //
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(

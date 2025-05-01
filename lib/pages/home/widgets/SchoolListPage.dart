@@ -491,7 +491,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FormListPage(),
+                      builder: (context) => FormListPage(school: school),
                     ),
                   );
                 },

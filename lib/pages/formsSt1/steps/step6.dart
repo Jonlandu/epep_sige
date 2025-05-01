@@ -104,41 +104,39 @@ class _Step6State extends State<Step6> {
         //createdAt: DateTime.now().toString(), // This works as-is
       );
 
+      Map<String, dynamic> st1 = form.toMap();
+      st1["st1"] = "oui";
+
       // Sauvegarder en local
-      final id = await _dbHelper.saveForm(form.toMap());
+      final id = await _dbHelper.saveForm(st1, "formData1");
+      // Succès de l'enregistrement local
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Formulaire enregistré avec succès (ID: $id)'),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-      if (id > 0) {
-        // Succès de l'enregistrement local
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Formulaire enregistré avec succès (ID: $id)'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Optionnel: vérifier la connexion et tenter une synchronisation
-        final connectivityResult = await _connectivity.checkConnectivity();
-        // if (connectivityResult != ConnectivityResult.none) {
-        //   try {
-        //     final response = await _syncService.syncForm(widget.formData,
-        //         token: widget.userToken);
-        //     if (response.status) {
-        //       await _dbHelper.markFormAsSynced(id);
-        //       ScaffoldMessenger.of(context).showSnackBar(
-        //         SnackBar(
-        //           content: Text('Synchronisation réussie avec le serveur'),
-        //           backgroundColor: Colors.green,
-        //         ),
-        //       );
-        //     }
-        //   } catch (e) {
-        //     // La synchronisation a échoué mais le formulaire est bien enregistré localement
-        //     await _dbHelper.scheduleSync(id);
-        //   }
-        // }
-      } else {
-        throw Exception('Erreur lors de l\'enregistrement local');
-      }
+      // Optionnel: vérifier la connexion et tenter une synchronisation
+      final connectivityResult = await _connectivity.checkConnectivity();
+      // if (connectivityResult != ConnectivityResult.none) {
+      //   try {
+      //     final response = await _syncService.syncForm(widget.formData,
+      //         token: widget.userToken);
+      //     if (response.status) {
+      //       await _dbHelper.markFormAsSynced(id);
+      //       ScaffoldMessenger.of(context).showSnackBar(
+      //         SnackBar(
+      //           content: Text('Synchronisation réussie avec le serveur'),
+      //           backgroundColor: Colors.green,
+      //         ),
+      //       );
+      //     }
+      //   } catch (e) {
+      //     // La synchronisation a échoué mais le formulaire est bien enregistré localement
+      //     await _dbHelper.scheduleSync(id);
+      //   }
+      // }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

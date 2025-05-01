@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:epsp_sige/controllers/UserController.dart';
 import 'package:epsp_sige/settings/SettingsPage.dart';
 import 'package:epsp_sige/utils/Routes.dart';
@@ -15,14 +17,15 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
-
   bool isCancelButtonPressed = false;
   bool isConfirmButtonPressed = false;
   bool isLogOutButtonPressed = false;
   GetStorage box = GetStorage();
 
-  bool isVisible = false; // A flag to control the visibility of a loading widget
-  bool isLoadingWaitingAPIResponse = false; // A flag to indicate if an API request is in progress
+  bool isVisible =
+      false; // A flag to control the visibility of a loading widget
+  bool isLoadingWaitingAPIResponse =
+      false; // A flag to indicate if an API request is in progress
 
   void initState() {
     super.initState();
@@ -39,7 +42,9 @@ class _ProfilPageState extends State<ProfilPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: SizedBox(width: 0,),
+        leading: SizedBox(
+          width: 0,
+        ),
         title: Text(
           'Profil',
           style: TextStyle(fontSize: 20, color: Colors.white),
@@ -68,7 +73,7 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  Widget _body(){
+  Widget _body() {
     var userCtrl = context.watch<UserController>();
 
     // Afficher un indicateur de chargement si les données sont en cours de chargement
@@ -94,7 +99,8 @@ class _ProfilPageState extends State<ProfilPage> {
                     radius: 72,
                     backgroundImage: userCtrl.user?.photo != null
                         ? NetworkImage(userCtrl.user!.photo!)
-                        : const AssetImage('assets/avatard.png') as ImageProvider,
+                        : const AssetImage('assets/avatard.png')
+                            as ImageProvider,
                   ),
                 ),
               ),
@@ -250,8 +256,9 @@ class _ProfilPageState extends State<ProfilPage> {
         ListTile(
           leading: Icon(Icons.settings_outlined),
           title: Text('Settings'),
-          onTap: (){
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+          onTap: () {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => SettingsPage()));
           },
         ),
         Container(
@@ -293,9 +300,7 @@ class _ProfilPageState extends State<ProfilPage> {
             TextButton(
               child: Text(
                 "Cancel",
-                style: TextStyle(
-                    fontSize: 16
-                ),
+                style: TextStyle(fontSize: 16),
               ),
               onPressed: () {
                 Navigator.pop(context, false);
@@ -304,9 +309,7 @@ class _ProfilPageState extends State<ProfilPage> {
             TextButton(
               child: Text(
                 "Confirm",
-                style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 16),
+                style: TextStyle(color: Colors.orange, fontSize: 16),
               ),
               onPressed: () {
                 isLoadingWaitingAPIResponse ? null : _handleLogoutPressed();
@@ -323,7 +326,8 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Future<void> LogoutPressed() async {
-    if (!mounted) return; // Check if the widget is still mounted before calling setState()
+    if (!mounted)
+      return; // Check if the widget is still mounted before calling setState()
 
     isVisible = true;
     setState(() {
@@ -336,33 +340,36 @@ class _ProfilPageState extends State<ProfilPage> {
     var ctrl = context.read<UserController>();
     Map data = {};
 
-    var response = await ctrl.logout(data);
+    var response = await ctrl.logout(jsonEncode(data));
     await Future.delayed(Duration(seconds: 1));
 
     isVisible = false;
-    setState(() {
-    });
+    setState(() {});
 
     if (response.status) {
       await Future.delayed(Duration(seconds: 5));
       setState(() {});
-      Navigator.pushNamedAndRemoveUntil(context, Routes.LoginPageRoutes, ModalRoute.withName('/homepage'),);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.LoginPageRoutes,
+        ModalRoute.withName('/homepage'),
+      );
 
       var msg = (response.data?['message']);
       MessageWidgetsSuccess.showSnack(context, msg);
-
     } else {
-      var msg = response.isException == true ? response.errorMsg : (response.data?['message']);
+      var msg = response.isException == true
+          ? response.errorMsg
+          : (response.data?['message']);
       MessageWidgets.showSnack(context, msg, Colors.red);
     }
     setState(() {
       isLoadingWaitingAPIResponse = false;
     });
-
   }
 
   void _handleLogoutPressed() async {
-    if(isLoadingWaitingAPIResponse) return;
+    if (isLoadingWaitingAPIResponse) return;
 
     setState(() {
       isLoadingWaitingAPIResponse = true;

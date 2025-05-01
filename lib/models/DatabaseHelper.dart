@@ -61,7 +61,26 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getAllForms() async {
     final db = await database;
-    return await db.query('forms', orderBy: 'created_at DESC');
+
+    var box = GetStorage();
+    //
+    List finalliste = [];
+    //
+    List list1 = box.read("formData1") ?? [];
+    print("list1: $list1");
+    //
+    List list2 = box.read("formData2") ?? [];
+    print("list2: $list2");
+    //
+    List list3 = box.read("formData3") ?? [];
+    print("list3: $list3");
+    //
+    finalliste.addAll(list1);
+    finalliste.addAll(list2);
+    finalliste.addAll(list3);
+
+    return finalliste.cast<Map<String, dynamic>>();
+    //return await db.query('forms', orderBy: 'created_at DESC');
   }
 
   Future<List<Map<String, dynamic>>> getUnsyncedForms({int limit = 5}) async {
@@ -83,11 +102,21 @@ class DatabaseHelper {
     );
   }
 
-  Future<int> saveForm(Map<String, dynamic> formData) async {
+  Future<String> saveForm(Map<String, dynamic> formData, String mabase) async {
     //
-    List list = box.read("formData") ?? [];
+    List list = box.read(mabase) ?? [];
+    //
+    var id = DateTime.now().toString();
+    //
+    formData["id"] = id;
+    //
+    formData["id"] = id;
     //
     list.add(formData);
+    //
+    box.write(mabase, list);
+    //
+    print('list: $list');
     //
     final db = await database;
 
@@ -100,7 +129,7 @@ class DatabaseHelper {
       'updated_at': DateTime.now().toIso8601String(),
     };
 
-    return await db.insert('forms', data);
+    return id; //await db.insert('forms', data);
   }
 
   Future<void> markAsSynced(int id) async {
@@ -126,53 +155,115 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> markFormAsSynced(int id) async {
+  Future<void> markFormAsSynced(String id) async {
     final db = await database;
-    await db.update(
-      'forms',
-      {
-        'is_synced': 1,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    //
+    //var box = GetStorage();
+    //
+    List finalliste = [];
+    //
+    List list1 = box.read("formData1") ?? [];
+    //
+    List list2 = box.read("formData2") ?? [];
+    //
+    List list3 = box.read("formData3") ?? [];
+    //
+    finalliste.addAll(list1);
+    finalliste.addAll(list2);
+    finalliste.addAll(list3);
+    //
+    finalliste.forEach((f) {
+      if (f['id'] == id) {
+        f["is_synced"] = 1;
+        f["updated_at"] = DateTime.now().toIso8601String();
+      }
+    });
+    //
+    // await db.update(
+    //   'forms',
+    //   {
+    //     'is_synced': 1,
+    //     'updated_at': DateTime.now().toIso8601String(),
+    //   },
+    //   where: 'id = ?',
+    //   whereArgs: [id],
+    // );
   }
 
-  Future<void> updateFormData(int id, Map<String, dynamic> formData) async {
+  Future<void> updateFormData(String id, Map<String, dynamic> formData) async {
     final db = await database;
-    await db.update(
-      'forms',
-      {
-        'form_data': jsonEncode(formData),
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    // await db.update(
+    //   'forms',
+    //   {
+    //     'form_data': jsonEncode(formData),
+    //     'updated_at': DateTime.now().toIso8601String(),
+    //   },
+    //   where: 'id = ?',
+    //   whereArgs: [id],
+    // );
+    //
+    List finalliste = [];
+    //
+    List list1 = box.read("formData1") ?? [];
+    //
+    List list2 = box.read("formData2") ?? [];
+    //
+    List list3 = box.read("formData3") ?? [];
+    //
+    finalliste.addAll(list1);
+    finalliste.addAll(list2);
+    finalliste.addAll(list3);
+    //
+    finalliste.forEach((f) {
+      if (f['id'] == id) {
+        f = formData;
+        f["updated_at"] = DateTime.now().toIso8601String();
+      }
+    });
   }
 
-  Future<void> scheduleSync(int id, {int maxAttempts = 3}) async {
+  Future<void> scheduleSync(String id, {int maxAttempts = 3}) async {
     final db = await database;
 
     // Vérifie d'abord si on n'a pas déjà trop d'essais
-    final form = await db.query(
-      'forms',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    // final form = await db.query(
+    //   'forms',
+    //   where: 'id = ?',
+    //   whereArgs: [id],
+    // );
 
-    if (form.isNotEmpty && (form.first['sync_attempts'] as int) < maxAttempts) {
-      await db.update(
-        'forms',
-        {
-          'needs_sync': 1,
-          'sync_attempts': (form.first['sync_attempts'] as int) + 1,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-    }
+    // if (form.isNotEmpty && (form.first['sync_attempts'] as int) < maxAttempts) {
+    //   await db.update(
+    //     'forms',
+    //     {
+    //       'needs_sync': 1,
+    //       'sync_attempts': (form.first['sync_attempts'] as int) + 1,
+    //       'updated_at': DateTime.now().toIso8601String(),
+    //     },
+    //     where: 'id = ?',
+    //     whereArgs: [id],
+    //   );
+    // }
+    //
+
+    List finalliste = [];
+    //
+    List list1 = box.read("formData1") ?? [];
+    //
+    List list2 = box.read("formData2") ?? [];
+    //
+    List list3 = box.read("formData3") ?? [];
+    //
+    finalliste.addAll(list1);
+    finalliste.addAll(list2);
+    finalliste.addAll(list3);
+    //
+    finalliste.forEach((f) {
+      if (f['id'] == id) {
+        f["needs_sync"] = 1;
+        f["sync_attempts"] = (f['sync_attempts'] ?? 0 as int) + 1;
+        f["updated_at"] = DateTime.now().toIso8601String();
+      }
+    });
   }
 }

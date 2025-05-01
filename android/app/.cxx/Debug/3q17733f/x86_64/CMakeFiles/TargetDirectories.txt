@@ -1,2 +1,0 @@
-C:/Users/Alsampy/Documents/Flut2/epep_sige/android/app/.cxx/Debug/3q17733f/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/Alsampy/Documents/Flut2/epep_sige/android/app/.cxx/Debug/3q17733f/x86_64/CMakeFiles/rebuild_cache.dir

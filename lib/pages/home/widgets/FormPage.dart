@@ -1,3 +1,4 @@
+import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/pages/formsSt1/dynamic_multi_step_form.dart';
 import 'package:epsp_sige/controllers/saved_forms_screen.dart';
 import 'package:epsp_sige/pages/formsSt2/dynamic_multi_step_formSt2.dart';
@@ -5,20 +6,25 @@ import 'package:epsp_sige/pages/formsSt3/dynamic_multi_step_formSt3.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
 
 class FormListPage extends StatefulWidget {
-  const FormListPage({Key? key}) : super(key: key);
+  SchoolModel? school;
+  FormListPage({Key? key, this.school}) : super(key: key);
 
   @override
   _FormListPageState createState() => _FormListPageState();
 }
 
 class _FormListPageState extends State<FormListPage> {
-  String? _selectedYear;
+  String selectedYear = "";
+  String schema_name = "";
   String _selectedSchool = "..";
   bool _isLoading = false;
+  var box = GetStorage();
 
-  final List<String> _years = ['2022-2023', '2023-2024', '2024-2025'];
+  List anneeList = [];
+  List<String> _years = ['2022-2023', '2023-2024', '2024-2025'];
   final List<Map<String, dynamic>> _forms = [
     {
       'code': 'ST1',
@@ -56,6 +62,19 @@ class _FormListPageState extends State<FormListPage> {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1)); // Simule chargement
     setState(() => _isLoading = false);
+    //
+    Map user = box.read("user");
+    //
+    anneeList = user['annee'];
+    //schema_name
+    for (final item in anneeList) {
+      if (item is Map<String, dynamic>) {
+        _years.addAll(item.keys);
+      }
+    }
+    _years = _years.toSet().toList();
+    selectedYear = _years.first;
+    print("selectedYear: $selectedYear");
   }
 
   @override
@@ -66,13 +85,12 @@ class _FormListPageState extends State<FormListPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness:
+            isDarkMode ? Brightness.light : Brightness.dark,
       ),
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: _isLoading
-            ? _buildLoadingIndicator()
-            : _buildContent(context),
+        body: _isLoading ? _buildLoadingIndicator() : _buildContent(context),
         floatingActionButton: FloatingActionButton(
           onPressed: _showSchoolSelection,
           child: const Icon(Icons.school),
@@ -85,7 +103,10 @@ class _FormListPageState extends State<FormListPage> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text('GESTION DES FORMULAIRES TPE', style: TextStyle(fontSize: 15),),
+      title: const Text(
+        'GESTION DES FORMULAIRES TPE',
+        style: TextStyle(fontSize: 15),
+      ),
       centerTitle: true,
       elevation: 0,
       flexibleSpace: Container(
@@ -145,9 +166,9 @@ class _FormListPageState extends State<FormListPage> {
           _buildYearSelector(),
           const SizedBox(height: 32),
           ..._forms.map((form) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _buildFormCard(context, form),
-          )),
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildFormCard(context, form),
+              )),
         ],
       ),
     );
@@ -198,7 +219,7 @@ class _FormListPageState extends State<FormListPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _selectedYear,
+              value: selectedYear,
               isExpanded: true,
               icon: const Icon(Icons.arrow_drop_down),
               iconSize: 24,
@@ -213,7 +234,10 @@ class _FormListPageState extends State<FormListPage> {
               }).toList(),
               onChanged: (String? newValue) {
                 setState(() {
-                  _selectedYear = newValue;
+                  selectedYear = newValue!;
+                  //
+                  _updateSchemaFromSelection();
+                  print('schema_name: $schema_name');
                 });
               },
             ),
@@ -221,6 +245,28 @@ class _FormListPageState extends State<FormListPage> {
         ),
       ],
     );
+  }
+
+  void _updateSchemaFromSelection() {
+    print('anneeList: $anneeList');
+    for (Map item in anneeList) {
+      print("clé: ${item.keys}");
+      print("valeurs: ${item.values}");
+      if (item.containsKey(selectedYear)) {
+        final List<dynamic> subList = item[selectedYear];
+        for (final subItem in subList) {
+          if (subItem.containsKey('schema_name')) {
+            schema_name = subItem['schema_name'];
+            print('schema_name: ${subItem['schema_name']}');
+
+            return;
+          }
+        }
+      } else {
+        print('selectedYear: ${item.containsKey(selectedYear)}: $selectedYear');
+        return;
+      }
+    }
   }
 
   Widget _buildFormCard(BuildContext context, Map<String, dynamic> form) {
@@ -387,7 +433,20 @@ class _FormListPageState extends State<FormListPage> {
               leading: const Icon(Icons.newspaper_outlined),
               title: const Text('Formulaire stockés en Local'),
               onTap: () {
-                Navigator.pushNamed(context, Routes.SavedFormsScreenRoutes);
+                //school
+                //Navigator.pushNamed(context, Routes.SavedFormsScreenRoutes);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return SavedFormsScreen(
+                        school: widget.school,
+                        prefix: selectedYear,
+                        schema_name: schema_name,
+                      );
+                    },
+                  ),
+                );
               },
             ),
             ListTile(

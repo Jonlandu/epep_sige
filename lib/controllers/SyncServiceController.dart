@@ -14,7 +14,7 @@ class SyncServiceController {
     return result != ConnectivityResult.none;
   }
 
-  Future<HttpResponse> syncForm(Map<String, dynamic> formData, {String? token}) async {
+  Future<HttpResponse> syncForm(String formData, {String? token}) async {
     return await postData(Endpoints.submitForm, formData, token: token);
   }
 
