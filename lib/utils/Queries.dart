@@ -64,14 +64,16 @@ Future<dynamic> getData(String url_api, {String? token}) async {
 Future<HttpResponse> postData(String api_url, String data,
     {String? token}) async {
   try {
-    var url = Uri.parse("${Constantes.BASE_URL}$api_url");
+    print("url: ${Constantes.BASE_URL}$api_url");
+    //
+    var url = Uri.parse("${Constantes.BASE_URL2}/$api_url");
     print('data: $data');
 
     //String dataStr = json.encode(data);
     var _tkn = token;
     var response = await http.post(url, body: data, headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer $_tkn"
+      //"Authorization": "Bearer $_tkn"
     });
 
     print("JOSHUA TO SEE IF EVERYTHING GOES WELL : ${data}");
