@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:epsp_sige/controllers/FormService.dart';
 import 'package:epsp_sige/controllers/SyncServiceController.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/models/SchoolForm.dart';
+import 'package:epsp_sige/pages/formsSt1/steps/step55.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'steps/step1.dart';
 import 'steps/step2.dart';
 import 'steps/step3.dart';
@@ -37,6 +41,8 @@ class DynamiqueMultiStepForm extends StatefulWidget {
 class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
   final SyncServiceController _syncService = SyncServiceController();
   final Connectivity _connectivity = Connectivity();
+  //
+  var box = GetStorage();
 
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
@@ -75,6 +81,28 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       _scrollToCurrentStep();
       _startSyncListener();
     });
+    //
+    Map user = box.read('user') ?? {};
+    formData = {
+      'province': user["userInfo"]['user']['province'],
+      'proved': user["userInfo"]['user']['proved'],
+      'sousProved': user["userInfo"]['user']['sousproved'],
+      'centreRegroupement': 'PR06CR21',
+      'nomEtablissement': 'CS. DORELI',
+      'nomChefEtablissement': '',
+      'typeEtablissement': 'Public',
+      'niveauxEnseignement': <String>[],
+      'capaciteAccueil': '',
+      'nombreEleves': '',
+      'nombreEnseignants': '',
+      'adresse': '',
+      'telephone': user["userInfo"]['user']['phone_number'],
+      'email': user["userInfo"]['user']['email'],
+      'anneeCreation': '',
+      'infrastructures': <String>[],
+      'validation': false,
+      'created_at': DateTime.now().toIso8601String(),
+    };
   }
 
   @override
@@ -143,7 +171,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
               () => Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
-                  6, //_stepsData.length
+                  7, //_stepsData.length
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin:
@@ -203,6 +231,11 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
                     //     formData: formData,
                     //     formKey: _stepFormKeys[6],
                     //     controller: pageController),
+                    Step55(
+                      formData: formData,
+                      formKey: _stepFormKeys[7],
+                      controller: pageController,
+                    ),
                     Step6(
                       formData: formData,
                       formKey: _stepFormKeys[7],
@@ -622,11 +655,18 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
         data: formData,
       );
 
-      final id = await _dbHelper.saveForm(form.toMap());
-      final response =
-          await _syncService.syncForm(form.data, token: widget.userToken);
+      final id = await _dbHelper.saveForm(form.toMap(), "formData1");
+      final response = await _syncService.syncForm(jsonEncode(form.data),
+          token: widget.userToken);
 
       if (response.status) {
+        /**
+         * 
+          'is_synced': 1,
+          'updated_at': DateTime.now().toIso8601String(),
+        */
+
+        //
         await _dbHelper.markFormAsSynced(id);
         _showSuccessDialog(isOnline: true);
       } else {

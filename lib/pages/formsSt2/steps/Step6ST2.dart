@@ -1,3 +1,7 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:epsp_sige/controllers/SyncServiceController.dart';
+import 'package:epsp_sige/models/DatabaseHelper.dart';
+import 'package:epsp_sige/models/SchoolForm.dart';
 import 'package:flutter/material.dart';
 
 class Step6st2 extends StatefulWidget {
@@ -13,10 +17,18 @@ class Step6st2 extends StatefulWidget {
   });
 
   @override
-  _Step6st2State createState() => _Step6st2State();
+  _SchoolResourcesFormState createState() => _SchoolResourcesFormState();
 }
 
-class _Step6st2State extends State<Step6st2> {
+class _SchoolResourcesFormState extends State<Step6st2> {
+  //
+  bool _isValidated = false;
+  bool _isSubmitting = false;
+
+  final SyncServiceController _syncService = SyncServiceController();
+  final Connectivity _connectivity = Connectivity();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  //
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -27,50 +39,151 @@ class _Step6st2State extends State<Step6st2> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            _buildHeader("Statistiques de l'Établissement"),
+            _buildHeader("Ressources et Infrastructures de l'Établissement"),
 
-            // Section: Manuels
+            // Section 1: Manuels scolaires
             _buildSection(
-              title: "Manuels",
+              title: "Manuels scolaires disponibles",
               children: [
-                _buildManualsTable(),
+                _buildManualTable("Français", "francais"),
                 const SizedBox(height: 20),
+                _buildManualTable("Mathématiques", "math"),
+                const SizedBox(height: 20),
+                _buildManualTable("Eveil", "eveil"),
+                const SizedBox(height: 20),
+                _buildManualTable("ECM", "ecm"),
+                const SizedBox(height: 20),
+                _buildManualTable("Thèmes Transversaux", "themes_transversaux"),
+                const SizedBox(height: 20),
+                _buildManualTable("Education pour la Paix", "education_paix"),
+                const SizedBox(height: 20),
+                _buildManualTable("Autres", "autres"),
               ],
             ),
 
-            // Section: Matériel
+            // Section 2: Guides pédagogiques
             _buildSection(
-              title: "Matériel",
+              title: "Guides pédagogiques disponibles",
               children: [
-                _buildMaterialsTable(),
+                _buildGuideTable("Français", "francais"),
                 const SizedBox(height: 20),
+                _buildGuideTable("Mathématiques", "math"),
+                const SizedBox(height: 20),
+                _buildGuideTable("Eveil", "eveil"),
+                const SizedBox(height: 20),
+                _buildGuideTable("ECM", "ecm"),
+                const SizedBox(height: 20),
+                _buildGuideTable("Thèmes Transversaux", "themes_transversaux"),
+                const SizedBox(height: 20),
+                _buildGuideTable("Education pour la Paix", "education_paix"),
+                const SizedBox(height: 20),
+                _buildGuideTable("Autres", "autres"),
               ],
             ),
 
-            // Section: Salles de cours
+            // Section 3: Infrastructures
             _buildSection(
-              title: "Salles de cours",
+              title: "État des infrastructures",
               children: [
-                _buildClassroomsTable(),
+                _buildInfrastructureTable("Salles de cours", "salle_cours"),
                 const SizedBox(height: 20),
+                _buildInfrastructureTable(
+                    "Salles spécialisées", "salle_specialisee"),
+                const SizedBox(height: 20),
+                _buildInfrastructureTable("Latrines", "latrines"),
               ],
             ),
 
-            // Section: Latrines
+            // Section 4: Matériel
             _buildSection(
-              title: "Latrines",
+              title: "État du matériel",
               children: [
-                _buildLatrinesTable(),
-                const SizedBox(height: 20),
+                _buildMaterialTable(),
               ],
             ),
+            const SizedBox(height: 19),
+            _buildValidationCheckbox(),
 
             // Navigation buttons
-            _buildNavigationButtons(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _isSubmitting ? null : () => _saveFormLocally(),
+                  child: _isSubmitting
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Enregistrer en local"),
+                ),
+              ],
+            )
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _saveFormLocally() async {
+    setState(() => _isSubmitting = true);
+
+    try {
+      // Vérifier la validation
+      if (!_isValidated) {
+        throw Exception(
+            'Vous devez valider le formulaire avant enregistrement');
+      }
+
+      // Créer l'objet SchoolForm
+      final form = SchoolForm(
+        //idannee: widget.idannee,
+        //idetablissement: widget.idetablissement,
+        data: widget.formData,
+        isSynced: false,
+        //createdAt: DateTime.now().toString(), // This works as-is
+      );
+
+      Map<String, dynamic> st2 = form.toMap();
+      st2["st2"] = "oui";
+
+      // Sauvegarder en local
+      final id = await _dbHelper.saveForm(st2, "formData2");
+      // Succès de l'enregistrement local
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Formulaire enregistré avec succès (ID: $id)'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Optionnel: vérifier la connexion et tenter une synchronisation
+      final connectivityResult = await _connectivity.checkConnectivity();
+      // if (connectivityResult != ConnectivityResult.none) {
+      //   try {
+      //     final response = await _syncService.syncForm(widget.formData,
+      //         token: widget.userToken);
+      //     if (response.status) {
+      //       await _dbHelper.markFormAsSynced(id);
+      //       ScaffoldMessenger.of(context).showSnackBar(
+      //         SnackBar(
+      //           content: Text('Synchronisation réussie avec le serveur'),
+      //           backgroundColor: Colors.green,
+      //         ),
+      //       );
+      //     }
+      //   } catch (e) {
+      //     // La synchronisation a échoué mais le formulaire est bien enregistré localement
+      //     await _dbHelper.scheduleSync(id);
+      //   }
+      // }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
   }
 
   Widget _buildHeader(String title) {
@@ -113,43 +226,150 @@ class _Step6st2State extends State<Step6st2> {
     );
   }
 
-  Widget _buildManualsTable() {
-    return Table(
-      columnWidths: const {
-        0: FlexColumnWidth(2),
-        1: FlexColumnWidth(1),
-      },
-      border: TableBorder.all(color: Colors.grey.shade300),
+  Widget _buildManualTable(String subject, String subjectKey) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TableRow(
-          decoration: BoxDecoration(color: Colors.blueGrey.shade50),
-          children: const [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Type de manuel",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(
+            subject,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
             ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Quantité",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
+          ),
+        ),
+        Table(
+          columnWidths: const {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(1.5),
+          },
+          border: TableBorder.all(color: Colors.grey.shade300),
+          children: [
+            TableRow(
+              decoration: BoxDecoration(color: Colors.blueGrey.shade50),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Niveau",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Quantité",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
+            _buildManualRow(
+                "Préprimaire", "st2_manuel_${subjectKey}_preprimaire"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("1ère année", "st2_manuel_${subjectKey}_1"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("2ème année", "st2_manuel_${subjectKey}_2"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("3ème année", "st2_manuel_${subjectKey}_3"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("4ème année", "st2_manuel_${subjectKey}_4"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("5ème année", "st2_manuel_${subjectKey}_5"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("6ème année", "st2_manuel_${subjectKey}_6"),
           ],
         ),
-        _buildManualRow(
-            "Français (Préprimaire)", "st2_manuel_francais_preprimaire"),
-        _buildManualRow("Français (4ème)", "st2_manuel_francais_4"),
-        _buildManualRow("Français (5ème)", "st2_manuel_francais_5"),
-        _buildManualRow("Français (6ème)", "st2_manuel_francais_6"),
-        _buildManualRow(
-            "Mathématiques (Préprimaire)", "st2_manuel_math_preprimaire"),
-        // Add more manual rows as needed
+      ],
+    );
+  }
+
+  Widget _buildGuideTable(String subject, String subjectKey) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(
+            subject,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
+            ),
+          ),
+        ),
+        Table(
+          columnWidths: const {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(1.5),
+          },
+          border: TableBorder.all(color: Colors.grey.shade300),
+          children: [
+            TableRow(
+              decoration: BoxDecoration(color: Colors.blueGrey.shade50),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Niveau",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Quantité",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+            _buildManualRow(
+                "Préprimaire", "st2_guide_${subjectKey}_preprimaire"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("1ère année", "st2_guide_${subjectKey}_1"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("2ème année", "st2_guide_${subjectKey}_2"),
+            if (subjectKey == "math" ||
+                subjectKey == "ecm" ||
+                subjectKey == "education_paix")
+              _buildManualRow("3ème année", "st2_guide_${subjectKey}_3"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("4ème année", "st2_guide_${subjectKey}_4"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("5ème année", "st2_guide_${subjectKey}_5"),
+            if (subjectKey != "math" &&
+                subjectKey != "ecm" &&
+                subjectKey != "education_paix")
+              _buildManualRow("6ème année", "st2_guide_${subjectKey}_6"),
+          ],
+        ),
       ],
     );
   }
@@ -169,45 +389,53 @@ class _Step6st2State extends State<Step6st2> {
     );
   }
 
-  Widget _buildMaterialsTable() {
+  Widget _buildInfrastructureTable(String title, String prefix) {
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(2),
-        1: FlexColumnWidth(1),
+        1: FlexColumnWidth(1.5),
+        2: FlexColumnWidth(1.5),
       },
       border: TableBorder.all(color: Colors.grey.shade300),
       children: [
         TableRow(
           decoration: BoxDecoration(color: Colors.blueGrey.shade50),
-          children: const [
+          children: [
             Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                "Type de matériel",
+                "Bon état",
                 style: TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                "Quantité",
+                "Mauvais état",
                 style: TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
           ],
         ),
-        _buildMaterialRow("Tableaux (Bon état)", "st2_tableaux_bon"),
-        _buildMaterialRow("Tableaux (Mauvais état)", "st2_tableaux_mauvais"),
-        _buildMaterialRow("Tables (Bon état)", "st2_tables_bon"),
-        _buildMaterialRow("Tables (Mauvais état)", "st2_tables_mauvais"),
-        // Add more material rows as needed
+        _buildInfrastructureRow("Durrable", "${prefix}_endur"),
+        _buildInfrastructureRow("Semi-durrable", "${prefix}_semi_dur"),
+        _buildInfrastructureRow("Terre battue", "${prefix}_terre_battue"),
+        _buildInfrastructureRow("Paille", "${prefix}_paille"),
       ],
     );
   }
 
-  TableRow _buildMaterialRow(String label, String key) {
+  TableRow _buildInfrastructureRow(String label, String prefix) {
     return TableRow(
       children: [
         Padding(
@@ -216,18 +444,23 @@ class _Step6st2State extends State<Step6st2> {
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: _buildNumberFormField(label: "", key: key),
+          child: _buildNumberFormField(label: "", key: "${prefix}_bon_etat"),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child:
+              _buildNumberFormField(label: "", key: "${prefix}_mauvais_etat"),
         ),
       ],
     );
   }
 
-  Widget _buildClassroomsTable() {
+  Widget _buildMaterialTable() {
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(2),
-        1: FlexColumnWidth(1),
-        2: FlexColumnWidth(1),
+        1: FlexColumnWidth(1.5),
+        2: FlexColumnWidth(1.5),
       },
       border: TableBorder.all(color: Colors.grey.shade300),
       children: [
@@ -237,7 +470,7 @@ class _Step6st2State extends State<Step6st2> {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                "Type de salle",
+                "Matériel",
                 style: TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -260,20 +493,20 @@ class _Step6st2State extends State<Step6st2> {
             ),
           ],
         ),
-        _buildClassroomRow(
-            "Salles de cours (Dur)",
-            "st2_salle_cours_endur_bon_etat",
-            "st2_salle_cours_endur_mauvais_etat"),
-        _buildClassroomRow(
-            "Salles de cours (Semi-dur)",
-            "st2_salle_cours_semi_dur_bon_etat",
-            "st2_salle_cours_semi_dur_mauvais_etat"),
-        // Add more classroom rows as needed
+        _buildMaterialRow("Tableaux", "st2_tableaux"),
+        _buildMaterialRow("Tables", "st2_tables"),
+        _buildMaterialRow("Chaises", "st2_chaises"),
+        _buildMaterialRow(
+            "Ordinateurs pédagogiques", "st2_ordinateur_pedagogiques"),
+        _buildMaterialRow("Photocopieuses", "st2_photocopieuses"),
+        _buildMaterialRow("Kits scientifiques", "st2_kits_scientifiques"),
+        _buildMaterialRow("Équipements besoins spécifiques",
+            "st2_equipements_besoins_specifiques"),
       ],
     );
   }
 
-  TableRow _buildClassroomRow(String label, String keyGood, String keyBad) {
+  TableRow _buildMaterialRow(String label, String prefix) {
     return TableRow(
       children: [
         Padding(
@@ -282,88 +515,17 @@ class _Step6st2State extends State<Step6st2> {
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: _buildNumberFormField(label: "", key: keyGood),
+          child: _buildNumberFormField(label: "", key: "${prefix}_bon"),
         ),
         Padding(
           padding: const EdgeInsets.all(4.0),
-          child: _buildNumberFormField(label: "", key: keyBad),
+          child: _buildNumberFormField(label: "", key: "${prefix}_mauvais"),
         ),
       ],
     );
   }
 
-  Widget _buildLatrinesTable() {
-    return Table(
-      columnWidths: const {
-        0: FlexColumnWidth(2),
-        1: FlexColumnWidth(1),
-        2: FlexColumnWidth(1),
-      },
-      border: TableBorder.all(color: Colors.grey.shade300),
-      children: [
-        TableRow(
-          decoration: BoxDecoration(color: Colors.blueGrey.shade50),
-          children: const [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Type de latrines",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Bon état",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Mauvais état",
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-        _buildLatrineRow("Latrines (Dur)", "st2_latrines_endur_bon_etat",
-            "st2_latrines_endur_mauvais_etat"),
-        _buildLatrineRow(
-            "Latrines (Semi-dur)",
-            "st2_latrines_semi_dur_bon_etat",
-            "st2_latrines_semi_dur_mauvais_etat"),
-        // Add more latrine rows as needed
-      ],
-    );
-  }
-
-  TableRow _buildLatrineRow(String label, String keyGood, String keyBad) {
-    return TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(label),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: _buildNumberFormField(label: "", key: keyGood),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: _buildNumberFormField(label: "", key: keyBad),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNumberFormField({
-    required String label,
-    required String key,
-  }) {
+  Widget _buildNumberFormField({required String label, required String key}) {
     return TextFormField(
       decoration: InputDecoration(
         labelText: label,
@@ -384,6 +546,40 @@ class _Step6st2State extends State<Step6st2> {
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildValidationCheckbox() {
+    return Card(
+      elevation: 0,
+      color: Colors.red.shade50,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: _isValidated ? Colors.green : Colors.red.shade300,
+          width: 1.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: CheckboxListTile(
+          title: const Text(
+            'Je certifie que les informations fournies sont exactes',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          value: _isValidated,
+          onChanged: (bool? value) {
+            setState(() {
+              _isValidated = value ?? false;
+              widget.formData['validation'] = _isValidated;
+            });
+          },
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Colors.green,
+          checkColor: Colors.white,
+        ),
+      ),
     );
   }
 

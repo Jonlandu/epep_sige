@@ -36,6 +36,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    //box.erase();
+    //
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(

@@ -6,7 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'ThemeProvider.dart';
-
+import 'package:get/get.dart';
 
 class MonApplication extends StatelessWidget {
   final box = GetStorage();
@@ -20,15 +20,19 @@ class MonApplication extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (_, themeProvider, __) {
-          return MaterialApp(
-            
+          return GetMaterialApp(
             theme: ThemeData(
-              brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+              brightness:
+                  themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
               textTheme: GoogleFonts.montserratTextTheme(
                 Theme.of(context).textTheme.apply(
-                  bodyColor: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                  displayColor: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                ),
+                      bodyColor: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
+                      displayColor: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
+                    ),
               ),
             ),
             debugShowCheckedModeBanner: false,

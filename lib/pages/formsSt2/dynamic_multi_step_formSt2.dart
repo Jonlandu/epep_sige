@@ -12,6 +12,7 @@ import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get_storage/get_storage.dart';
 import 'steps/validation_step.dart';
 
 class DynamiqueMultiStepFormST2 extends StatefulWidget {
@@ -39,9 +40,10 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
   //
   PageController pageController = PageController();
   final RxInt _currentIndex = 0.obs; // pour savoir où on est
+  var box = GetStorage();
 
   // Données du formulaire
-  final Map<String, dynamic> formData = {
+  Map<String, dynamic> formData = {
     'province': 'KONGO-CENTRAL',
     'proved': 'KONGO-CENTRAL I',
     'sousProved': 'MATADI 2',
@@ -73,7 +75,7 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
     GlobalKey<FormState>(),
   ];
 
-  final List<Map<String, dynamic>> _stepsData = [
+  List<Map<String, dynamic>> _stepsData = [
     {'title': 'Localisation', 'icon': Icons.location_on, 'color': Colors.blue},
     {
       'title': 'Identification',
@@ -94,6 +96,28 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToCurrentStep();
     });
+    //
+    Map user = box.read('user') ?? {};
+    formData = {
+      'province': user["userInfo"]['user']['province'],
+      'proved': user["userInfo"]['user']['proved'],
+      'sousProved': user["userInfo"]['user']['sousproved'],
+      'centreRegroupement': 'PR06CR21',
+      'nomEtablissement': 'CS. DORELI',
+      'nomChefEtablissement': '',
+      'typeEtablissement': 'Public',
+      'niveauxEnseignement': <String>[],
+      'capaciteAccueil': '',
+      'nombreEleves': '',
+      'nombreEnseignants': '',
+      'adresse': '',
+      'telephone': user["userInfo"]['user']['phone_number'],
+      'email': user["userInfo"]['user']['email'],
+      'anneeCreation': '',
+      'infrastructures': <String>[],
+      'validation': false,
+      'created_at': DateTime.now().toIso8601String(),
+    };
   }
 
   @override
@@ -220,8 +244,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                       formKey: _stepFormKeys[6],
                       controller: pageController,
                     ),
-                    ValidationStep(
-                        formData: formData, formKey: _stepFormKeys[7]),
+                    // ValidationStep(
+                    //     formData: formData, formKey: _stepFormKeys[7]),
                     // Container(),
                   ],
                 ),
@@ -519,7 +543,7 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
         formData['idetablissement'] = widget.idetablissement;
         formData['updated_at'] = DateTime.now().toIso8601String();
 
-        await _dbHelper.saveForm(formData);
+        await _dbHelper.saveForm(formData, "formData2");
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -645,7 +669,7 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
       formData['updated_at'] = DateTime.now().toIso8601String();
 
       // Sauvegarder localement
-      final id = await _dbHelper.saveForm(formData);
+      final id = await _dbHelper.saveForm(formData, "formData2");
 
       // Tenter de synchroniser immédiatement
       await _formService.syncFormsWithApi();

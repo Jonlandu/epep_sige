@@ -22,7 +22,8 @@ class DynamiqueMultiStepFormST3 extends StatefulWidget {
   });
 
   @override
-  State<DynamiqueMultiStepFormST3> createState() => _DynamiqueMultiStepFormST3State();
+  State<DynamiqueMultiStepFormST3> createState() =>
+      _DynamiqueMultiStepFormST3State();
 }
 
 class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
@@ -69,10 +70,8 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
   };
 
   // Clés de formulaire pour chaque étape
-  final List<GlobalKey<FormState>> _stepFormKeys = List.generate(
-      8,
-          (index) => GlobalKey<FormState>()
-  );
+  final List<GlobalKey<FormState>> _stepFormKeys =
+      List.generate(8, (index) => GlobalKey<FormState>());
 
   // Configuration des étapes - Réorganisé pour une meilleure lisibilité
   final List<Map<String, dynamic>> _stepsData = [
@@ -248,7 +247,8 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
     );
   }
 
-  Widget _buildStepIcon(Map<String, dynamic> step, bool isActive, bool isCompleted, Color color) {
+  Widget _buildStepIcon(
+      Map<String, dynamic> step, bool isActive, bool isCompleted, Color color) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: isActive ? 50 : 40,
@@ -259,7 +259,8 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
             : (isCompleted ? color.withOpacity(0.1) : Colors.grey.shade100),
         shape: BoxShape.circle,
         border: Border.all(
-          color: isActive ? color : (isCompleted ? color : Colors.grey.shade400),
+          color:
+              isActive ? color : (isCompleted ? color : Colors.grey.shade400),
           width: isActive ? 2 : 1,
         ),
       ),
@@ -271,7 +272,8 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
     );
   }
 
-  Widget _buildStepTitle(Map<String, dynamic> step, bool isActive, bool isCompleted, Color color) {
+  Widget _buildStepTitle(
+      Map<String, dynamic> step, bool isActive, bool isCompleted, Color color) {
     return Text(
       step['title'],
       style: TextStyle(
@@ -297,7 +299,8 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
 
   void _onStepTap(int index) {
     if (index < _currentStep ||
-        (index > _currentStep && _stepFormKeys[_currentStep].currentState?.validate() == true)) {
+        (index > _currentStep &&
+            _stepFormKeys[_currentStep].currentState?.validate() == true)) {
       setState(() => _currentStep = index);
     }
   }
@@ -364,8 +367,7 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
         children: [
-          if (_currentStep != 0)
-            Expanded(child: _buildPreviousButton()),
+          if (_currentStep != 0) Expanded(child: _buildPreviousButton()),
           if (_currentStep != 0) const SizedBox(width: 16),
           Expanded(child: _buildNextButton()),
         ],
@@ -424,7 +426,9 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         child: Text(
-          _currentStep == _stepsData.length - 1 ? 'Enregistrer en local' : 'Suivant',
+          _currentStep == _stepsData.length - 1
+              ? 'Enregistrer en local'
+              : 'Suivant',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -437,15 +441,26 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
 
   Widget _buildCurrentStepContent() {
     switch (_currentStep) {
-      case 0: return LocationStep(formData: formData, formKey: _stepFormKeys[0]);
-      case 1: return InfrastructureStep(formData: formData, formKey: _stepFormKeys[1]);
-      case 2: return EducationStep(formData: formData, formKey: _stepFormKeys[2]);
-      case 3: return ThemesTransversauxStep(formData: formData, formKey: _stepFormKeys[3]);
-      case 4: return StudentDataForm(formData: formData, formKey: _stepFormKeys[4]);
-      case 5: return ContactDataForm(formData: formData, formKey: _stepFormKeys[5]);
-      case 6: return FormationDataForm(formData: formData, formKey: _stepFormKeys[6]);
-      case 7: return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
-      default: return Container();
+      case 0:
+        return LocationStep(formData: formData, formKey: _stepFormKeys[0]);
+      case 1:
+        return InfrastructureStep(
+            formData: formData, formKey: _stepFormKeys[1]);
+      case 2:
+        return EducationStep(formData: formData, formKey: _stepFormKeys[2]);
+      case 3:
+        return ThemesTransversauxStep(
+            formData: formData, formKey: _stepFormKeys[3]);
+      case 4:
+        return StudentDataForm(formData: formData, formKey: _stepFormKeys[4]);
+      case 5:
+        return ContactDataForm(formData: formData, formKey: _stepFormKeys[5]);
+      case 6:
+        return FormationDataForm(formData: formData, formKey: _stepFormKeys[6]);
+      case 7:
+        return ValidationStep(formData: formData, formKey: _stepFormKeys[7]);
+      default:
+        return Container();
     }
   }
 
@@ -461,7 +476,7 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
         formData['idetablissement'] = widget.idetablissement;
         formData['updated_at'] = DateTime.now().toIso8601String();
 
-        await _dbHelper.saveForm(formData);
+        await _dbHelper.saveForm(formData, "formData3");
 
         _showSnackBar(
           message: 'Brouillon sauvegardé avec succès',
@@ -576,7 +591,7 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
       formData['updated_at'] = DateTime.now().toIso8601String();
 
       // Sauvegarder localement
-      final id = await _dbHelper.saveForm(formData);
+      final id = await _dbHelper.saveForm(formData, "formData3");
 
       // Tenter de synchroniser immédiatement
       await _formService.syncFormsWithApi();

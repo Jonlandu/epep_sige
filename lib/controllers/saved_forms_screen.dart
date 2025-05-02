@@ -1,11 +1,18 @@
+import 'package:epsp_sige/controllers/formulaire_enseignant.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
+import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/utils/Queries.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert'; // Import pour jsonDecode
 
 class SavedFormsScreen extends StatefulWidget {
-  const SavedFormsScreen({super.key});
+  SchoolModel? school;
+  String? prefix;
+  String? schema_name;
+  SavedFormsScreen({super.key, this.school, this.prefix, this.schema_name});
 
   @override
   State<SavedFormsScreen> createState() => _SavedFormsScreenState();
@@ -14,6 +21,18 @@ class SavedFormsScreen extends StatefulWidget {
 class _SavedFormsScreenState extends State<SavedFormsScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   late Future<List<Map<String, dynamic>>> _formsFuture;
+  var box = GetStorage();
+
+  final List<GlobalKey<FormState>> _stepFormKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+  ];
 
   @override
   void initState() {
@@ -73,22 +92,28 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
             itemCount: forms.length,
             itemBuilder: (context, index) {
               final form = forms[index];
-              final date = DateTime.tryParse(form['created_at'] ?? '') ?? DateTime.now();
+              final date =
+                  DateTime.tryParse(form['created_at'] ?? '') ?? DateTime.now();
               final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(date);
               final isSynced = form['is_synced'] == 1;
               final formData = _parseFormData(form['form_data']);
+              //
+              print("st1: ${form['st1']}");
+              Map user = box.read("user");
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
                   title: Text(
-                    form['nom_etablissement']?.toString() ?? 'Formulaire #${form['id']}',
+                    form['nom_etablissement']?.toString() ??
+                        'Formulaire #${form['id']}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Année: ${formData['annee_scolaire']?.toString() ?? 'N/A'}'),
+                      Text(
+                          'Année: ${formData['annee_scolaire']?.toString() ?? 'N/A'}'),
                       Text('Créé le: $dateStr'),
                       const SizedBox(height: 4),
                       Row(
@@ -117,16 +142,102 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                     children: [
                       if (!isSynced)
                         IconButton(
-                          icon: const Icon(Icons.cloud_upload, color: Colors.blue),
-                          onPressed: () => _sendFormToApi(form['id'], formData),
+                          icon: const Icon(Icons.cloud_upload,
+                              color: Colors.blue),
+                          onPressed: () {
+                            //
+                            if (formData["is_synced"] == null) {
+                              formData["is_synced"] = "";
+                              String dd = jsonEncode(formData);
+                              //print('dd: $dd');
+                              _sendFormToApi(form['id'], dd);
+                            } else {
+                              Get.snackbar("Oups",
+                                  "Ce formulaire a déjà été envoyé au serveur");
+                            }
+                          },
                         ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteForm(form['id']),
+                        onPressed: () {
+                          //
+                          List finalliste = [];
+                          //
+                          List list1 = box.read("formData1") ?? [];
+                          //
+                          for (var s in list1.toList()) {
+                            if (s['id'] == form['id']) {
+                              list1.remove(s);
+                            }
+                          }
+                          //
+                          box.write("formData1", list1);
+                          //
+                          List list2 = box.read("formData2") ?? [];
+                          //
+                          for (var s in list2.toList()) {
+                            if (s['id'] == form['id']) {
+                              list2.remove(s);
+                            }
+                          }
+                          //
+                          box.write("formData2", list2);
+                          //
+                          List list3 = box.read("formData3") ?? [];
+                          //
+                          for (var s in list3.toList()) {
+                            if (s['id'] == form['id']) {
+                              list3.remove(s);
+                            }
+                          }
+                          //
+                          box.write("formData3", list3);
+                          //
+                          forms.removeAt(index);
+                          //
+                          Get.back();
+                        },
                       ),
                     ],
                   ),
-                  onTap: () => _showFormDetails(form['id'], formData, isSynced),
+                  onTap: () {
+                    if (formData["is_synced"] == null) {
+                      _showFormDetails(form['id'], formData, isSynced);
+                    } else {
+                      Get.snackbar(
+                          "Oups", "Ce formulaire a déjà été envoyé au serveur");
+                    }
+                  },
+                  onLongPress: () {
+                    //
+                    print("formData['is_synced']: ${formData["is_synced"]}");
+                    //
+                    if (formData["is_synced"] == null) {
+                      PageController pageController = PageController();
+                      //
+                      if (form["st1"] == "oui") {
+                        formData["label_st"] == "ST1";
+                        formData['idetablissement'] = widget.school!.id;
+                        formData['iduser'] = user["userInfo"]["user"]["id"];
+                        formData['nom'] = widget.school!.nom;
+                        formData['prefix'] = widget.schema_name;
+
+                        //
+                        formData.addAll(convertFormData(formData));
+
+                        //
+                        formData['annee'] = widget.prefix;
+
+                        Get.to(ListEnseignantForm(formData));
+                      } else {
+                        //
+                        print("st1: ${formData}");
+                      }
+                    } else {
+                      Get.snackbar(
+                          "Oups", "Ce formulaire a déjà été envoyé au serveur");
+                    }
+                  },
                 ),
               );
             },
@@ -136,7 +247,8 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
     );
   }
 
-  Future<void> _sendFormToApi(int id, Map<String, dynamic> formData) async {
+  Future<void> _sendFormToApi(String id, String formData) async {
+    Map user = box.read("user") ?? {};
     try {
       showDialog(
         context: context,
@@ -145,7 +257,8 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       );
 
       // Appel à l'API
-      final response = await postData('/st/', formData);
+      final response = await postData('/utilities/st1/', formData,
+          token: user['userInfo']['access']);
 
       if (response.status) {
         // Marquer comme synchronisé dans la base de données locale
@@ -166,7 +279,8 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erreur API: ${response.errorMsg ?? "Erreur inconnue"}'),
+              content:
+                  Text('Erreur API: ${response.errorMsg ?? "Erreur inconnue"}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -184,7 +298,9 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       }
     }
   }
-  Future<void> _showFormDetails(int id, Map<String, dynamic> formData, bool isSynced) async {
+
+  Future<void> _showFormDetails(
+      String id, Map<String, dynamic> formData, bool isSynced) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -240,10 +356,59 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       }
     }
   }
+
+  Map<String, dynamic> convertFormData(Map<String, dynamic> formData) {
+    // Liste des clés à convertir
+    List<String> keys = [
+      "copa_disponible",
+      "copa_operationnel",
+      "coges_disponible",
+      "coges_operationnel",
+      "locaux_partages",
+      "programme_refugies",
+      "nom_organisme",
+      "projet_develope",
+      "prevision_budgetaire",
+      "plan_action_operationel",
+      "tableau_bord",
+      "rap_organisee",
+      "chef_cote_positivement",
+      "vih_sida_enseigne",
+      "vih_sida_programme",
+      "vih_sida_discipline",
+      "vih_sida_active_parascolaire",
+      "sante_reproductive_enseigne",
+      "sante_reproductive_programme",
+      "sante_reproductive_discipline",
+      "sante_reproductive_parascolaire",
+      "sensibilisation_abus_enseigne",
+      "sensibilisation_abus_programme",
+      "sensibilisation_abus_discipline",
+      "sensibilisation_abus_parascolaire",
+      "education_environnementale_enseigne",
+      "education_environnementale_programme",
+      "education_environnementale_discipline",
+      "education_environnementale_parascolaire",
+      "reglement_securite_physique",
+      "reglement_discrimination",
+      "reglement_harcelement",
+      "cellule_orientation_evf",
+      "enseignants_evf_formes",
+    ];
+
+    Map<String, bool> converted = {};
+
+    for (var key in keys) {
+      var value = formData[key];
+      converted[key] = value?.toString().trim().toLowerCase() == 'oui';
+    }
+
+    return converted;
+  }
 }
 
 class FormDetailsScreen extends StatefulWidget {
-  final int formId;
+  final String formId;
   final Map<String, dynamic> formData;
   final bool isSynced;
 
@@ -341,10 +506,10 @@ class _FormDetailsScreenState extends State<FormDetailsScreen> {
       ),
       floatingActionButton: !widget.isSynced
           ? FloatingActionButton.extended(
-        onPressed: _saveChanges,
-        icon: const Icon(Icons.save),
-        label: const Text('Enregistrer'),
-      )
+              onPressed: _saveChanges,
+              icon: const Icon(Icons.save),
+              label: const Text('Enregistrer'),
+            )
           : null,
     );
   }
