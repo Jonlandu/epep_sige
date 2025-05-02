@@ -1,5 +1,11 @@
 import 'dart:convert';
+import 'package:epsp_sige/pages/accueil_enrolleur.dart';
+import 'package:epsp_sige/pages/connexion/LoginPage.dart';
 import 'package:epsp_sige/utils/Constantes.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import '../apps/MonApplication.dart';
@@ -95,9 +101,12 @@ Future<HttpResponse> postData(String api_url, String data,
   }
 }
 
-Future<HttpResponse> postDataLogin(String api_url, Map data,
+Future<void> postDataLogin(String api_url, Map data, BuildContext context,
     {String? token}) async {
   try {
+    //
+    var box = GetStorage();
+    //
     print(
         ("login: ${Constantes.BASE_URL}/$api_url?mdp=${data['password']}&username=${data['email']}"));
     var url = Uri.parse(
@@ -115,20 +124,57 @@ Future<HttpResponse> postDataLogin(String api_url, Map data,
 
     var response = await http.get(url, headers: headers);
 
-    var successList = [200, 201];
-    var msg = json.decode(response.body);
-    var st = successList.contains(response.statusCode);
+    //var successList = [200, 201];
 
-    if (response.statusCode == 500) throw Exception(msg);
-    print("Josue nlandu Lucien ma reponse: ${response.body}");
-    return HttpResponse(status: st, data: msg);
+    //var st = successList.contains(response.statusCode);
+
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 202 ||
+        response.statusCode == 203 ||
+        response.statusCode == 204) {
+      //
+      //print("response.body: ${response.body}");
+      var msg = json.decode(response.body);
+      print("response.body: $msg");
+      //
+      box.write("user", msg);
+      //Get.to()
+      Get.snackbar("Succès", "Bienvenu dans eSIGE");
+
+      print(
+          "sousProvedId: ${msg["sousProvedId"]} ${msg["sousProvedId"].runtimeType}");
+      if (msg["sousProvedId"] != null) {
+        Navigator.of(context).pop();
+        // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        //   return AccueilEnrolleur(msg);
+        // }));
+        Get.to(AccueilEnrolleur(msg));
+        //
+      } else if (msg["provedId"] != null) {
+        //Get.offAll(AccueilEnrolleur(msg));
+        Navigator.of(context).pop();
+        Get.snackbar("Oups", "Impossible de se connecter");
+      } else {
+        //
+        Get.snackbar("Oups", "Impossible de se connecter");
+      }
+      //return msg;
+    } else {
+      Get.back();
+      Get.snackbar(
+          "Oups", "Nous n'avons pas pu vous connecter à l'application mobile");
+      //return {};
+    }
+
+    // if (response.statusCode == 500) throw Exception(msg);
+    // print("Josue nlandu Lucien ma reponse: ${response.body}");
+    // return HttpResponse(status: st, data: msg);
   } catch (e, trace) {
     print("Error: $e");
     print("Stack trace: $trace");
-    return HttpResponse(
-        status: false,
-        errorMsg: "Unexpected error, connexion's problem",
-        isException: true);
+    Get.snackbar("Oups", "$trace");
+    //return {};
   }
 }
 

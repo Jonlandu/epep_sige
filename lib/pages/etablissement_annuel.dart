@@ -1,16 +1,16 @@
-import 'package:epsp_sige/pages/etablissement_annuel.dart';
 import 'package:epsp_sige/pages/home/widgets/SchoolListPage.dart';
 import 'package:epsp_sige/utils/requete.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-class AccueilEnrolleur extends StatelessWidget {
+class EtablissementAnnuel extends StatelessWidget {
   //
-  Map a;
+  int idAnnee;
   //
-  List<Map<String, dynamic>> identifications = [];
+  var box = GetStorage();
   //
-  AccueilEnrolleur(this.a) {
+  EtablissementAnnuel(this.idAnnee) {
     //.cast<Map<String, dynamic>>() ??
     //identifications = a['identifications'].cast<Map<String, dynamic>>() ?? [];
   }
@@ -28,51 +28,48 @@ class AccueilEnrolleur extends StatelessWidget {
           children: [
             Container(
               alignment: Alignment.center,
-              child: const Text("Veuillez selectionner l'année"),
+              child: const Text("Veuillez selectionner une école"),
             ),
             Expanded(
               flex: 9,
               child: Container(
                 child: FutureBuilder(
-                    future: getAllAnnees(),
+                    future: getAllEtablissement(),
                     builder: (context, t) {
                       if (t.hasData) {
                         List annees = t.data as List;
-                        return Column(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: ListView(
-                                children: List.generate(annees.length, (e) {
-                                  Map annee = annees[e];
-                                  //
-                                  return ListTile(
-                                    onTap: () {
-                                      //
-                                      print('annee: $annee');
-                                      //
-                                      if (annee['open']) {
-                                        //
-                                        //SchoolListPageRoutes
-                                        //
-                                        Get.to(
-                                          EtablissementAnnuel(annee['id']),
-                                        );
-                                        //
-                                      } else {
-                                        Get.snackbar(
-                                            "Oups", "Année non active");
-                                      }
-                                    },
-                                    title: Text("${annee['libAnneeScolaire']}"),
-                                    subtitle: Text(
-                                        "Active : ${annee['open'] ? 'Oui' : 'Non'}"),
-                                  );
-                                }),
-                              ),
-                            )
-                          ],
+                        return SchoolListPage(
+                          establishments: annees,
+                          annee: idAnnee,
                         );
+                        // return Column(
+                        //   children: [
+                        //     Expanded(
+                        //       flex: 7,
+                        //       child: ListView(
+                        //         children: List.generate(annees.length, (e) {
+                        //           Map annee = annees[e];
+                        //           //
+                        //           return ListTile(
+                        //             onTap: () {
+                        //               //
+                        //               //
+                        //               // §§SchoolListPageRoutes
+                        //               // Get.to(
+                        //               //   SchoolListPage(
+                        //               //       establishments: identifications),
+                        //               // );
+                        //               //
+                        //             },
+                        //             title: Text("${annee['libAnneeScolaire']}"),
+                        //             //subtitle: Text(
+                        //             //  "Active : ${annee['open'] ? 'Oui' : 'Non'}"),
+                        //           );
+                        //         }),
+                        //       ),
+                        //     )
+                        //   ],
+                        // );
                       } else if (t.hasError) {
                         return Container();
                       }
@@ -111,9 +108,12 @@ class AccueilEnrolleur extends StatelessWidget {
   }
   //
 
-  Future<List> getAllAnnees() async {
+  Future<List> getAllEtablissement() async {
+    //idAnnee
+    Map user = box.read("user") ?? {};
     //
-    Response response = await requete.getE("annees-scolaires");
+    Response response = await requete.getE(
+        "identifications/etablissement_annuel?sousProvedId=${user["sousProvedId"]}&anneeId=$idAnnee");
     if (response.isOk) {
       return response.body;
     } else {

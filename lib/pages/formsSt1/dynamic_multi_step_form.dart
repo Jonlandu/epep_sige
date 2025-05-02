@@ -84,9 +84,9 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
     //
     Map user = box.read('user') ?? {};
     formData = {
-      'province': user["userInfo"]['user']['province'],
-      'proved': user["userInfo"]['user']['proved'],
-      'sousProved': user["userInfo"]['user']['sousproved'],
+      'province': user['province'],
+      'proved': user['proved'],
+      'sousProved': user['sousproved'],
       'centreRegroupement': 'PR06CR21',
       'nomEtablissement': 'CS. DORELI',
       'nomChefEtablissement': '',
@@ -96,8 +96,8 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
       'nombreEleves': '',
       'nombreEnseignants': '',
       'adresse': '',
-      'telephone': user["userInfo"]['user']['phone_number'],
-      'email': user["userInfo"]['user']['email'],
+      'telephone': user['phone'],
+      'email': user['email'],
       'anneeCreation': '',
       'infrastructures': <String>[],
       'validation': false,

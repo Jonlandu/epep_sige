@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:epsp_sige/controllers/UserController.dart';
+import 'package:epsp_sige/pages/accueil_enrolleur.dart';
 import 'package:epsp_sige/utils/Queries.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:epsp_sige/utils/navigations.dart';
@@ -11,6 +12,7 @@ import 'package:epsp_sige/widgets/EntryFieldPasswordWidgets.dart';
 import 'package:epsp_sige/widgets/MessageWidgets.dart';
 import 'package:epsp_sige/widgets/ReusableButtonWidgets.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -23,16 +25,26 @@ class _LoginPageState extends State<LoginPage> {
   bool iSButtonPressedSignIn = false;
   //
   var box = GetStorage();
+  //
+  UserController? userController;
 
   //CustomVisibility Bloc variable
   bool isCancelButtonVisible = false;
 
-  var email = TextEditingController(text: 'encodeur@gmail.com');
-  var password = TextEditingController(text: 'password');
+  var email = TextEditingController(text: 'gombe');
+  var password = TextEditingController(text: 'sigerdc');
 
   var formKey = GlobalKey<FormState>();
   bool isVisible = false;
   bool isLoadingWaitingAPIResponse = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //
+    userController = UserController(stockage: box);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +164,28 @@ class _LoginPageState extends State<LoginPage> {
                       ReusableButtonWidgets(
                         text: "Login",
                         fontSize: 14,
-                        onPressed: isLoadingWaitingAPIResponse
-                            ? null
-                            : _handleLoginPressed,
+                        onPressed: () async {
+                          //
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Center(
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                          );
+                          //
+                          final Map<String, dynamic> data = {
+                            "email": email.text.trim(),
+                            "password": password.text.trim(),
+                          };
+                          //postDataLogin("users/login", data, context);
+                          postDataLogin("users/login", data, context);
+                        },
                         color: Color(0xFF336699),
                       ),
                       SizedBox(
@@ -252,78 +283,65 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> LoginPressed() async {
-    // Request focus on a new FocusNode to dismiss the keyboard
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    // Validate the form
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-
-    // Show loading indicator
-    setState(() {
-      isVisible = true;
-      isLoadingWaitingAPIResponse = true;
-    });
-
-    try {
-      final ctrl = context.read<UserController>();
-      final Map<String, dynamic> data = {
-        "email": email.text.trim(),
-        "password": password.text.trim(),
-      };
-
-      // Attempt to log in
-      final HttpResponse response = await ctrl.login(data);
-
-      // Check if the response is successful
-      if (response.status) {
-        // Access the user data from the response
-        Map<dynamic, dynamic>? userData = response.data; //["user"];
-        _handleNavigation(userData); // Pass userData to the navigation handler
-      } else {
-        final errorMsg = (response.isException ?? false)
-            ? (response.errorMsg ?? "Erreur inconnue")
-            : (response.data?['message'] ?? "Échec de la connexion");
-
-        MessageWidgets.showSnack(context, errorMsg);
-      }
-    } catch (e) {
-      print(e.toString());
-      print(e);
-      MessageWidgets.showSnack(context, "Erreur inattendue: ${e.toString()}");
-    } finally {
-      // Hide loading indicator
-      setState(() {
-        isVisible = false;
-        isLoadingWaitingAPIResponse = false;
-      });
-    }
-  }
+  // Future<void> LoginPressed() async {
+  //   // Request focus on a new FocusNode to dismiss the keyboard
+  //   FocusScope.of(context).requestFocus(FocusNode());
+  //   // Validate the form
+  //   if (!formKey.currentState!.validate()) {
+  //     return;
+  //   }
+  //   // Show loading indicator
+  //   setState(() {
+  //     isVisible = true;
+  //     isLoadingWaitingAPIResponse = true;
+  //   });
+  //   try {
+  //     final ctrl = context.read<UserController>();
+  //     final Map<String, dynamic> data = {
+  //       "email": email.text.trim(),
+  //       "password": password.text.trim(),
+  //     };
+  //     // Attempt to log in
+  //     await ctrl.login(data);
+  //     // Check if the response is successful
+  //   } catch (e) {
+  //     print(e.toString());
+  //     print(e);
+  //     MessageWidgets.showSnack(context, "Erreur inattendue: ${e.toString()}");
+  //   } finally {
+  //     // Hide loading indicator
+  //     setState(() {
+  //       isVisible = false;
+  //       isLoadingWaitingAPIResponse = false;
+  //     });
+  //   }
+  // }
 
   void _handleNavigation(Map<dynamic, dynamic>? response) {
     //
     box.write("user", response);
     //
     print("Role: ${jsonEncode(response?['etablissements'])}");
-    String role = response?['roles'];
+    var role = response?['sousProvedId'];
     //
-    Navigations.navigations = response?['navigations'] ?? [];
+    //Navigations.navigations = response?['navigations'] ?? [];
     //
     print("Role: $role");
     final List<Map<String, dynamic>> establishments =
         response?['etablissements'].cast<Map<String, dynamic>>() ?? [];
-    if (role.contains('ROLE_SOUSPROVED')) {
+    if (role != null) {
       print("Establishments: $establishments");
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        Routes.SchoolListPageRoutes,
-        ModalRoute.withName('/SchoolListPageRoutes'),
-        arguments: {
-          'establishments': establishments.toList(),
-        },
-      );
+      //Accueil
+      //establishments
+      Get.to(AccueilEnrolleur(response!));
+      // Navigator.pushNamedAndRemoveUntil(
+      //   context,
+      //   Routes.SchoolListPageRoutes,
+      //   ModalRoute.withName('/SchoolListPageRoutes'),
+      //   arguments: {
+      //     'establishments': establishments.toList(),
+      //   },
+      // );
     } else if (role == 'super_admin' ||
         role == 'admin_user' ||
         role == 'superv_national') {
@@ -367,20 +385,5 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
     }
-  }
-
-  void _handleLoginPressed() async {
-    if (isLoadingWaitingAPIResponse) return;
-    setState(() {
-      isLoadingWaitingAPIResponse = true;
-      isCancelButtonVisible = true;
-    });
-
-    await LoginPressed();
-
-    setState(() {
-      isLoadingWaitingAPIResponse = false;
-      isCancelButtonVisible = false;
-    });
   }
 }

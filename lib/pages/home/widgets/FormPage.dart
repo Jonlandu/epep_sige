@@ -10,14 +10,15 @@ import 'package:get_storage/get_storage.dart';
 
 class FormListPage extends StatefulWidget {
   SchoolModel? school;
-  FormListPage({Key? key, this.school}) : super(key: key);
+  int? selectedYear;
+  FormListPage(this.selectedYear, {super.key, this.school});
 
   @override
   _FormListPageState createState() => _FormListPageState();
 }
 
 class _FormListPageState extends State<FormListPage> {
-  String selectedYear = "";
+  int selectedYear = 0;
   String schema_name = "";
   String _selectedSchool = "..";
   bool _isLoading = false;
@@ -65,16 +66,15 @@ class _FormListPageState extends State<FormListPage> {
     //
     Map user = box.read("user");
     //
-    anneeList = user['annee'];
+    anneeList = []; //user['annee'];
     //schema_name
-    for (final item in anneeList) {
-      if (item is Map<String, dynamic>) {
-        _years.addAll(item.keys);
-      }
-    }
-    _years = _years.toSet().toList();
-    selectedYear = _years.first;
-    print("selectedYear: $selectedYear");
+    // for (final item in anneeList) {
+    //   if (item is Map<String, dynamic>) {
+    //     _years.addAll(item.keys);
+    //   }
+    // }
+    //
+    selectedYear = widget.selectedYear!;
   }
 
   @override
@@ -209,65 +209,72 @@ class _FormListPageState extends State<FormListPage> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: selectedYear,
-              isExpanded: true,
-              icon: const Icon(Icons.arrow_drop_down),
-              iconSize: 24,
-              elevation: 16,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-              hint: const Text('Sélectionnez une année'),
-              items: _years.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedYear = newValue!;
-                  //
-                  _updateSchemaFromSelection();
-                  print('schema_name: $schema_name');
-                });
-              },
-            ),
+        SizedBox(height: 8),
+        Text(
+          "$selectedYear",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
         ),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     color: Colors.grey.shade100,
+        //     borderRadius: BorderRadius.circular(10),
+        //     border: Border.all(color: Colors.grey.shade300),
+        //   ),
+        //   padding: const EdgeInsets.symmetric(horizontal: 12),
+        //   child: DropdownButtonHideUnderline(
+        //     child: DropdownButton<String>(
+        //       value: selectedYear,
+        //       isExpanded: true,
+        //       icon: const Icon(Icons.arrow_drop_down),
+        //       iconSize: 24,
+        //       elevation: 16,
+        //       style: const TextStyle(fontSize: 16, color: Colors.black87),
+        //       hint: const Text('Sélectionnez une année'),
+        //       items: _years.map<DropdownMenuItem<String>>((String value) {
+        //         return DropdownMenuItem<String>(
+        //           value: value,
+        //           child: Text(value),
+        //         );
+        //       }).toList(),
+        //       onChanged: (String? newValue) {
+        //         setState(() {
+        //           selectedYear = newValue!;
+        //           //
+        //           //_updateSchemaFromSelection();
+        //           print('schema_name: $schema_name');
+        //         });
+        //       },
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
 
-  void _updateSchemaFromSelection() {
-    print('anneeList: $anneeList');
-    for (Map item in anneeList) {
-      print("clé: ${item.keys}");
-      print("valeurs: ${item.values}");
-      if (item.containsKey(selectedYear)) {
-        final List<dynamic> subList = item[selectedYear];
-        for (final subItem in subList) {
-          if (subItem.containsKey('schema_name')) {
-            schema_name = subItem['schema_name'];
-            print('schema_name: ${subItem['schema_name']}');
-
-            return;
-          }
-        }
-      } else {
-        print('selectedYear: ${item.containsKey(selectedYear)}: $selectedYear');
-        return;
-      }
-    }
-  }
+  // void _updateSchemaFromSelection() {
+  //   print('anneeList: $anneeList');
+  //   for (Map item in anneeList) {
+  //     print("clé: ${item.keys}");
+  //     print("valeurs: ${item.values}");
+  //     if (item.containsKey(selectedYear)) {
+  //       final List<dynamic> subList = item[selectedYear];
+  //       for (final subItem in subList) {
+  //         if (subItem.containsKey('schema_name')) {
+  //           schema_name = subItem['schema_name'];
+  //           print('schema_name: ${subItem['schema_name']}');
+  //           return;
+  //         }
+  //       }
+  //     } else {
+  //       print('selectedYear: ${item.containsKey(selectedYear)}: $selectedYear');
+  //       return;
+  //     }
+  //   }
+  // }
 
   Widget _buildFormCard(BuildContext context, Map<String, dynamic> form) {
     return Card(

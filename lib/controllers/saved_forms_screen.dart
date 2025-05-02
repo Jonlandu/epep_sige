@@ -10,7 +10,7 @@ import 'dart:convert'; // Import pour jsonDecode
 
 class SavedFormsScreen extends StatefulWidget {
   SchoolModel? school;
-  String? prefix;
+  int? prefix;
   String? schema_name;
   SavedFormsScreen({super.key, this.school, this.prefix, this.schema_name});
 

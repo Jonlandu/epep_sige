@@ -66,7 +66,7 @@ class RoutesManager {
         return MaterialPageRoute(builder: (_) => SavedFormsScreen());
 
       case Routes.FormListPageRoutes:
-        return MaterialPageRoute(builder: (_) => FormListPage());
+        return MaterialPageRoute(builder: (_) => FormListPage(0));
 
       case Routes.SchoolListPageRoutes:
         return MaterialPageRoute(
