@@ -92,7 +92,6 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
             itemCount: forms.length,
             itemBuilder: (context, index) {
               final form = forms[index];
-              print('form: ${jsonEncode(form)}');
               final date =
                   DateTime.tryParse(form['created_at'] ?? '') ?? DateTime.now();
               final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(date);
@@ -107,7 +106,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                 child: ListTile(
                   title: Text(
                     form['nom_etablissement']?.toString() ??
-                        'Formulaire #${form['ids']}',
+                        'Formulaire #${form['id']}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
@@ -147,17 +146,11 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                               color: Colors.blue),
                           onPressed: () {
                             //
-                            DateTime dt = DateTime.now();
-                            //
                             if (formData["is_synced"] == null) {
-                              Map e = {};
-                              e["formulaire"] = formData;
-                              e["date"] = "${dt.day}-${dt.month}-${dt.year}";
-                              e["type"] = "st1";
-
-                              String dd = jsonEncode(e);
+                              formData["is_synced"] = "";
+                              String dd = jsonEncode(formData);
                               //print('dd: $dd');
-                              _sendFormToApi(form['ids'], dd);
+                              _sendFormToApi(form['id'], dd);
                             } else {
                               Get.snackbar("Oups",
                                   "Ce formulaire a déjà été envoyé au serveur");
@@ -209,7 +202,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                   ),
                   onTap: () {
                     if (formData["is_synced"] == null) {
-                      _showFormDetails(form['ids'], formData, isSynced);
+                      _showFormDetails(form['id'], formData, isSynced);
                     } else {
                       Get.snackbar(
                           "Oups", "Ce formulaire a déjà été envoyé au serveur");
@@ -228,10 +221,8 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                         formData['iduser'] = user["userInfo"]["user"]["id"];
                         formData['nom'] = widget.school!.nom;
                         formData['prefix'] = "st_2025"; // widget.schema_name;
-
                         //
                         formData.addAll(convertFormData(formData));
-
                         //
                         formData['annee'] = widget.prefix;
 
@@ -254,7 +245,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
     );
   }
 
-  Future<void> _sendFormToApi(String ids, String formData) async {
+  Future<void> _sendFormToApi(String id, String formData) async {
     Map user = box.read("user") ?? {};
     try {
       showDialog(
@@ -264,12 +255,12 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       );
 
       // Appel à l'API
-      final response =
-          await postData('/form', formData, token: user['userInfo']['access']);
+      final response = await postData('/utilities/st1/', formData,
+          token: user['userInfo']['access']);
 
       if (response.status) {
         // Marquer comme synchronisé dans la base de données locale
-        await _dbHelper.markFormAsSynced(ids);
+        await _dbHelper.markFormAsSynced(id);
 
         if (mounted) {
           Navigator.pop(context);

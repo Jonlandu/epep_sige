@@ -21,9 +21,9 @@ Widget EntryFieldEmailWidgets({
         if (value == null || value.isEmpty) {
           return "$label is required";
         }
-        if (!isEmail && !EmailValidator.validate(value)) {
-          return "Invalid email address";
-        }
+        // if (!isEmail && !EmailValidator.validate(value)) {
+        //   return "Invalid email address";
+        // }
         return null;
       },
       decoration: InputDecoration(
@@ -47,6 +47,7 @@ Widget EntryFieldEmailWidgets({
     ),
   );
 }
+
 OutlineInputBorder _bordure(MaterialColor _color) {
   return OutlineInputBorder(
     borderSide: BorderSide(width: 1.5, color: _color),

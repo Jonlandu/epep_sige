@@ -33,17 +33,15 @@ class UserController with ChangeNotifier {
 
   Future<HttpResponse> login(Map data) async {
     var url = Endpoints.login;
-    HttpResponse response = await postDataLogin(url, data);
+    HttpResponse response = await postDataLogin("users/login", data);
     if (response.status) {
       // Stockage des tokens
-      stockage?.write(StockageKeys.tokenKey, response.data?["access"] ?? "");
-      stockage?.write(
-          StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
-
+      // stockage?.write(StockageKeys.tokenKey, response.data?["access"] ?? "");
+      // stockage?.write(StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
       // Stockage des infos utilisateur
-      var userData = response.data?["user"];
+      var userData = response.data;
       if (userData != null) {
-        stockage?.write(StockageKeys.userDataKey, json.encode(userData));
+        stockage?.write("user", json.encode(userData));
       }
 
       notifyListeners();

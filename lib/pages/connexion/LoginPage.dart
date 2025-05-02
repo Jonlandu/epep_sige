@@ -307,14 +307,14 @@ class _LoginPageState extends State<LoginPage> {
     box.write("user", response);
     //
     print("Role: ${jsonEncode(response?['etablissements'])}");
-    final role = response?['userInfo']['user']['role'];
+    String role = response?['roles'];
     //
     Navigations.navigations = response?['navigations'] ?? [];
     //
     print("Role: $role");
     final List<Map<String, dynamic>> establishments =
         response?['etablissements'].cast<Map<String, dynamic>>() ?? [];
-    if (role == 'encodeur') {
+    if (role.contains('ROLE_SOUSPROVED')) {
       print("Establishments: $establishments");
       Navigator.pushNamedAndRemoveUntil(
         context,

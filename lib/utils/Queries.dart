@@ -98,9 +98,11 @@ Future<HttpResponse> postData(String api_url, String data,
 Future<HttpResponse> postDataLogin(String api_url, Map data,
     {String? token}) async {
   try {
-    print(("login: ${Constantes.BASE_URL}/$api_url"));
-    var url = Uri.parse("${Constantes.BASE_URL}/$api_url");
-    String dataStr = json.encode(data);
+    print(
+        ("login: ${Constantes.BASE_URL}/$api_url?mdp=${data['password']}&username=${data['email']}"));
+    var url = Uri.parse(
+        "${Constantes.BASE_URL}/$api_url?mdp=${data['password']}&username=${data['email']}");
+    //String dataStr = json.encode(data);
 
     // Ne pas inclure le header Authorization si le token est null
     var headers = {
@@ -111,9 +113,7 @@ Future<HttpResponse> postDataLogin(String api_url, Map data,
       headers["Authorization"] = "Bearer $token";
     }
 
-    var response = await http
-        .post(url, body: dataStr, headers: headers)
-        .timeout(Duration(seconds: 10));
+    var response = await http.get(url, headers: headers);
 
     var successList = [200, 201];
     var msg = json.decode(response.body);
