@@ -15,7 +15,7 @@ class SyncServiceController {
   }
 
   Future<HttpResponse> syncForm(String formData, {String? token}) async {
-    return await postData(Endpoints.submitForm, formData, token: token);
+    return await postData(Endpoints.submitForm, formData);
   }
 
   Future<void> syncPendingForms({String? token}) async {

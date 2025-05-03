@@ -1,6 +1,7 @@
 import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/pages/home/widgets/FormPage.dart';
 import 'package:epsp_sige/pages/home/widgets/SchoolDetailPage.dart';
+import 'package:epsp_sige/utils/Constantes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -489,12 +490,16 @@ class _SchoolListPageState extends State<SchoolListPage> {
                     const Icon(Icons.assignment_outlined, color: Colors.green),
                 title: const Text('Accéder au formulaire'),
                 onTap: () {
+                  //
+                  Constantes.nomEtab = school.nom;
+                  //
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => FormListPage(
                         widget.annee,
+                        school.nom,
                         school: school,
                       ),
                     ),

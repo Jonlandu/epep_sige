@@ -239,10 +239,13 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
                     Step6(
                       formData: formData,
                       formKey: _stepFormKeys[7],
+                      idannee: widget.idannee!,
+                      idetablissement: widget.idetablissement!,
                       controller: pageController,
                       send: submitForm,
                     ),
-                    // Container(),
+
+                    //Container(),
                   ],
                 ),
               ),
@@ -667,7 +670,7 @@ class _DynamiqueMultiStepFormState extends State<DynamiqueMultiStepForm> {
         */
 
         //
-        await _dbHelper.markFormAsSynced(id);
+        //await _dbHelper.markFormAsSynced(id);
         _showSuccessDialog(isOnline: true);
       } else {
         await _dbHelper.scheduleSync(id);

@@ -71,7 +71,7 @@ class UserController with ChangeNotifier {
   Future<HttpResponse> logout(String data) async {
     var url = "${Endpoints.logout}";
     var tkn = stockage?.read(StockageKeys.tokenKey);
-    HttpResponse response = await postData(url, data, token: tkn);
+    HttpResponse response = await postData(url, data);
     if (response.status) {
       print("Successsssssssssssssssssssssssssss");
       notifyListeners();

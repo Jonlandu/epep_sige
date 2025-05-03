@@ -98,146 +98,152 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
               final isSynced = form['is_synced'] == 1;
               final formData = _parseFormData(form['form_data']);
               //
-              print("st1: ${form['st1']}");
+              //print("st1: ${form['st1']}");
               Map user = box.read("user");
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: ListTile(
-                  title: Text(
-                    form['nom_etablissement']?.toString() ??
-                        'Formulaire #${form['id']}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          'Année: ${formData['annee_scolaire']?.toString() ?? 'N/A'}'),
-                      Text('Créé le: $dateStr'),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: isSynced ? Colors.green : Colors.red,
-                              shape: BoxShape.circle,
+              //Vérification si c'est le meme établissement
+              //
+              if (widget.school!.id ==
+                  int.parse('${form['idetablissement']}')) {
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text(
+                      formData['nomEtablissement']?.toString() ??
+                          'Formulaire #${form['id']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Année: ${form['idannee']?.toString() ?? 'N/A'}'),
+                        Text('Créé le: $dateStr'),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: isSynced ? Colors.green : Colors.red,
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            isSynced ? 'Synchronisé' : 'Non envoyé',
-                            style: TextStyle(
-                              color: isSynced ? Colors.green : Colors.red,
+                            const SizedBox(width: 8),
+                            Text(
+                              isSynced ? 'Synchronisé' : 'Non envoyé',
+                              style: TextStyle(
+                                color: isSynced ? Colors.green : Colors.red,
+                              ),
                             ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!isSynced)
+                          IconButton(
+                            icon: const Icon(Icons.cloud_upload,
+                                color: Colors.blue),
+                            onPressed: () {
+                              //
+                              if (formData["is_synced"] == null) {
+                                formData["is_synced"] = "";
+                                String dd = jsonEncode(formData);
+                                //print('dd: $dd');
+                                _sendFormToApi(form['ids'], dd);
+                              } else {
+                                Get.snackbar("Oups",
+                                    "Ce formulaire a déjà été envoyé au serveur");
+                              }
+                            },
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (!isSynced)
                         IconButton(
-                          icon: const Icon(Icons.cloud_upload,
-                              color: Colors.blue),
+                          icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
                             //
-                            if (formData["is_synced"] == null) {
-                              formData["is_synced"] = "";
-                              String dd = jsonEncode(formData);
-                              //print('dd: $dd');
-                              _sendFormToApi(form['id'], dd);
-                            } else {
-                              Get.snackbar("Oups",
-                                  "Ce formulaire a déjà été envoyé au serveur");
+                            List finalliste = [];
+                            //
+                            List list1 = box.read("formData1") ?? [];
+                            //
+                            for (var s in list1.toList()) {
+                              if (s['id'] == form['id']) {
+                                list1.remove(s);
+                              }
                             }
+                            //
+                            box.write("formData1", list1);
+                            //
+                            List list2 = box.read("formData2") ?? [];
+                            //
+                            for (var s in list2.toList()) {
+                              if (s['id'] == form['id']) {
+                                list2.remove(s);
+                              }
+                            }
+                            //
+                            box.write("formData2", list2);
+                            //
+                            List list3 = box.read("formData3") ?? [];
+                            //
+                            for (var s in list3.toList()) {
+                              if (s['id'] == form['id']) {
+                                list3.remove(s);
+                              }
+                            }
+                            //
+                            box.write("formData3", list3);
+                            //
+                            forms.removeAt(index);
+                            //
+                            Get.back();
                           },
                         ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          //
-                          List finalliste = [];
-                          //
-                          List list1 = box.read("formData1") ?? [];
-                          //
-                          for (var s in list1.toList()) {
-                            if (s['id'] == form['id']) {
-                              list1.remove(s);
-                            }
-                          }
-                          //
-                          box.write("formData1", list1);
-                          //
-                          List list2 = box.read("formData2") ?? [];
-                          //
-                          for (var s in list2.toList()) {
-                            if (s['id'] == form['id']) {
-                              list2.remove(s);
-                            }
-                          }
-                          //
-                          box.write("formData2", list2);
-                          //
-                          List list3 = box.read("formData3") ?? [];
-                          //
-                          for (var s in list3.toList()) {
-                            if (s['id'] == form['id']) {
-                              list3.remove(s);
-                            }
-                          }
-                          //
-                          box.write("formData3", list3);
-                          //
-                          forms.removeAt(index);
-                          //
-                          Get.back();
-                        },
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    if (formData["is_synced"] == null) {
-                      _showFormDetails(form['id'], formData, isSynced);
-                    } else {
-                      Get.snackbar(
-                          "Oups", "Ce formulaire a déjà été envoyé au serveur");
-                    }
-                  },
-                  onLongPress: () {
-                    //
-                    print("formData['is_synced']: ${formData["is_synced"]}");
-                    //
-                    if (formData["is_synced"] == null) {
-                      PageController pageController = PageController();
-                      //
-                      if (form["st1"] == "oui") {
-                        formData["label_st"] == "ST1";
-                        formData['idetablissement'] = widget.school!.id;
-                        formData['iduser'] = user["userInfo"]["user"]["id"];
-                        formData['nom'] = widget.school!.nom;
-                        formData['prefix'] = "st_2025"; // widget.schema_name;
-                        //
-                        formData.addAll(convertFormData(formData));
-                        //
-                        formData['annee'] = widget.prefix;
-
-                        Get.to(ListEnseignantForm(formData));
+                      ],
+                    ),
+                    onTap: () {
+                      if (formData["is_synced"] == null) {
+                        _showFormDetails(form['id'], formData, isSynced);
                       } else {
-                        //
-                        print("st1: ${formData}");
+                        Get.snackbar("Oups",
+                            "Ce formulaire a déjà été envoyé au serveur");
                       }
-                    } else {
-                      Get.snackbar(
-                          "Oups", "Ce formulaire a déjà été envoyé au serveur");
-                    }
-                  },
-                ),
-              );
+                    },
+                    onLongPress: () {
+                      //
+                      print("formData['is_synced']: ${formData["is_synced"]}");
+                      //
+                      if (formData["is_synced"] == null) {
+                        PageController pageController = PageController();
+                        //
+                        if (form["st1"] == "oui") {
+                          formData["label_st"] == "ST1";
+                          formData['idetablissement'] = widget.school!.id;
+                          formData['iduser'] = user["userInfo"]["user"]["id"];
+                          formData['nom'] = widget.school!.nom;
+                          formData['prefix'] = "st_2025"; // widget.schema_name;
+                          //
+                          //formData.addAll(convertFormData(formData));
+                          //
+                          formData['annee'] = widget.prefix;
+
+                          Get.to(ListEnseignantForm(formData));
+                        } else {
+                          //
+                          print("st1: ${formData}");
+                        }
+                      } else {
+                        Get.snackbar("Oups",
+                            "Ce formulaire a déjà été envoyé au serveur");
+                      }
+                    },
+                  ),
+                );
+              } else {
+                return Container();
+              }
             },
           );
         },
@@ -245,7 +251,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
     );
   }
 
-  Future<void> _sendFormToApi(String id, String formData) async {
+  Future<void> _sendFormToApi(String ids, String formData) async {
     Map user = box.read("user") ?? {};
     try {
       showDialog(
@@ -255,12 +261,16 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
       );
 
       // Appel à l'API
-      final response = await postData('/utilities/st1/', formData,
-          token: user['userInfo']['access']);
+      final response = await postData(
+        '/form',
+        formData,
+      );
 
       if (response.status) {
+        var id = response.data!['id'];
         // Marquer comme synchronisé dans la base de données locale
-        await _dbHelper.markFormAsSynced(id);
+        //
+        await _dbHelper.markFormAsSynced(ids, id);
 
         if (mounted) {
           Navigator.pop(context);

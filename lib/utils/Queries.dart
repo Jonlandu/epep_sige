@@ -67,8 +67,10 @@ Future<dynamic> getData(String url_api, {String? token}) async {
   }
 }
 
-Future<HttpResponse> postData(String api_url, String data,
-    {String? token}) async {
+Future<HttpResponse> postData(
+  String api_url,
+  String data,
+) async {
   try {
     print("url: ${Constantes.BASE_URL}$api_url");
     //
@@ -76,7 +78,7 @@ Future<HttpResponse> postData(String api_url, String data,
     print('data: $data');
 
     //String dataStr = json.encode(data);
-    var _tkn = token;
+    //var _tkn = token;
     var response = await http.post(url, body: data, headers: {
       "Content-Type": "application/json",
       //"Authorization": "Bearer $_tkn"

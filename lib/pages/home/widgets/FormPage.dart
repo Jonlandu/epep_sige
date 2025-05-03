@@ -11,7 +11,8 @@ import 'package:get_storage/get_storage.dart';
 class FormListPage extends StatefulWidget {
   SchoolModel? school;
   int? selectedYear;
-  FormListPage(this.selectedYear, {super.key, this.school});
+  String? nomEtab;
+  FormListPage(this.selectedYear, this.nomEtab, {super.key, this.school});
 
   @override
   _FormListPageState createState() => _FormListPageState();
@@ -161,14 +162,16 @@ class _FormListPageState extends State<FormListPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSchoolInfo(),
+          //_buildSchoolInfo(),
           const SizedBox(height: 24),
           _buildYearSelector(),
           const SizedBox(height: 32),
-          ..._forms.map((form) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildFormCard(context, form),
-              )),
+          ..._forms.map(
+            (form) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _buildFormCard(context, form),
+            ),
+          ),
         ],
       ),
     );
@@ -365,17 +368,29 @@ class _FormListPageState extends State<FormListPage> {
 
     switch (form['code']) {
       case 'ST1':
-        formWidget = DynamiqueMultiStepForm(); // Votre formulaire ST1
+        formWidget = DynamiqueMultiStepForm(
+          idannee: selectedYear,
+          idetablissement: widget.school!.id,
+        ); // Votre formulaire ST1
         //formWidget = SavedFormsScreen(); // Votre formulaire ST1
         break;
       case 'ST2':
-        formWidget = DynamiqueMultiStepFormST2(); // Votre formulaire ST2
+        formWidget = DynamiqueMultiStepFormST2(
+          idannee: selectedYear,
+          idetablissement: widget.school!.id,
+        ); // Votre formulaire ST2
         break;
       case 'ST3':
-        formWidget = DynamiqueMultiStepFormST3(); // Votre formulaire ST3
+        formWidget = DynamiqueMultiStepFormST3(
+          idannee: selectedYear,
+          idetablissement: widget.school!.id,
+        ); // Votre formulaire ST3
         break;
       default:
-        formWidget = DynamiqueMultiStepForm(); // Par défaut
+        formWidget = DynamiqueMultiStepForm(
+          idannee: selectedYear,
+          idetablissement: widget.school!.id,
+        ); // Par défaut
     }
 
     Navigator.push(

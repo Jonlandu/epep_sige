@@ -1,3 +1,4 @@
+import 'package:epsp_sige/utils/Constantes.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -110,7 +111,9 @@ class DatabaseHelper {
     //
     //formData["id"] = id;
     //
-    formData["id"] = id;
+    formData["ids"] = id;
+    formData["nomEtab"] = Constantes.nomEtab;
+    ;
     //
     list.add(formData);
     //
@@ -155,8 +158,9 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> markFormAsSynced(String ids) async {
+  Future<void> markFormAsSynced(String ids, int id) async {
     final db = await database;
+    print('Le id vaut: $ids');
     //
     //var box = GetStorage();
     //

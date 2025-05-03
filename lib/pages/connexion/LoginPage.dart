@@ -43,6 +43,8 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
     //
+    //box.erase();
+    //
     userController = UserController(stockage: box);
   }
 
@@ -67,6 +69,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _body(BuildContext context) {
+    //
+
+    //
     return Form(
       key: formKey,
       child: Stack(
