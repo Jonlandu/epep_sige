@@ -17,6 +17,7 @@ class SchoolModel {
   String? qCiteChefferieVillage;
   String matriculeCecope;
   String arreteMinisteriel;
+  String? adresse;
   DateTime createdAt;
 
   SchoolModel({
@@ -27,6 +28,7 @@ class SchoolModel {
     this.territoireCommuneVille,
     this.proved,
     this.sousproved,
+    this.adresse,
     this.qCiteChefferieVillage,
     required this.matriculeCecope,
     required this.arreteMinisteriel,
@@ -38,6 +40,7 @@ class SchoolModel {
       'id': id,
       'nom': nom,
       'logoUrl': logoUrl,
+      'adresse': adresse,
       'province': province,
       'territoire_commune_ville': territoireCommuneVille,
       'proved': proved,
@@ -52,16 +55,17 @@ class SchoolModel {
   // Méthode pour désérialiser un JSON en objet Etablissement
   factory SchoolModel.fromJson(Map<String, dynamic> json) {
     return SchoolModel(
-      id: json['id'],
-      nom: json['nom'],
-      logoUrl: json['logoUrl'],
-      province: json['province'],
-      territoireCommuneVille: json['territoire_commune_ville'],
-      proved: json['proved'],
-      sousproved: json['sousproved'],
-      qCiteChefferieVillage: json['q_cite_chefferie_village'],
-      matriculeCecope: json['matricule_cecope'],
-      arreteMinisteriel: json['arrete_ministeriel'],
+      id: json['id'] ?? "",
+      nom: json['nomEtab'] ?? "",
+      logoUrl: json['logoUrl'] ?? "",
+      adresse: json['adresse'] ?? "",
+      province: json['province'] ?? "",
+      territoireCommuneVille: json['territoire_commune_ville'] ?? "",
+      proved: json['proved'] ?? "",
+      sousproved: json['sousproved'] ?? "",
+      qCiteChefferieVillage: json['q_cite_chefferie_village'] ?? "",
+      matriculeCecope: json['matricule_cecope'] ?? "",
+      arreteMinisteriel: json['arrete_ministeriel'] ?? "",
     );
   }
 

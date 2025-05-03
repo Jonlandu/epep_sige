@@ -1,13 +1,15 @@
 import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/pages/home/widgets/FormPage.dart';
 import 'package:epsp_sige/pages/home/widgets/SchoolDetailPage.dart';
+import 'package:epsp_sige/utils/Constantes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class SchoolListPage extends StatefulWidget {
-  final List<dynamic> establishments;
+  final List establishments;
+  int? annee;
 
-  const SchoolListPage({Key? key, required this.establishments})
+  SchoolListPage({Key? key, required this.establishments, this.annee})
       : super(key: key);
 
   @override
@@ -23,14 +25,14 @@ class _SchoolListPageState extends State<SchoolListPage> {
 
   //List<SchoolModel> _filteredSchools = [];
   List<SchoolModel> _allSchools = [];
-  late List establishments;
+  late List establishments = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    establishments = args['establishments'];
+    //final args =
+    //  ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    //establishments = args['establishments'];
   }
 
   @override
@@ -42,6 +44,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
     _isLoading = false;
     _searchController.addListener(_filterSchools);
     //
+    establishments = widget.establishments;
     print("Establishments: ${widget.establishments}");
   }
 
@@ -96,7 +99,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
     //
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: _buildAppBar(),
+      //appBar: _buildAppBar(),
       floatingActionButton: _buildFloatingActionButton(),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -296,29 +299,29 @@ class _SchoolListPageState extends State<SchoolListPage> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Hero(
-                tag: 'school-${school.id}',
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: school.logoUrl != null
-                      ? BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: NetworkImage(school.logoUrl!),
-                            fit: BoxFit.cover,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        )
-                      : null,
-                ),
-              ),
+              // Hero(
+              //   tag: 'school-${school.id}',
+              //   child: Container(
+              //     width: 60,
+              //     height: 60,
+              //     decoration: school.logoUrl != null
+              //         ? BoxDecoration(
+              //             borderRadius: BorderRadius.circular(12),
+              //             // image: DecorationImage(
+              //             //   image: NetworkImage(school.logoUrl!),
+              //             //   fit: BoxFit.cover,
+              //             // ),
+              //             boxShadow: [
+              //               BoxShadow(
+              //                 color: Colors.black.withOpacity(0.1),
+              //                 blurRadius: 6,
+              //                 offset: const Offset(0, 3),
+              //               ),
+              //             ],
+              //           )
+              //         : null,
+              //   ),
+              // ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -341,7 +344,7 @@ class _SchoolListPageState extends State<SchoolListPage> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            "${school.province} ${school.proved} ${school.sousproved}",
+                            "${school.adresse}",
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -487,11 +490,18 @@ class _SchoolListPageState extends State<SchoolListPage> {
                     const Icon(Icons.assignment_outlined, color: Colors.green),
                 title: const Text('Accéder au formulaire'),
                 onTap: () {
+                  //
+                  Constantes.nomEtab = school.nom;
+                  //
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FormListPage(school: school),
+                      builder: (context) => FormListPage(
+                        widget.annee,
+                        school.nom,
+                        school: school,
+                      ),
                     ),
                   );
                 },

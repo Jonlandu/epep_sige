@@ -1,3 +1,4 @@
+import 'package:epsp_sige/utils/Constantes.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -108,9 +109,11 @@ class DatabaseHelper {
     //
     var id = DateTime.now().toString();
     //
-    formData["id"] = id;
+    //formData["id"] = id;
     //
-    formData["id"] = id;
+    formData["ids"] = id;
+    formData["nomEtab"] = Constantes.nomEtab;
+    ;
     //
     list.add(formData);
     //
@@ -155,8 +158,9 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> markFormAsSynced(String id) async {
+  Future<void> markFormAsSynced(String ids, int id) async {
     final db = await database;
+    print('Le id vaut: $ids');
     //
     //var box = GetStorage();
     //
@@ -164,20 +168,43 @@ class DatabaseHelper {
     //
     List list1 = box.read("formData1") ?? [];
     //
-    List list2 = box.read("formData2") ?? [];
-    //
-    List list3 = box.read("formData3") ?? [];
-    //
-    finalliste.addAll(list1);
-    finalliste.addAll(list2);
-    finalliste.addAll(list3);
-    //
-    finalliste.forEach((f) {
-      if (f['id'] == id) {
+    list1.forEach((f) {
+      if (f['ids'] == ids) {
         f["is_synced"] = 1;
         f["updated_at"] = DateTime.now().toIso8601String();
       }
     });
+    //
+    box.write("formData1", list1);
+    List list2 = box.read("formData2") ?? [];
+    //
+    list2.forEach((f) {
+      if (f['ids'] == ids) {
+        f["is_synced"] = 1;
+        f["updated_at"] = DateTime.now().toIso8601String();
+      }
+    });
+    box.write("formData2", list2);
+    List list3 = box.read("formData3") ?? [];
+    //
+    list3.forEach((f) {
+      if (f['ids'] == ids) {
+        f["is_synced"] = 1;
+        f["updated_at"] = DateTime.now().toIso8601String();
+      }
+    });
+    box.write("formData3", list3);
+    //
+    // finalliste.addAll(list1);
+    // finalliste.addAll(list2);
+    // finalliste.addAll(list3);
+    //
+    // finalliste.forEach((f) {
+    //   if (f['ids'] == ids) {
+    //     f["is_synced"] = 1;
+    //     f["updated_at"] = DateTime.now().toIso8601String();
+    //   }
+    // });
     //
     // await db.update(
     //   'forms',
@@ -266,4 +293,5 @@ class DatabaseHelper {
       }
     });
   }
+  //
 }

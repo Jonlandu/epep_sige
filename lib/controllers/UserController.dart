@@ -1,11 +1,14 @@
 import 'package:epsp_sige/models/UserModel.dart';
+import 'package:epsp_sige/pages/accueil_enrolleur.dart';
 import 'package:epsp_sige/utils/Endpoints.dart';
 import 'package:epsp_sige/utils/Queries.dart';
 import 'package:epsp_sige/utils/StockageKeys.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'dart:core';
 import 'dart:convert'; // Ajoutez cette ligne
 import 'package:get_storage/get_storage.dart';
+import 'package:path/path.dart';
 
 class UserController with ChangeNotifier {
   UserModel? user;
@@ -29,26 +32,6 @@ class UserController with ChangeNotifier {
   void printWrapped(String text) {
     final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
     pattern.allMatches(text).forEach((match) => print(match.group(0)));
-  }
-
-  Future<HttpResponse> login(Map data) async {
-    var url = Endpoints.login;
-    HttpResponse response = await postDataLogin(url, data);
-    if (response.status) {
-      // Stockage des tokens
-      stockage?.write(StockageKeys.tokenKey, response.data?["access"] ?? "");
-      stockage?.write(
-          StockageKeys.refreshTokenKey, response.data?["refresh"] ?? "");
-
-      // Stockage des infos utilisateur
-      var userData = response.data?["user"];
-      if (userData != null) {
-        stockage?.write(StockageKeys.userDataKey, json.encode(userData));
-      }
-
-      notifyListeners();
-    }
-    return response;
   }
 
   void loadStoredUserData() {
@@ -88,7 +71,7 @@ class UserController with ChangeNotifier {
   Future<HttpResponse> logout(String data) async {
     var url = "${Endpoints.logout}";
     var tkn = stockage?.read(StockageKeys.tokenKey);
-    HttpResponse response = await postData(url, data, token: tkn);
+    HttpResponse response = await postData(url, data);
     if (response.status) {
       print("Successsssssssssssssssssssssssssss");
       notifyListeners();

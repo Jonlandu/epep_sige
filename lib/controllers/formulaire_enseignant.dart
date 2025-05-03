@@ -57,7 +57,7 @@ class ListEnseignantForm extends StatelessWidget {
               //
               List list1 = box.read("formData1") ?? [];
               list1.forEach((f) {
-                if (f['id'] == formData['id']) {
+                if (f['ids'] == formData['ids']) {
                   f = formData;
                   //f["updated_at"] = DateTime.now().toIso8601String();
                 }
@@ -74,7 +74,7 @@ class ListEnseignantForm extends StatelessWidget {
               // finalliste.addAll(list3);
               //
               finalliste.forEach((f) {
-                if (f['id'] == formData['id']) {
+                if (f['ids'] == formData['ids']) {
                   f = formData;
                   //f["updated_at"] = DateTime.now().toIso8601String();
                 }
@@ -309,6 +309,7 @@ class _EnseignantFormState extends State<EnseignantForm> {
         ElevatedButton(
           onPressed: () {
             //nom,sexe,annee,matricule_secope,situation_salariale,qualification,annee_engagement
+            //
             widget.listProf!.add({
               "nom": nom.text,
               "sexe": sexe,

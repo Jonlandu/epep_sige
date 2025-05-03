@@ -12,8 +12,8 @@ class Step6 extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final PageController controller;
   final Function? send;
-  // final int idannee;
-  // final int idetablissement;
+  final int idannee;
+  final int idetablissement;
   // final String userToken;
 
   Step6({
@@ -22,8 +22,8 @@ class Step6 extends StatefulWidget {
     required this.formKey,
     required this.controller,
     this.send,
-    // required this.idannee,
-    // required this.idetablissement,
+    required this.idannee,
+    required this.idetablissement,
     // required this.userToken,
   });
 
@@ -51,7 +51,7 @@ class _Step6State extends State<Step6> {
       child: Padding(
         padding: EdgeInsets.all(15),
         child: Form(
-          key: widget.formKey,
+          //key: widget.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -62,7 +62,7 @@ class _Step6State extends State<Step6> {
               _buildSummaryCard(),
               const SizedBox(height: 19),
               _buildValidationCheckbox(),
-              if (!_isValidated) _buildValidationWarning(),
+              //!_isValidated ? _buildValidationWarning() : Container(),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: _buildInfoText(),
@@ -97,15 +97,20 @@ class _Step6State extends State<Step6> {
 
       // Créer l'objet SchoolForm
       final form = SchoolForm(
-        //idannee: widget.idannee,
-        //idetablissement: widget.idetablissement,
+        idannee: widget.idannee,
+        idetablissement: widget.idetablissement,
         data: widget.formData,
         isSynced: false,
         //createdAt: DateTime.now().toString(), // This works as-is
       );
-
+      //
+      DateTime dt = DateTime.now();
+      //
       Map<String, dynamic> st1 = form.toMap();
+      //
       st1["st1"] = "oui";
+      st1["type"] = "st1";
+      st1["date"] = "${dt.day}-${dt.month}-${dt.year}";
 
       // Sauvegarder en local
       final id = await _dbHelper.saveForm(st1, "formData1");
