@@ -102,8 +102,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
               Map user = box.read("user");
               //Vérification si c'est le meme établissement
               //
-              if (widget.school!.id ==
-                  int.parse('${form['idetablissement']}')) {
+              if (widget.school!.id == form['idetablissement']) {
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

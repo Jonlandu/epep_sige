@@ -243,6 +243,8 @@ class _DynamiqueMultiStepFormST2State extends State<DynamiqueMultiStepFormST2> {
                       formData: formData,
                       formKey: _stepFormKeys[6],
                       controller: pageController,
+                      idannee: widget.idannee!,
+                      idetablissement: widget.idetablissement!,
                     ),
                     // ValidationStep(
                     //     formData: formData, formKey: _stepFormKeys[7]),

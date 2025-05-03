@@ -8,12 +8,16 @@ class Step6st2 extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
   final PageController controller;
+  final int idannee;
+  final int idetablissement;
 
   const Step6st2({
     super.key,
     required this.formData,
     required this.formKey,
     required this.controller,
+    required this.idannee,
+    required this.idetablissement,
   });
 
   @override
@@ -134,8 +138,8 @@ class _SchoolResourcesFormState extends State<Step6st2> {
 
       // Créer l'objet SchoolForm
       final form = SchoolForm(
-        //idannee: widget.idannee,
-        //idetablissement: widget.idetablissement,
+        idannee: widget.idannee,
+        idetablissement: widget.idetablissement,
         data: widget.formData,
         isSynced: false,
         //createdAt: DateTime.now().toString(), // This works as-is
