@@ -1,12 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class Step3st3 extends StatefulWidget {
+class Step15ST3 extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
   final PageController controller;
 
-  const Step3st3({
+  const Step15ST3({
     super.key,
     required this.formData,
     required this.formKey,
@@ -14,10 +14,10 @@ class Step3st3 extends StatefulWidget {
   });
 
   @override
-  _Step3st3State createState() => _Step3st3State();
+  _Step15ST3State createState() => _Step15ST3State();
 }
 
-class _Step3st3State extends State<Step3st3> {
+class _Step15ST3State extends State<Step15ST3> {
   final List<String> _gradeLevels = [
     'Préprimaire',
     '1ère année',

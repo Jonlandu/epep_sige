@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class DiversStepST3 extends StatelessWidget {
+class Step8ST3 extends StatelessWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
+  final PageController controller;
 
-  const DiversStepST3({
+  const Step8ST3({
     super.key,
     required this.formData,
     required this.formKey,
+    required this.controller,
   });
 
   @override

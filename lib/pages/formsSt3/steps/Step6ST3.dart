@@ -7,31 +7,27 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class Step6 extends StatefulWidget {
+class step6ST3 extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
   final PageController controller;
   final Function? send;
-  final int idannee;
-  final int idetablissement;
   // final String userToken;
 
-  Step6({
+  step6ST3({
     super.key,
     required this.formData,
     required this.formKey,
     required this.controller,
     this.send,
-    required this.idannee,
-    required this.idetablissement,
     // required this.userToken,
   });
 
   @override
-  _Step6State createState() => _Step6State();
+  _step6ST3State createState() => _step6ST3State();
 }
 
-class _Step6State extends State<Step6> {
+class _step6ST3State extends State<step6ST3> {
   bool _isValidated = false;
   bool _isSubmitting = false;
 
@@ -95,29 +91,12 @@ class _Step6State extends State<Step6> {
             'Vous devez valider le formulaire avant enregistrement');
       }
 
-      // Créer l'objet SchoolForm
-      final form = SchoolForm(
-        idannee: widget.idannee,
-        idetablissement: widget.idetablissement,
-        data: widget.formData,
-        isSynced: false,
-        //createdAt: DateTime.now().toString(), // This works as-is
-      );
       //
       DateTime dt = DateTime.now();
       //
-      Map<String, dynamic> st1 = form.toMap();
-      //
-      st1["st1"] = "oui";
-      st1["type"] = "st1";
-      st1["date"] = "${dt.day}-${dt.month}-${dt.year}";
-
-      // Sauvegarder en local
-      final id = await _dbHelper.saveForm(st1, "formData1");
-      // Succès de l'enregistrement local
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Formulaire enregistré avec succès (ID: $id)'),
+          content: Text('Formulaire enregistré avec succès (ID: )'),
           backgroundColor: Colors.green,
         ),
       );

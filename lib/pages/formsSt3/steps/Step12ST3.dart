@@ -4,27 +4,23 @@ import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/models/SchoolForm.dart';
 import 'package:flutter/material.dart';
 
-class Step6st6 extends StatefulWidget {
+class Step12ST3 extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
   final PageController controller;
-  final int idannee;
-  final int idetablissement;
 
-  const Step6st6({
+  const Step12ST3({
     super.key,
     required this.formData,
     required this.formKey,
     required this.controller,
-    required this.idannee,
-    required this.idetablissement,
   });
 
   @override
   _SchoolResourcesFormState createState() => _SchoolResourcesFormState();
 }
 
-class _SchoolResourcesFormState extends State<Step6st6> {
+class _SchoolResourcesFormState extends State<Step12ST3> {
   //
   bool _isValidated = false;
   bool _isSubmitting = false;
@@ -135,28 +131,6 @@ class _SchoolResourcesFormState extends State<Step6st6> {
         throw Exception(
             'Vous devez valider le formulaire avant enregistrement');
       }
-
-      // Créer l'objet SchoolForm
-      final form = SchoolForm(
-        idannee: widget.idannee,
-        idetablissement: widget.idetablissement,
-        data: widget.formData,
-        isSynced: false,
-        //createdAt: DateTime.now().toString(), // This works as-is
-      );
-
-      Map<String, dynamic> st2 = form.toMap();
-      st2["st2"] = "oui";
-
-      // Sauvegarder en local
-      final id = await _dbHelper.saveForm(st2, "formData2");
-      // Succès de l'enregistrement local
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Formulaire enregistré avec succès (ID: $id)'),
-          backgroundColor: Colors.green,
-        ),
-      );
 
       // Optionnel: vérifier la connexion et tenter une synchronisation
       final connectivityResult = await _connectivity.checkConnectivity();

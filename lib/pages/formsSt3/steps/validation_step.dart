@@ -3,11 +3,21 @@ import 'package:flutter/material.dart';
 class ValidationStepST3 extends StatelessWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
+  final PageController controller;
+  final Function? send;
+  final int idannee;
+  final int idetablissement;
+  // final String userToken;
 
-  const ValidationStepST3({
+  ValidationStepST3({
     super.key,
     required this.formData,
     required this.formKey,
+    required this.controller,
+    this.send,
+    required this.idannee,
+    required this.idetablissement,
+    // required this.userToken,
   });
 
   @override
