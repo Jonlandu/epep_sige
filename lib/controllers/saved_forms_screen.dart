@@ -150,7 +150,15 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                               //
                               if (formData["is_synced"] == null) {
                                 formData["is_synced"] = "";
-                                String dd = jsonEncode(formData);
+                                Map st = {};
+                                //"id":101,"type":"st1","date":"4-5-2025","ids":"2025-05-04 11:54:58.129819","idetablissement":1729,"idannee":16,
+                                st["formulaire"] = formData;
+                                st["type"] = form['type'];
+                                st["ids"] = form['ids'];
+                                st["idetablissement"] = form['idetablissement'];
+                                st["idannee"] = form['idannee'];
+
+                                String dd = jsonEncode(st);
                                 //print('dd: $dd');
                                 _sendFormToApi(form['ids'], dd);
                               } else {
@@ -204,7 +212,7 @@ class _SavedFormsScreenState extends State<SavedFormsScreen> {
                     ),
                     onTap: () {
                       if (formData["is_synced"] == null) {
-                        _showFormDetails(form['id'], formData, isSynced);
+                        _showFormDetails(form['ids'], formData, isSynced);
                       } else {
                         Get.snackbar("Oups",
                             "Ce formulaire a déjà été envoyé au serveur");

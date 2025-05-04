@@ -1,10 +1,13 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:epsp_sige/controllers/SyncServiceController.dart';
+import 'package:epsp_sige/controllers/saved_forms_screen.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
 import 'package:epsp_sige/models/SchoolForm.dart';
+import 'package:epsp_sige/models/SchoolModel.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class Step6 extends StatefulWidget {
@@ -188,8 +191,16 @@ class _Step6State extends State<Step6> {
                       fontWeight: FontWeight.bold),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      Navigator.pushNamed(
-                          context, Routes.SavedFormsScreenRoutes);
+                      //
+                      //
+                      // Get.to(SavedFormsScreen(
+                      //   school: widget.school,
+                      //   prefix: widget.idannee,
+                      //   //schema_name: "",
+                      // ));
+                      //
+                      //Navigator.pushNamed(
+                      //  context, Routes.SavedFormsScreenRoutes);
                     },
                 ),
               ],
