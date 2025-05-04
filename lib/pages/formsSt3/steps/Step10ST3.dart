@@ -186,6 +186,8 @@ class Step10ST3 extends StatelessWidget {
       'Dont Avec handicaps',
     ];
 
+    List<String> classes = ['C/P', '1ère', '2ème', '3ème', '4ème', '5ème', '6ème'];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -201,97 +203,94 @@ class Step10ST3 extends StatelessWidget {
 
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // En-têtes complexes
-              DataTable(
-                columns: [
-                  const DataColumn(label: Text('Niveau d\'Études')),
-                  ...['C/P', '1ère', '2ème', '3ème', '4ème', '5ème', '6ème', 'Total'].map((niveau) {
-                    return DataColumn(label: Text(niveau));
-                  }).toList(),
-                ],
-                rows: const [
-                  DataRow(cells: [
-                    DataCell(SizedBox()),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                    DataCell(Text('F')), DataCell(Text('G')), DataCell(Text('F+G')),
-                  ]),
-                ],
-              ),
-
-              // Données par âge
+          child: DataTable(
+            columnSpacing: 10, // Reduced column spacing for better fit
+            columns: [
+              const DataColumn(label: Text('Niveau d\'Études')),
+              ...classes.map((niveau) => DataColumn(label: Center(child: Text(niveau)))).toList(),
+              const DataColumn(label: Center(child: Text('Total'))), // Added Total Column
+            ],
+            rows: [
               ...niveaux.map((niveau) {
                 final key = niveau.replaceAll(' ', '').replaceAll('+', 'plus');
-                return DataTable(
-                  columns: const [DataColumn(label: SizedBox())],
-                  rows: [
-                    DataRow(cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            SizedBox(width: 100, child: Text(niveau)),
-                            ...List.generate(24, (index) {
-                              return SizedBox(
-                                width: 60,
-                                child: TextFormField(
-                                  initialValue: formData['${key}_${index}']?.toString() ?? '0',
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                  ),
-                                  onSaved: (value) => formData['${key}_${index}'] = int.tryParse(value ?? '0') ?? 0,
-                                ),
-                              );
-                            }),
-                          ],
+                List<Widget> inputFields = [];
+                int total = 0; // Initialize total
+
+                // Generate input fields for each class
+                for (int i = 0; i < classes.length; i++) {
+                  inputFields.add(
+                    SizedBox(
+                      width: 60,
+                      child: TextFormField(
+                        initialValue: formData['${key}_${i}']?.toString() ?? '0',
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         ),
+                        onSaved: (value) {
+                          int parsedValue = int.tryParse(value ?? '0') ?? 0;
+                          formData['${key}_${i}'] = parsedValue;
+                          total += parsedValue; // Update total
+                        },
+                        onChanged: (value) {
+                          // You might want to trigger a rebuild here to update the total dynamically
+                        },
                       ),
-                    ]),
+                    ),
+                  );
+                }
+
+                // Add total to the input fields
+                inputFields.add(
+                  Center(child: Text(total.toString())),
+                );
+
+                return DataRow(
+                  cells: [
+                    DataCell(SizedBox(width: 100, child: Text(niveau))),
+                    ...inputFields.map((widget) => DataCell(widget)).toList(),
                   ],
                 );
-              }),
+              }).toList(),
 
-              // Catégories spéciales
               ...categories.map((categorie) {
                 final key = categorie.toLowerCase().replaceAll(' ', '').replaceAll('\'', '');
-                return DataTable(
-                  columns: const [DataColumn(label: SizedBox())],
-                  rows: [
-                    DataRow(cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            SizedBox(width: 200, child: Text(categorie)),
-                            ...List.generate(24, (index) {
-                              return SizedBox(
-                                width: 60,
-                                child: TextFormField(
-                                  initialValue: formData['${key}_${index}']?.toString() ?? '0',
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                  ),
-                                  onSaved: (value) => formData['${key}_${index}'] = int.tryParse(value ?? '0') ?? 0,
-                                ),
-                              );
-                            }),
-                          ],
+                List<Widget> inputFields = [];
+                int total = 0;
+
+                for (int i = 0; i < classes.length; i++) {
+                  inputFields.add(
+                    SizedBox(
+                      width: 60,
+                      child: TextFormField(
+                        initialValue: formData['${key}_${i}']?.toString() ?? '0',
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         ),
+                        onSaved: (value) {
+                          int parsedValue = int.tryParse(value ?? '0') ?? 0;
+                          formData['${key}_${i}'] = parsedValue;
+                          total += parsedValue;
+                        },
                       ),
-                    ]),
+                    ),
+                  );
+                }
+
+                inputFields.add(
+                  Center(child: Text(total.toString())),
+                );
+
+                return DataRow(
+                  cells: [
+                    DataCell(SizedBox(width: 200, child: Text(categorie))),
+                    ...inputFields.map((widget) => DataCell(widget)).toList(),
                   ],
                 );
-              }),
+              }).toList(),
             ],
           ),
         ),
