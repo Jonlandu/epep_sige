@@ -1,10 +1,10 @@
-import 'package:epsp_sige/controllers/UserController.dart';
-import 'package:epsp_sige/pages/introduction/DiscoverPage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:epsp_sige/controllers/UserController.dart';
+import 'package:epsp_sige/pages/introduction/DiscoverPage.dart';
+import 'package:flutter/foundation.dart';
 
 class OnBoardingPage extends StatefulWidget {
   const OnBoardingPage({Key? key}) : super(key: key);
@@ -14,7 +14,16 @@ class OnBoardingPage extends StatefulWidget {
 }
 
 class OnBoardingPageState extends State<OnBoardingPage> {
+  final introKey = GlobalKey<IntroductionScreenState>();
+  final PageController _pageController = PageController();
+  double _currentPage = 0.0;
 
+  // Paramètres de taille de texte configurables
+  double get titleFontSize => 28.0; // Taille de police des titres
+  double get bodyFontSize => 16.0;  // Taille de police du corps
+  double get buttonFontSize => 16.0; // Taille de police des boutons
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -24,9 +33,19 @@ class OnBoardingPageState extends State<OnBoardingPage> {
         userCtrl.isFirstTimeBienvenue = firstTime;
       });
     });
+
+    _pageController.addListener(() {
+      setState(() {
+        _currentPage = _pageController.page ?? 0.0;
+      });
+    });
   }
 
-  final introKey = GlobalKey<IntroductionScreenState>();
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _onIntroEnd(context) {
     Navigator.of(context).pushReplacement(
@@ -34,178 +53,241 @@ class OnBoardingPageState extends State<OnBoardingPage> {
     );
   }
 
-  Widget _buildFullscreenImage() {
-    return Image.asset(
-      'assets/image1.jpg',
-      fit: BoxFit.cover,
-      height: double.infinity,
-      width: double.infinity,
-      alignment: Alignment.center,
+  Widget _buildAnimatedImage(String assetName, int pageIndex) {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 500),
+      opacity: _currentPage >= pageIndex - 0.5 && _currentPage <= pageIndex + 0.5 ? 1.0 : 0.5,
+      child: AnimatedScale(
+        duration: Duration(milliseconds: 500),
+        scale: _currentPage >= pageIndex - 0.5 && _currentPage <= pageIndex + 0.5 ? 1.0 : 0.9,
+        child: Image.asset(
+          'assets/$assetName',
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: MediaQuery.of(context).size.height * 0.4,
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 
-  Widget _buildImage(String assetName, [double width = 350]) {
-    return /*Image.asset('assets/$assetName', width: width)*/ Image.asset(
-      'assets/$assetName',
-      width: width,
-      height: 70,
+  Widget _buildFullscreenImage() {
+    return Stack(
+      children: [
+        Image.asset(
+          'assets/onbording1.jpg',
+          fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+          alignment: Alignment.center,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.6),
+                Colors.black.withOpacity(0.1),
+                Colors.black.withOpacity(0.6),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCustomDot(bool isActive) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      height: 8,
+      width: isActive ? 16 : 14,
+      decoration: BoxDecoration(
+        color: isActive ? Color(0xFF3366FF) : Colors.grey[400],
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    const bodyStyle = TextStyle(fontSize: 19.0);
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
-    const pageDecoration = PageDecoration(
-      titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
-      bodyTextStyle: bodyStyle,
-      bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+    final pageDecoration = PageDecoration(
+      titleTextStyle: TextStyle(
+        fontSize: titleFontSize,
+        fontWeight: FontWeight.w800,
+        height: 1.3,
+      ),
+      bodyTextStyle: TextStyle(
+        fontSize: bodyFontSize,
+        height: 1.5,
+      ),
+      bodyPadding: EdgeInsets.fromLTRB(32.0, 0.0, 32.0, 0.0),
       pageColor: Colors.white,
-      imagePadding: EdgeInsets.zero,
+      imagePadding: EdgeInsets.only(top: 40, bottom: 40),
+      titlePadding: EdgeInsets.only(top: 40, bottom: 16),
     );
 
-    return IntroductionScreen(
-      key: introKey,
-      globalBackgroundColor: Colors.white,
-      allowImplicitScrolling: true,
-      autoScrollDuration: 3000,
-      infiniteAutoScroll: true,
-      globalHeader: Align(
-        alignment: Alignment.topRight,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16, right: 16),
-            child: _buildImage('logo_fincopay.png', 100),
-          ),
-        ),
-      ),
-      globalFooter: SizedBox(
-        width: double.infinity,
-        height: 60,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
-          child: ElevatedButton(
-            child: const Text(
-              'Let\'s go right away!',
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w700),
-            ),
-            onPressed: () => _onIntroEnd(context),
-          ),
-        ),
-      ),
-
-      pages: [
-        PageViewModel(
-          title: "Fractional shares",
-          body:
-          "Instead of having to buy an entire share, invest any amount you want.",
-          image: _buildImage('image2.jpeg'),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Learn as you go",
-          body:
-          "Download the Stockpile app and master the market with our mini-lesson.",
-          image: _buildImage('image1.jpg'),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Kids and teens",
-          body:
-          "Kids and teens can track their stocks 24/7 and place trades that you approve.",
-          image: _buildImage('image2.jpeg'),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: "Full Screen Page",
-          body:
-          "Pages can be full screen as well.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc id euismod lectus, non tempor felis. Nam rutrum rhoncus est ac venenatis.",
-          image: _buildFullscreenImage(),
-          decoration: pageDecoration.copyWith(
-            contentMargin: const EdgeInsets.symmetric(horizontal: 16),
-            fullScreen: true,
-            bodyFlex: 2,
-            imageFlex: 3,
-            safeArea: 200,
-          ),
-        ),
-        PageViewModel(
-          title: "Another title page",
-          body: "Another beautiful body text for this example onboarding",
-          image: _buildImage('logo_fincopay.png'),
-          footer: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: ElevatedButton(
-              onPressed: () {
-                introKey.currentState?.animateScroll(0);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF336699),
-                //backgroundColor: Colors.lightBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            IntroductionScreen(
+              key: introKey,
+              pages: [
+                PageViewModel(
+                  title: "Collectez des données\nen temps réel",
+                  body: "Accédez à toutes les informations nécessaires directement sur votre appareil mobile où que vous soyez.",
+                  image: _buildAnimatedImage('onbording1.jpg', 0),
+                  decoration: pageDecoration.copyWith(
+                    imageFlex: 4,
+                    bodyFlex: 2,
+                  ),
+                ),
+                PageViewModel(
+                  title: "Analyses\net rapports intelligents",
+                  body: "Générez automatiquement des rapports détaillés et des analyses pertinentes pour une meilleure prise de décision.",
+                  image: _buildAnimatedImage('dat.jpeg', 1),
+                  decoration: pageDecoration.copyWith(
+                    imageFlex: 6,
+                    bodyFlex: 3,
+                  ),
+                ),
+                PageViewModel(
+                  title: "Synchronisation\nsécurisée",
+                  body: "Toutes vos données sont cryptées et synchronisées en temps réel avec nos serveurs hautement sécurisés.",
+                  image: _buildAnimatedImage('data2.jpeg', 2),
+                  decoration: pageDecoration.copyWith(
+                    imageFlex: 5,
+                    bodyFlex: 2,
+                  ),
+                ),
+                PageViewModel(
+                  title: "Prêt ?",
+                  body: "Commençons l'utilisation..",
+                  image: _buildAnimatedImage('ready.jpeg', 3),
+                  decoration: pageDecoration.copyWith(
+                    imageFlex: 5,
+                    bodyFlex: 2,
+                  ),
+                ),
+              ],
+              onDone: () => _onIntroEnd(context),
+              onSkip: () => _onIntroEnd(context),
+              showSkipButton: true,
+              skipOrBackFlex: 0,
+              nextFlex: 0,
+              showBackButton: false,
+              skip: Text(
+                'Passer',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                  fontSize: buttonFontSize,
                 ),
               ),
-              child: const Text(
-                'ReStart',
-                style: TextStyle(color: Colors.white),
+              next: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Color(0xFF336699),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF3366FF).withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                ),
+              ),
+              done: Container(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Color(0xFF3366FF),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF3366FF).withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'Commencer',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontSize: buttonFontSize,
+                  ),
+                ),
+              ),
+              curve: Curves.fastOutSlowIn,
+              controlsMargin: EdgeInsets.only(bottom: 40),
+              controlsPadding: EdgeInsets.all(16),
+              dotsDecorator: DotsDecorator(
+                size: Size(8, 8),
+                activeSize: Size(24, 8),
+                color: Colors.grey[300]!,
+                activeColor: Color(0xFF336699),
+                spacing: EdgeInsets.symmetric(horizontal: 4),
+                activeShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              dotsContainerDecorator: ShapeDecoration(
+                color: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0),
+                ),
+              ),
+              globalBackgroundColor: Colors.white,
+              freeze: false,
+            ),
+            // Navigation en haut
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Image.asset(
+                'assets/logo_esige_large.png',
+                width: 100,
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Bouton de démarrage en bas
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          child: ElevatedButton(
+            onPressed: () => _onIntroEnd(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF336699),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 5,
+              shadowColor: Color(0xFFFFFFFF).withOpacity(0.3),
+            ),
+            child: Text(
+              'Commencer maintenant',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: buttonFontSize,
               ),
             ),
           ),
-          decoration: pageDecoration.copyWith(
-            bodyFlex: 6,
-            imageFlex: 6,
-            safeArea: 80,
-          ),
-        ),
-        PageViewModel(
-          title: "Title of last page - reversed",
-          bodyWidget: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Click on ", style: bodyStyle),
-              Icon(Icons.edit),
-              Text(" to edit a post", style: bodyStyle),
-            ],
-          ),
-          decoration: pageDecoration.copyWith(
-            bodyFlex: 2,
-            imageFlex: 4,
-            bodyAlignment: Alignment.bottomCenter,
-            imageAlignment: Alignment.topCenter,
-          ),
-          image: _buildImage('image2.jpeg'),
-          reverse: true,
-        ),
-      ],
-      onDone: () => _onIntroEnd(context),
-      onSkip: () => _onIntroEnd(context), // You can override onSkip callback
-      showSkipButton: true,
-      skipOrBackFlex: 0,
-      nextFlex: 0,
-      showBackButton: false,
-      //rtl: true, // Display as right-to-left
-      back: const Icon(Icons.arrow_back),
-      skip: const Text('Skip', style: TextStyle(fontWeight: FontWeight.w600)),
-      next: const Icon(Icons.arrow_forward),
-      done: const Text('Done', style: TextStyle(fontWeight: FontWeight.w600)),
-      curve: Curves.fastLinearToSlowEaseIn,
-      controlsMargin: const EdgeInsets.all(16),
-      controlsPadding: kIsWeb
-          ? const EdgeInsets.all(12.0)
-          : const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-      dotsDecorator: const DotsDecorator(
-        size: Size(10.0, 10.0),
-        color: Color(0xFFBDBDBD),
-        activeSize: Size(22.0, 10.0),
-        activeShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25.0)),
-        ),
-      ),
-      dotsContainerDecorator: const ShapeDecoration(
-        color: Colors.black87,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
         ),
       ),
     );

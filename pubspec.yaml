@@ -50,7 +50,7 @@ dependencies:
   path: ^1.9.0
   connectivity_plus: ^6.0.3
   intl: ^0.19.0
-  sqflite_common_ffi: ^2.3.5
+  # sqflite_common_ffi: ^2.3.4
   get:
 
 dev_dependencies:
@@ -79,14 +79,16 @@ flutter:
   assets:
     - assets/facebook.png
     - assets/google.png
-    - assets/josuenlandu.jpg
     - assets/accept.png
     - assets/done.png
     - assets/avatard.png
-    - assets/image1.jpg
-    - assets/image2.jpeg
-    - assets/image3.jpeg
-    - assets/logoesig.png
+    - assets/logo_asp.png
+    - assets/onbording1.jpg
+    - assets/ic_launcher.png
+    - assets/dat.jpeg
+    - assets/data2.jpeg
+    - assets/ready.jpeg
+    - assets/logo_esige_large.png
     - assets/map_background.jpg
     - assets/google_fonts/
   # assets:
