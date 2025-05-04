@@ -35,9 +35,9 @@ class _SplashScreenState extends State<SplashScreen> {
             Container(
               height: 70,
               child: Image.asset(
-                'assets/logoesig.png',
-                width: 300,
-                height: 300,
+                'assets/logo_esige_large.png',
+                width: 400,
+                height: 400,
               ),
             ),
           ],

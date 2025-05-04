@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                       Container(
                         height: 70,
                         child: Image.asset(
-                          'assets/logoesig.png',
+                          'assets/logo_esige_large.png',
                           width: 300,
                           height: 300,
                         ),
@@ -276,7 +276,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.04),
+                          height: MediaQuery.of(context).size.height * 0.1),
+                      // Add the logo here at the bottom
+                      Image.asset(
+                        'assets/logo_asp.png', // Or 'assets/logo_asp.png' if that's the correct file
+                        width: 100,
+                        height: 50,
+                      ),
                     ],
                   ),
                 ),
@@ -339,14 +345,7 @@ class _LoginPageState extends State<LoginPage> {
       //Accueil
       //establishments
       Get.to(AccueilEnrolleur(response!));
-      // Navigator.pushNamedAndRemoveUntil(
-      //   context,
-      //   Routes.SchoolListPageRoutes,
-      //   ModalRoute.withName('/SchoolListPageRoutes'),
-      //   arguments: {
-      //     'establishments': establishments.toList(),
-      //   },
-      // );
+
     } else if (role == 'super_admin' ||
         role == 'admin_user' ||
         role == 'superv_national') {

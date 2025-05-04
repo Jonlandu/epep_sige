@@ -37,6 +37,7 @@ class MonApplication extends StatelessWidget {
             ),
             debugShowCheckedModeBanner: false,
             onGenerateRoute: RoutesManager.route,
+            //initialRoute: Routes.OnBoardingPageRoutes,
             initialRoute: Routes.SplashScreenPageRoutes,
           );
         },
