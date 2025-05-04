@@ -1,13 +1,20 @@
 import 'package:epsp_sige/controllers/FormService.dart';
 import 'package:epsp_sige/models/DatabaseHelper.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/DiversStep.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step1ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step3ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step2ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step4ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step6ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/Step5ST2.dart';
-import 'package:epsp_sige/pages/formsSt2/steps/validation_step.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step10ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step11ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step12ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step14ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step15ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step16ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step5ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step6ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step8ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/Step9ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/step1ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/step2ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/step3ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/step4ST3.dart';
+import 'package:epsp_sige/pages/formsSt3/steps/step7ST3.dart';
 import 'package:epsp_sige/utils/Routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -55,6 +62,15 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
     GlobalKey<FormState>(),
     GlobalKey<FormState>(),
     GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
   ];
 
   List<Map<String, dynamic>> _stepsData = [
@@ -70,6 +86,21 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
     {'title': 'Contact', 'icon': Icons.contact_phone, 'color': Colors.pink},
     {'title': 'Historique', 'icon': Icons.history, 'color': Colors.indigo},
     {'title': 'Validation', 'icon': Icons.verified_user, 'color': Colors.red},
+
+
+    {'title': 'Localisation', 'icon': Icons.location_on, 'color': Colors.blue},
+    {
+      'title': 'Identification',
+      'icon': Icons.assignment_ind,
+      'color': Colors.purple
+    },
+    {'title': 'Type', 'icon': Icons.category, 'color': Colors.orange},
+    {'title': 'Capacité', 'icon': Icons.people_outline, 'color': Colors.green},
+    {'title': 'Effectifs', 'icon': Icons.school, 'color': Colors.teal},
+    {'title': 'Contact', 'icon': Icons.contact_phone, 'color': Colors.pink},
+    {'title': 'Historique', 'icon': Icons.history, 'color': Colors.indigo},
+    {'title': 'Validation', 'icon': Icons.verified_user, 'color': Colors.red},
+    {'title': 'Validation', 'icon': Icons.verified_user, 'color': Colors.red},
   ];
 
   @override
@@ -81,18 +112,6 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
     //
     Map user = box.read('user') ?? {};
     formData = {
-      'province': user['province'],
-      'proved': user['proved'],
-      'sousProved': user['sousproved'],
-      'centreRegroupement': 'PR06CR21',
-      'nomEtablissement': 'CS. DORELI',
-      'nomChefEtablissement': '',
-      'typeEtablissement': 'Public',
-      'niveauxEnseignement': <String>[],
-      'capaciteAccueil': '',
-      'nombreEleves': '',
-      'nombreEnseignants': '',
-      'adresse': '',
       'telephone': user['phone'],
       'email': user['email'],
       'anneeCreation': '',
@@ -124,16 +143,7 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Formulaire Établissement Scolaire'),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.save),
-      //       onPressed: _saveDraft,
-      //       tooltip: 'Sauvegarder comme brouillon',
-      //     ),
-      //   ],
-      // ),
+
       body: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
@@ -195,35 +205,91 @@ class _DynamiqueMultiStepFormST3State extends State<DynamiqueMultiStepFormST3> {
                   },
                   //physics: NeverScrollableScrollPhysics(),
                   children: [
-                    Step1ST2(
+                    step1ST3(
                       formData: formData,
                       formKey: _stepFormKeys[0],
                       controller: pageController,
                     ),
-                    Step2ST2(
+                    step2ST3(
                       formData: formData,
                       formKey: _stepFormKeys[1],
                       controller: pageController,
                     ),
-                    Step3st2(
+                    Step3ST3(
                       formData: formData,
                       formKey: _stepFormKeys[2],
                       controller: pageController,
                     ),
-                    Step4st2(
+                    Step4ST3(
                       formData: formData,
                       formKey: _stepFormKeys[3],
                       controller: pageController,
                     ),
                     //DiversStep(formData: formData, formKey: _stepFormKeys[4]),
-                    Step5st2(
+                    Step5ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[4],
+                      controller: pageController,
+                    ),
+                    step6ST3(
                       formData: formData,
                       formKey: _stepFormKeys[5],
                       controller: pageController,
                     ),
-                    Step6st2(
+                    step7ST3(
                       formData: formData,
                       formKey: _stepFormKeys[6],
+                      controller: pageController,
+                    ),
+                    Step8ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[7],
+                      controller: pageController,
+                    ),
+                    Step9ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[8],
+                      controller: pageController,
+                    ),
+                    Step10ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[9],
+                      controller: pageController,
+                    ),
+                    Step11ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[10],
+                      controller: pageController,
+                    ),
+                    Step12ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[11],
+                      controller: pageController,
+                    ),
+                    Step14ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[12],
+                      controller: pageController,
+                    ),
+                    Step15ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[13],
+                      controller: pageController,
+                    ),
+                    Step16ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[14],
+                      controller: pageController,
+                    ),
+                    Step16ST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[15],
+                      controller: pageController,
+                    ),
+                    //ValidationStepST3
+                    ValidationStepST3(
+                      formData: formData,
+                      formKey: _stepFormKeys[16],
                       controller: pageController,
                       idannee: widget.idannee!,
                       idetablissement: widget.idetablissement!,

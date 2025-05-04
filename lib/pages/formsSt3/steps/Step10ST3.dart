@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class SallesEffectifsStep extends StatelessWidget {
+class Step10ST3 extends StatelessWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
+  final PageController controller;
 
-  const SallesEffectifsStep({
+  const Step10ST3({
     super.key,
     required this.formData,
     required this.formKey,
+    required this.controller,
   });
 
   @override

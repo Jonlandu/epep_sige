@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Step1 extends StatefulWidget {
+class step1ST3 extends StatefulWidget {
   final Map<String, dynamic> formData;
   final GlobalKey<FormState> formKey;
   PageController controller = PageController();
 
-  Step1({
+  step1ST3({
     super.key,
     required this.formData,
     required this.formKey,
@@ -16,7 +16,7 @@ class Step1 extends StatefulWidget {
   _Stap1State createState() => _Stap1State();
 }
 
-class _Stap1State extends State<Step1> {
+class _Stap1State extends State<step1ST3> {
   @override
   Widget build(BuildContext context) {
     return Form(
