@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 
 class Requete extends GetConnect {
   //
-  String url = "http://localhost:8080/";
+  String url = "http://45.8.132.145:8080/";
   //static String urlSt = "http://10.0.2.2:8080/";
   //
   Future<Response> getE(

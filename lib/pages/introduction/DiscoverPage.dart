@@ -9,24 +9,8 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  bool isButtonPressedSignUp = false;
   bool iSButtonPressedSignIn = false;
-  bool isButtonPressedLoginwithphonenumber = false;
-  bool isButtonPressedSkipfornow = false;
 
-/*  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var userCtrl = context.read<UserController>();
-      if(userCtrl.isFirstTimeBienvenue){
-        isFirstTimeBienvenueNavigate();
-      }
-    });
-  }
-  isFirstTimeBienvenueNavigate(){
-    Navigator.popAndPushNamed(context, Routes.LoginPageRoutes);
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +30,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     Container(
                       height: 70,
                       child: Image.asset(
-                        'assets/logoesig.png',
+                        'assets/logo_esige_large.png',
                         width: 300,
                         height: 300,
                       ),
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.13),
                     Text(
-                      'DISCOVER AMAZING THINGS AROUND YOU',
+                      'CONSTRUIRE UN AVENIR MEILLEUR POUR NOS ÉLÈVES',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 21,
@@ -62,7 +46,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                     ReusableButtonWidgets(
-                        text: "Login",
+                        text: "Lancer",
                         textColor: Colors.white,
                         color: Color(0xFF336699),
                         onPressed: () {
@@ -70,7 +54,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                         },
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-
 
                   ],
                 ),
